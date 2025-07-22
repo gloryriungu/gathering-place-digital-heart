@@ -5,20 +5,21 @@ import { Clock, MapPin } from "lucide-react";
 export const ServiceTimes = () => {
   const locations = [
     {
-      name: "Downtown Campus",
-      address: "123 Main Street, Downtown",
+      name: "Main Campus",
+      address: "123 Faith Avenue, Downtown",
       services: [
-        { time: "9:00 AM", type: "Traditional Service" },
-        { time: "11:00 AM", type: "Contemporary Service" },
+        { time: "9:00 AM", type: "First Service" },
+        { time: "11:00 AM", type: "Main Service" },
         { time: "6:00 PM", type: "Evening Service" }
       ]
     },
     {
-      name: "Westside Campus",
-      address: "456 Oak Avenue, Westside",
+      name: "Online Campus",
+      address: "Join us virtually from anywhere",
       services: [
-        { time: "9:30 AM", type: "Family Service" },
-        { time: "11:30 AM", type: "Contemporary Service" }
+        { time: "9:00 AM", type: "Live Stream" },
+        { time: "11:00 AM", type: "Live Stream" },
+        { time: "Anytime", type: "On-Demand" }
       ]
     }
   ];
@@ -29,7 +30,7 @@ export const ServiceTimes = () => {
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Service Times & Locations</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Join us for worship at one of our convenient locations and service times
+            Join us for worship in person or online. Every service is designed to help you grow closer to God.
           </p>
         </div>
 

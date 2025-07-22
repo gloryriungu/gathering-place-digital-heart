@@ -1,39 +1,55 @@
 
 import { Button } from "@/components/ui/button";
-import { Play, Clock, MapPin } from "lucide-react";
+import { Play, ArrowRight } from "lucide-react";
 
 export const Hero = () => {
   return (
-    <section className="relative bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
-      <div className="absolute inset-0 bg-black/20"></div>
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
-        <div className="text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            Welcome to TOT Int
+    <section className="relative min-h-screen bg-black text-white overflow-hidden">
+      {/* Background Image */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80"></div>
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')`
+        }}
+      ></div>
+      
+      {/* Content */}
+      <div className="relative flex items-center justify-center min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tight">
+            WELCOME TO<br />
+            <span className="text-white">TOT INT</span>
           </h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto opacity-90">
+          <p className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto font-light leading-relaxed">
             Transforming lives through the power of God's Word and building a community of faith, hope, and love
           </p>
           
-          {/* Service Countdown */}
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 mb-8 max-w-md mx-auto">
-            <div className="flex items-center justify-center mb-2">
-              <Clock className="h-5 w-5 mr-2" />
-              <span className="text-sm font-medium">Next Service</span>
-            </div>
-            <div className="text-2xl font-bold mb-1">Sunday 10:00 AM</div>
-            <div className="text-sm opacity-75">in 2 days, 14 hours</div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-primary hover:bg-white/90">
-              <MapPin className="h-5 w-5 mr-2" />
-              Plan Your Visit
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <Button size="lg" className="bg-white text-black hover:bg-gray-100 font-bold px-8 py-4 text-lg">
+              PLAN YOUR VISIT
+              <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
+            <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-black font-bold px-8 py-4 text-lg">
               <Play className="h-5 w-5 mr-2" />
-              Watch Live
+              WATCH LIVE
             </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Service Times Banner */}
+      <div className="absolute bottom-0 left-0 right-0 bg-white text-black py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="text-center md:text-left mb-4 md:mb-0">
+              <h3 className="text-2xl font-bold">NEXT SERVICE</h3>
+              <p className="text-lg">Sunday 10:00 AM</p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm uppercase tracking-wide font-medium">COUNTDOWN</p>
+              <p className="text-xl font-bold">2 DAYS, 14 HOURS</p>
+            </div>
           </div>
         </div>
       </div>

@@ -1,64 +1,99 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Clock, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Clock, MapPin, Video } from "lucide-react";
 
 export const ServiceTimes = () => {
-  const locations = [
-    {
-      name: "Main Campus",
-      address: "123 Faith Avenue, Downtown",
-      services: [
-        { time: "9:00 AM", type: "First Service" },
-        { time: "11:00 AM", type: "Main Service" },
-        { time: "6:00 PM", type: "Evening Service" }
-      ]
-    },
-    {
-      name: "Online Campus",
-      address: "Join us virtually from anywhere",
-      services: [
-        { time: "9:00 AM", type: "Live Stream" },
-        { time: "11:00 AM", type: "Live Stream" },
-        { time: "Anytime", type: "On-Demand" }
-      ]
-    }
-  ];
-
   return (
-    <section className="py-16 bg-muted/30">
+    <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Service Times & Locations</h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Join us for worship in person or online. Every service is designed to help you grow closer to God.
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-6xl font-black mb-6 text-black tracking-tight">
+            SERVICE TIMES
+          </h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Join us for worship every week. Experience God's presence through powerful worship, inspiring messages, and authentic community.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {locations.map((location, index) => (
-            <Card key={index} className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <MapPin className="h-5 w-5 mr-2 text-primary" />
-                  {location.name}
-                </CardTitle>
-                <p className="text-muted-foreground">{location.address}</p>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {location.services.map((service, serviceIndex) => (
-                    <div key={serviceIndex} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-2 text-primary" />
-                        <span className="font-medium">{service.time}</span>
-                      </div>
-                      <span className="text-sm text-muted-foreground">{service.type}</span>
-                    </div>
-                  ))}
+        <div className="grid md:grid-cols-2 gap-8 mb-16">
+          {/* In-Person Services */}
+          <Card className="border-2 border-black hover:shadow-xl transition-shadow">
+            <CardHeader className="text-center pb-6">
+              <MapPin className="h-12 w-12 mx-auto mb-4 text-black" />
+              <CardTitle className="text-2xl md:text-3xl font-black text-black">
+                IN-PERSON
+              </CardTitle>
+              <p className="text-gray-600">123 Faith Avenue, Downtown</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-bold text-lg">SUNDAY SERVICES</h4>
+                    <p className="text-gray-600">Multiple times available</p>
+                  </div>
+                  <Clock className="h-6 w-6 text-black" />
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+              <div className="space-y-3 px-2">
+                <div className="flex justify-between items-center py-2">
+                  <span className="font-bold text-lg">9:00 AM</span>
+                  <span className="text-gray-600">First Service</span>
+                </div>
+                <div className="flex justify-between items-center py-2 bg-black text-white px-4 rounded">
+                  <span className="font-bold text-lg">11:00 AM</span>
+                  <span>Main Service</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="font-bold text-lg">6:00 PM</span>
+                  <span className="text-gray-600">Evening Service</span>
+                </div>
+              </div>
+              <Button className="w-full mt-6 bg-black text-white hover:bg-gray-800 font-bold py-3">
+                GET DIRECTIONS
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Online Services */}
+          <Card className="border-2 border-black hover:shadow-xl transition-shadow">
+            <CardHeader className="text-center pb-6">
+              <Video className="h-12 w-12 mx-auto mb-4 text-black" />
+              <CardTitle className="text-2xl md:text-3xl font-black text-black">
+                ONLINE
+              </CardTitle>
+              <p className="text-gray-600">Join us virtually from anywhere</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-bold text-lg">LIVE STREAMING</h4>
+                    <p className="text-gray-600">All services available online</p>
+                  </div>
+                  <Video className="h-6 w-6 text-black" />
+                </div>
+              </div>
+              <div className="space-y-3 px-2">
+                <div className="flex justify-between items-center py-2">
+                  <span className="font-bold text-lg">9:00 AM</span>
+                  <span className="text-gray-600">Live Stream</span>
+                </div>
+                <div className="flex justify-between items-center py-2 bg-black text-white px-4 rounded">
+                  <span className="font-bold text-lg">11:00 AM</span>
+                  <span>Live Stream</span>
+                </div>
+                <div className="flex justify-between items-center py-2">
+                  <span className="font-bold text-lg">ANYTIME</span>
+                  <span className="text-gray-600">On-Demand</span>
+                </div>
+              </div>
+              <Button className="w-full mt-6 bg-black text-white hover:bg-gray-800 font-bold py-3">
+                WATCH ONLINE
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </section>

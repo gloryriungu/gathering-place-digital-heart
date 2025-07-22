@@ -12,6 +12,7 @@ export const Navigation = () => {
     { name: "EVENTS", href: "#" },
     { name: "CONNECT", href: "#" },
     { name: "GIVE", href: "#" },
+    { name: "ADMIN", href: "/admin" },
   ];
 
   return (
@@ -20,7 +21,9 @@ export const Navigation = () => {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">TOT INT</h1>
+            <a href="/">
+              <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">TOT INT</h1>
+            </a>
           </div>
 
           {/* Desktop Navigation */}

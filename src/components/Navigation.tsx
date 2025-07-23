@@ -1,7 +1,13 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -10,9 +16,22 @@ export const Navigation = () => {
     { name: "ABOUT", href: "#" },
     { name: "WATCH", href: "#" },
     { name: "EVENTS", href: "#" },
-    { name: "CONNECT", href: "#" },
     { name: "GIVE", href: "#" },
     { name: "ADMIN", href: "/admin" },
+  ];
+
+  const getInvolvedItems = [
+    { name: "JOIN THE FAMILY", href: "#" },
+    { name: "SERVE WITH US", href: "#" },
+    { name: "BAPTISM", href: "#" },
+    { name: "MINISTRIES", href: "#" },
+    { name: "COUNSELING & MENTAL HEALTH", href: "#" },
+    { name: "PARTNERS", href: "#" },
+    { name: "BABY DEDICATIONS", href: "#" },
+    { name: "PROPHETIC SCHOOL", href: "#" },
+    { name: "NEWSLETTER", href: "#" },
+    { name: "NOTICE OF FILMING", href: "#" },
+    { name: "FAQ", href: "#" },
   ];
 
   return (
@@ -37,6 +56,28 @@ export const Navigation = () => {
                 {item.name}
               </a>
             ))}
+            
+            {/* Get Involved Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="text-white hover:text-gray-300 font-bold text-sm tracking-wide transition-colors flex items-center gap-1">
+                  GET INVOLVED
+                  <ChevronDown className="h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-black/95 backdrop-blur-md border-white/10 z-50">
+                {getInvolvedItems.map((item) => (
+                  <DropdownMenuItem key={item.name} asChild>
+                    <a
+                      href={item.href}
+                      className="text-white hover:text-gray-300 font-bold text-sm tracking-wide cursor-pointer"
+                    >
+                      {item.name}
+                    </a>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* CTA Button */}
@@ -72,6 +113,23 @@ export const Navigation = () => {
                   {item.name}
                 </a>
               ))}
+              
+              {/* Mobile Get Involved Section */}
+              <div className="px-3 py-3">
+                <div className="text-white font-bold text-lg tracking-wide mb-2">GET INVOLVED</div>
+                <div className="ml-4 space-y-2">
+                  {getInvolvedItems.map((item) => (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      className="block py-1 text-white hover:text-gray-300 font-medium text-base tracking-wide"
+                    >
+                      {item.name}
+                    </a>
+                  ))}
+                </div>
+              </div>
+              
               <div className="pt-4 px-3">
                 <Button className="w-full bg-white text-black hover:bg-gray-100 font-bold">
                   VISIT US

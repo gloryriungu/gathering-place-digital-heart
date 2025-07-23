@@ -13,10 +13,10 @@ export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
-    { name: "ABOUT", href: "#" },
-    { name: "WATCH", href: "#" },
-    { name: "EVENTS", href: "#" },
-    { name: "GIVE", href: "#" },
+    { name: "ABOUT", href: "/about" },
+    { name: "WATCH", href: "/watch" },
+    { name: "EVENTS", href: "/events" },
+    { name: "GIVE", href: "/give" },
     { name: "ADMIN", href: "/admin" },
   ];
 

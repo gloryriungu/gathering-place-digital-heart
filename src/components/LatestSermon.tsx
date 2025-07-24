@@ -14,29 +14,28 @@ export const LatestSermon = () => {
                 LATEST MESSAGE
               </h2>
               <p className="text-xl text-gray-300 mb-8">
-                Catch up on our most recent sermon or join us live for powerful, life-changing messages.
+                Be transformed by God's Word through our biblical, practical, and life-changing messages that equip you for victorious living.
               </p>
             </div>
 
             <div className="space-y-6">
               <h3 className="text-2xl md:text-3xl font-bold leading-tight">
-                "Walking in Faith: Trusting God's Plan"
+                "Champions of Faith: Living Above Limitations"
               </h3>
               
               <div className="flex flex-wrap gap-6 text-gray-300">
                 <div className="flex items-center">
                   <User className="h-5 w-5 mr-2" />
-                  <span className="font-medium">Pastor John Smith</span>
+                  <span className="font-medium">Pastor Timothy Kitui</span>
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-5 w-5 mr-2" />
-                  <span className="font-medium">December 15, 2024</span>
+                  <span className="font-medium">January 21, 2024</span>
                 </div>
               </div>
 
               <p className="text-lg text-gray-300 leading-relaxed">
-                In this powerful message, Pastor John explores how we can trust in God's perfect timing 
-                and plan for our lives, even when the path ahead seems uncertain.
+                In this powerful message, Pastor Timothy teaches us how to rise above every limitation through faith in God's promises and live as the champions we are called to be in Christ Jesus.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -68,7 +67,7 @@ export const LatestSermon = () => {
                   </div>
                 </div>
                 <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded text-sm font-bold">
-                  42:15
+                  52:30
                 </div>
               </div>
             </div>

@@ -133,9 +133,9 @@ const Shop = () => {
         <section className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-bold mb-6">Church Store</h1>
+              <h1 className="text-4xl md:text-6xl font-bold mb-6">TOT Store</h1>
               <p className="text-xl md:text-2xl mb-8 text-primary-foreground/90">
-                Find books, apparel, and more to support your faith journey
+                Equip yourself with books, resources, and merchandise that will strengthen your faith journey
               </p>
             </div>
           </div>
@@ -145,7 +145,7 @@ const Shop = () => {
         <section className="py-8 bg-muted/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-center items-center space-x-6">
-              <span className="text-sm font-medium text-muted-foreground">Follow us:</span>
+              <span className="text-sm font-medium text-muted-foreground">Connect with TOT:</span>
               {socialLinks.map((social, index) => (
                 <a
                   key={index}
@@ -164,7 +164,7 @@ const Shop = () => {
         <section className="py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-bold">Products</h2>
+              <h2 className="text-3xl font-bold">Kingdom Resources</h2>
               
               {/* Cart Button */}
               <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
@@ -196,7 +196,7 @@ const Shop = () => {
                         />
                         <div className="flex-1">
                           <h4 className="font-medium">{item.name}</h4>
-                          <p className="text-sm text-muted-foreground">${item.price}</p>
+                          <p className="text-sm text-muted-foreground">KSh {item.price}</p>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Button
@@ -235,7 +235,7 @@ const Shop = () => {
                       <div className="space-y-4">
                         <div className="flex justify-between items-center font-medium">
                           <span>Total:</span>
-                          <span>${getTotalPrice().toFixed(2)}</span>
+                          <span>KSh {getTotalPrice().toFixed(2)}</span>
                         </div>
                         <Button className="w-full" size="lg">
                           Proceed to Checkout
@@ -266,7 +266,7 @@ const Shop = () => {
                       {product.description}
                     </CardDescription>
                     <p className="text-2xl font-bold text-primary">
-                      ${product.price}
+                      KSh {product.price}
                     </p>
                   </CardContent>
                   <CardFooter className="p-4 pt-0">

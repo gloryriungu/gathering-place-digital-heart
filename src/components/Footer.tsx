@@ -9,9 +9,9 @@ export const Footer = () => {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Church Info */}
           <div className="lg:col-span-2">
-            <h3 className="text-3xl md:text-4xl font-black mb-6">TOT INT</h3>
+            <h3 className="text-3xl md:text-4xl font-black mb-6">TOT INTERNATIONAL</h3>
             <p className="text-lg text-gray-300 mb-8 leading-relaxed max-w-md">
-              Transforming lives through God's Word and building a community where everyone belongs.
+              Raising champions for Christ through sound biblical teaching, authentic worship, and transformational encounters with God.
             </p>
             <div className="flex space-x-6">
               <Facebook className="h-8 w-8 text-gray-400 hover:text-white cursor-pointer transition-colors" />
@@ -22,38 +22,41 @@ export const Footer = () => {
 
           {/* Contact Info */}
           <div>
-            <h4 className="font-black text-xl mb-6">CONTACT</h4>
+            <h4 className="font-black text-xl mb-6">CONTACT US</h4>
             <div className="space-y-4 text-gray-300">
               <div className="flex items-center">
                 <Phone className="h-5 w-5 mr-3" />
-                <span>(555) 123-4567</span>
+                <span>+254 700 000 000</span>
               </div>
               <div className="flex items-center">
                 <Mail className="h-5 w-5 mr-3" />
-                <span>info@totint.org</span>
+                <span>info@tot.co.ke</span>
               </div>
               <div className="flex items-start">
                 <MapPin className="h-5 w-5 mr-3 mt-0.5" />
-                <span>123 Faith Avenue<br />Downtown, ST 12345</span>
+                <span>Nairobi, Kenya<br />East Africa</span>
               </div>
             </div>
           </div>
 
           {/* Service Times */}
           <div>
-            <h4 className="font-black text-xl mb-6">SERVICES</h4>
+            <h4 className="font-black text-xl mb-6">SERVICE TIMES</h4>
             <div className="space-y-4 text-gray-300">
               <div>
                 <div className="font-bold text-white mb-2">SUNDAY</div>
                 <div className="space-y-1">
-                  <div>9:00 AM - First Service</div>
-                  <div className="font-bold text-white">11:00 AM - Main Service</div>
-                  <div>6:00 PM - Evening Service</div>
+                  <div className="font-bold text-white">9:00 AM - First Service</div>
+                  <div className="font-bold text-white">11:00 AM - Second Service</div>
                 </div>
               </div>
               <div>
                 <div className="font-bold text-white mb-2">WEDNESDAY</div>
                 <div>7:00 PM - Bible Study</div>
+              </div>
+              <div>
+                <div className="font-bold text-white mb-2">FRIDAY</div>
+                <div>7:00 PM - Prayer Night</div>
               </div>
             </div>
           </div>
@@ -63,7 +66,7 @@ export const Footer = () => {
         <div className="border-t border-gray-700 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm mb-4 md:mb-0">
-              &copy; 2024 TOT Int. All rights reserved.
+              &copy; 2024 TOT International. All rights reserved.
             </p>
             <div className="flex space-x-6 text-sm">
               <a href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a>

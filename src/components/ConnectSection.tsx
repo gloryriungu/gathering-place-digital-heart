@@ -7,27 +7,27 @@ export const ConnectSection = () => {
   const connectOptions = [
     {
       icon: Users,
-      title: "SMALL GROUPS",
-      description: "Join a small group to build meaningful relationships and grow in faith together.",
-      action: "FIND A GROUP"
+      title: "LIFE GROUPS",
+      description: "Connect with other believers in intimate small groups for fellowship, prayer, and spiritual growth.",
+      action: "JOIN A GROUP"
     },
     {
       icon: HandHeart,
-      title: "VOLUNTEER",
-      description: "Use your gifts to serve others and make a difference in our community.",
-      action: "GET INVOLVED"
+      title: "SERVE TEAMS",
+      description: "Use your gifts and talents to serve God and others through various ministry opportunities.",
+      action: "START SERVING"
     },
     {
       icon: Heart,
-      title: "PRAYER",
-      description: "Share your prayer needs with our caring prayer team who will lift you up.",
-      action: "SUBMIT REQUEST"
+      title: "PRAYER MINISTRY",
+      description: "Experience the power of prayer and intercession through our dedicated prayer teams and warriors.",
+      action: "JOIN PRAYER"
     },
     {
       icon: MessageCircle,
-      title: "CONNECT",
-      description: "Join age-specific groups for fellowship, support, and spiritual growth.",
-      action: "LEARN MORE"
+      title: "DISCIPLESHIP",
+      description: "Grow deeper in your faith through mentorship, Bible study, and spiritual formation programs.",
+      action: "GET DISCIPLED"
     }
   ];
 
@@ -36,10 +36,10 @@ export const ConnectSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-6xl font-black mb-6 text-black tracking-tight">
-            CONNECT & SERVE
+            GET CONNECTED
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Discover ways to get connected, grow in community, and use your gifts to serve others.
+            TOT International is more than a church - we're a family. Discover your place in our community and grow in your relationship with God and others.
           </p>
         </div>
 

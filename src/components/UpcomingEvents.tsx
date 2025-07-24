@@ -6,28 +6,28 @@ import { Calendar, Clock, MapPin, ArrowRight } from "lucide-react";
 export const UpcomingEvents = () => {
   const events = [
     {
-      title: "Christmas Eve Service",
-      date: "DEC 24",
+      title: "Champions Conference 2024",
+      date: "FEB 15-17",
+      time: "7:00 PM Daily",
+      location: "Main Auditorium",
+      category: "CONFERENCE",
+      description: "Three days of powerful ministry, worship, and transformation. Join us for this life-changing experience with special guest ministers."
+    },
+    {
+      title: "TOT Youth Explosion",
+      date: "FEB 23",
       time: "6:00 PM",
-      location: "Main Campus",
-      category: "SPECIAL SERVICE",
-      description: "Join us for a special Christmas Eve celebration with candlelight and carols."
-    },
-    {
-      title: "Youth Winter Retreat",
-      date: "JAN 12-14",
-      time: "All Weekend",
-      location: "Mountain View Camp",
+      location: "Youth Center",
       category: "YOUTH EVENT",
-      description: "A weekend getaway for teens focused on faith, friendship, and fun activities."
+      description: "An energetic evening of worship, games, and powerful youth ministry designed to ignite passion for Jesus in our young people."
     },
     {
-      title: "Marriage Workshop",
-      date: "JAN 18",
-      time: "9:00 AM",
-      location: "Westside Campus",
-      category: "WORKSHOP",
-      description: "Strengthen your marriage with practical tools and biblical principles."
+      title: "Marriage Enrichment Retreat",
+      date: "MAR 2-3",
+      time: "All Weekend",
+      location: "Retreat Center",
+      category: "MARRIAGE",
+      description: "Strengthen your marriage through biblical principles, practical workshops, and intimate fellowship with other couples."
     }
   ];
 
@@ -39,7 +39,7 @@ export const UpcomingEvents = () => {
             UPCOMING EVENTS
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Don't miss out on these exciting opportunities to connect, grow, and serve together.
+            Join us for these special events designed to build your faith, strengthen relationships, and advance God's kingdom.
           </p>
         </div>
 
@@ -74,7 +74,7 @@ export const UpcomingEvents = () => {
                 </div>
 
                 <Button className="w-full bg-black text-white hover:bg-gray-800 font-bold">
-                  LEARN MORE
+                  REGISTER NOW
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </CardContent>

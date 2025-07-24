@@ -7,26 +7,26 @@ export const GivingSection = () => {
   const givingImpact = [
     {
       icon: Users,
-      title: "COMMUNITY",
-      description: "Supporting local families and community programs",
-      percentage: "40%"
+      title: "MISSIONS",
+      description: "Supporting global missions and church planting initiatives",
+      percentage: "35%"
     },
     {
       icon: Target,
-      title: "MISSIONS",
-      description: "Funding global missions and church planting",
-      percentage: "25%"
+      title: "MINISTRY",
+      description: "Funding life-changing ministry programs and events",
+      percentage: "30%"
     },
     {
       icon: Heart,
-      title: "YOUTH & KIDS",
-      description: "Investing in the next generation",
+      title: "COMMUNITY",
+      description: "Caring for the needy and community outreach programs",
       percentage: "20%"
     },
     {
       icon: DollarSign,
       title: "OPERATIONS",
-      description: "Maintaining facilities and staff",
+      description: "Church facilities, staff, and operational expenses",
       percentage: "15%"
     }
   ];
@@ -36,10 +36,10 @@ export const GivingSection = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">
-            YOUR GENEROSITY<br />MAKES A DIFFERENCE
+            PARTNERSHIP IN<br />GOD'S WORK
           </h2>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            See how your faithful giving supports our mission to love God, love people, and serve our community.
+            Your faithful giving enables us to fulfill our mission of raising champions for Christ and expanding God's kingdom around the world.
           </p>
         </div>
 
@@ -66,13 +66,12 @@ export const GivingSection = () => {
         <div className="bg-white text-black rounded-lg p-12 text-center">
           <h3 className="text-3xl md:text-4xl font-black mb-6">READY TO GIVE?</h3>
           <p className="text-lg mb-8 text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Your generous giving helps us continue our mission and expand our impact in the community. 
-            Every gift, no matter the size, makes a meaningful difference.
+            Join us in partnership as we advance God's kingdom through your generous giving. Every seed you sow makes an eternal difference.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-black text-white hover:bg-gray-800 font-bold px-8">
               <Heart className="h-5 w-5 mr-2" />
-              GIVE ONLINE
+              GIVE NOW
             </Button>
             <Button size="lg" variant="outline" className="border-2 border-black text-black hover:bg-black hover:text-white font-bold px-8">
               LEARN ABOUT GIVING

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, ShoppingCart, Facebook, Instagram, Youtube, Music2, MessageCircle } from "lucide-react";
@@ -18,7 +19,6 @@ export const Navigation = () => {
     { name: "EVENTS", href: "/events" },
     { name: "GIVE", href: "/give" },
     { name: "SHOP", href: "/shop" },
-    { name: "VISIT US", href: "/visit-us" },
     { name: "LOG IN", href: "/login" },
   ];
 
@@ -120,8 +120,8 @@ export const Navigation = () => {
 
           {/* CTA Button */}
           <div className="hidden md:block">
-            <Button className="bg-white text-black hover:bg-gray-100 font-bold">
-              VISIT US
+            <Button className="bg-white text-black hover:bg-gray-100 font-bold" asChild>
+              <a href="/visit-us">VISIT US</a>
             </Button>
           </div>
 
@@ -201,8 +201,8 @@ export const Navigation = () => {
               </div>
               
               <div className="pt-4 px-3">
-                <Button className="w-full bg-white text-black hover:bg-gray-100 font-bold">
-                  VISIT US
+                <Button className="w-full bg-white text-black hover:bg-gray-100 font-bold" asChild>
+                  <a href="/visit-us">VISIT US</a>
                 </Button>
               </div>
             </div>

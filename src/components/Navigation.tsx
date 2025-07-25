@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, ShoppingCart, Facebook, Instagram, Youtube, Music2, MessageCircle } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +11,7 @@ import {
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [cartItems, setCartItems] = useState(0);
 
   const navItems = [
     { name: "ABOUT", href: "/about" },
@@ -32,6 +34,14 @@ export const Navigation = () => {
     { name: "NEWSLETTER", href: "#" },
     { name: "NOTICE OF FILMING", href: "#" },
     { name: "FAQ", href: "#" },
+  ];
+
+  const socialLinks = [
+    { name: "Facebook", href: "https://facebook.com/totinternational", icon: Facebook },
+    { name: "Instagram", href: "https://instagram.com/totinternational", icon: Instagram },
+    { name: "YouTube", href: "https://youtube.com/totinternational", icon: Youtube },
+    { name: "Spotify", href: "https://spotify.com/totinternational", icon: Music2 },
+    { name: "TikTok", href: "https://tiktok.com/@totinternational", icon: MessageCircle },
   ];
 
   return (
@@ -78,6 +88,34 @@ export const Navigation = () => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+
+            {/* Social Links */}
+            <div className="flex items-center space-x-4">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.name}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white hover:text-gray-300 transition-colors"
+                  aria-label={social.name}
+                >
+                  <social.icon className="h-5 w-5" />
+                </a>
+              ))}
+            </div>
+
+            {/* Cart Icon */}
+            <div className="relative">
+              <a href="/shop" className="text-white hover:text-gray-300 transition-colors">
+                <ShoppingCart className="h-5 w-5" />
+                {cartItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {cartItems}
+                  </span>
+                )}
+              </a>
+            </div>
           </div>
 
           {/* CTA Button */}
@@ -128,6 +166,38 @@ export const Navigation = () => {
                     </a>
                   ))}
                 </div>
+              </div>
+
+              {/* Mobile Social Links */}
+              <div className="px-3 py-3">
+                <div className="text-white font-bold text-lg tracking-wide mb-2">FOLLOW US</div>
+                <div className="flex space-x-4">
+                  {socialLinks.map((social) => (
+                    <a
+                      key={social.name}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-gray-300 transition-colors"
+                      aria-label={social.name}
+                    >
+                      <social.icon className="h-6 w-6" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              {/* Mobile Cart */}
+              <div className="px-3 py-3">
+                <a href="/shop" className="flex items-center text-white hover:text-gray-300 font-bold text-lg tracking-wide">
+                  <ShoppingCart className="h-6 w-6 mr-2" />
+                  CART
+                  {cartItems > 0 && (
+                    <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {cartItems}
+                    </span>
+                  )}
+                </a>
               </div>
               
               <div className="pt-4 px-3">

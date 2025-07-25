@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, ShoppingCart, Facebook, Instagram, Youtube, Music2, MessageCircle } from "lucide-react";
@@ -8,10 +7,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [cartItems, setCartItems] = useState(0);
+  const [isGetInvolvedOpen, setIsGetInvolvedOpen] = useState(false);
 
   const navItems = [
     { name: "ABOUT", href: "/about" },
@@ -140,7 +145,7 @@ export const Navigation = () => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden bg-black/95 backdrop-blur-md">
+          <div className="md:hidden bg-black/95 backdrop-blur-md max-h-[calc(100vh-5rem)] overflow-y-auto">
             <div className="px-2 pt-2 pb-6 space-y-4">
               {navItems.map((item) => (
                 <a
@@ -152,21 +157,24 @@ export const Navigation = () => {
                 </a>
               ))}
               
-              {/* Mobile Get Involved Section */}
-              <div className="px-3 py-3">
-                <div className="text-white font-bold text-lg tracking-wide mb-2">GET INVOLVED</div>
-                <div className="ml-4 space-y-2">
+              {/* Mobile Get Involved Collapsible Section */}
+              <Collapsible open={isGetInvolvedOpen} onOpenChange={setIsGetInvolvedOpen}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide">
+                  GET INVOLVED
+                  <ChevronDown className={`h-5 w-5 transition-transform ${isGetInvolvedOpen ? 'rotate-180' : ''}`} />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="ml-4 space-y-2">
                   {getInvolvedItems.map((item) => (
                     <a
                       key={item.name}
                       href={item.href}
-                      className="block py-1 text-white hover:text-gray-300 font-medium text-base tracking-wide"
+                      className="block py-2 px-3 text-white hover:text-gray-300 font-medium text-base tracking-wide"
                     >
                       {item.name}
                     </a>
                   ))}
-                </div>
-              </div>
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Mobile Social Links */}
               <div className="px-3 py-3">

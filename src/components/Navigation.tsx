@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, ShoppingCart, Facebook, Instagram, Youtube, Music2, MessageCircle } from "lucide-react";
@@ -18,8 +19,7 @@ export const Navigation = () => {
     { name: "EVENTS", href: "/events" },
     { name: "GIVE", href: "/give" },
     { name: "SHOP", href: "/shop" },
-    { name: "VISIT US", href: "/visit-us" },
-    { name: "LOG IN", href: "/login" },
+    { name: "ADMIN", href: "/admin" },
   ];
 
   const getInvolvedItems = [

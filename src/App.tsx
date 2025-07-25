@@ -10,7 +10,6 @@ import Watch from "./pages/Watch";
 import Events from "./pages/Events";
 import Give from "./pages/Give";
 import Shop from "./pages/Shop";
-import VisitUs from "./pages/VisitUs";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
@@ -29,8 +28,7 @@ const App = () => (
           <Route path="/events" element={<Events />} />
           <Route path="/give" element={<Give />} />
           <Route path="/shop" element={<Shop />} />
-          <Route path="/visit-us" element={<VisitUs />} />
-          <Route path="/login" element={<AdminDashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

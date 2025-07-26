@@ -24,7 +24,6 @@ export const Navigation = () => {
     { name: "EVENTS", href: "/events" },
     { name: "GIVE", href: "/give" },
     { name: "SHOP", href: "/shop" },
-    { name: "LOG IN", href: "/login" },
   ];
 
   const getInvolvedItems = [
@@ -123,8 +122,11 @@ export const Navigation = () => {
             </div>
           </div>
 
-          {/* CTA Button */}
-          <div className="hidden md:block">
+          {/* CTA Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
+            <Button variant="outline" className="text-white border-white hover:bg-white hover:text-black font-bold" asChild>
+              <a href="/login">LOG IN</a>
+            </Button>
             <Button className="bg-white text-black hover:bg-gray-100 font-bold" asChild>
               <a href="/visit-us">VISIT US</a>
             </Button>
@@ -156,6 +158,13 @@ export const Navigation = () => {
                   {item.name}
                 </a>
               ))}
+              
+              <a
+                href="/login"
+                className="block px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
+              >
+                LOG IN
+              </a>
               
               {/* Mobile Get Involved Collapsible Section */}
               <Collapsible open={isGetInvolvedOpen} onOpenChange={setIsGetInvolvedOpen}>

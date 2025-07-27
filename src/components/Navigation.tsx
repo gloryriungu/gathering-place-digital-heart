@@ -27,12 +27,12 @@ export const Navigation = () => {
   ];
 
   const getInvolvedItems = [
-    { name: "JOIN THE FAMILY", href: "#" },
-    { name: "SERVE WITH US", href: "#" },
+    { name: "JOIN THE FAMILY", href: "/join-the-family" },
+    { name: "SERVE WITH US", href: "/serve-with-us" },
     { name: "BAPTISM", href: "#" },
-    { name: "MINISTRIES", href: "#" },
+    { name: "MINISTRIES", href: "/ministries" },
     { name: "COUNSELING & MENTAL HEALTH", href: "#" },
-    { name: "PARTNERS", href: "#" },
+    { name: "PARTNERS", href: "/partners" },
     { name: "BABY DEDICATIONS", href: "#" },
     { name: "PROPHETIC SCHOOL", href: "#" },
     { name: "NEWSLETTER", href: "#" },

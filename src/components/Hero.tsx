@@ -25,7 +25,7 @@ export const Hero = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/80"></div>
       
       {/* Content */}
-      <div className="relative flex items-center justify-center min-h-screen">
+      <div className="relative flex items-center justify-center min-h-screen pb-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tight">
             WELCOME TO<br />

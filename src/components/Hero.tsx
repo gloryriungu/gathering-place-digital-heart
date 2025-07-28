@@ -4,7 +4,7 @@ import { Play, ArrowRight } from "lucide-react";
 
 export const Hero = () => {
   return (
-    <section className="relative min-h-screen bg-black text-white overflow-hidden">
+    <section className="relative min-h-screen bg-primary text-primary-foreground overflow-hidden">
       {/* Background Video */}
       <video
         className="absolute inset-0 w-full h-full object-cover"
@@ -22,25 +22,25 @@ export const Hero = () => {
           }}
         ></div>
       </video>
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/80"></div>
       
       {/* Content */}
       <div className="relative flex items-center justify-center min-h-screen">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tight">
             WELCOME TO<br />
-            <span className="text-white">TOT INTERNATIONAL</span>
+            <span className="text-primary-foreground">TOT INTERNATIONAL</span>
           </h1>
           <p className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto font-light leading-relaxed">
             A ministry committed to raising champions for Christ through sound biblical teaching, authentic worship, and transformational encounters with God.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <Button size="lg" className="bg-white text-black hover:bg-gray-100 font-bold px-8 py-4 text-lg">
+            <Button size="lg" className="bg-background text-foreground hover:bg-muted font-bold px-8 py-4 text-lg">
               JOIN US THIS SUNDAY
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
-            <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-black font-bold px-8 py-4 text-lg">
+            <Button size="lg" variant="outline" className="border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary font-bold px-8 py-4 text-lg">
               <Play className="h-5 w-5 mr-2" />
               WATCH LIVE
             </Button>
@@ -49,7 +49,7 @@ export const Hero = () => {
       </div>
 
       {/* Service Times Banner */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white text-black py-6">
+      <div className="absolute bottom-0 left-0 right-0 bg-background text-foreground py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="text-center md:text-left mb-4 md:mb-0">

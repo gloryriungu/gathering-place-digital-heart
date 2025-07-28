@@ -27,7 +27,7 @@ export const Hero = () => {
       {/* Content */}
       <div className="relative flex items-center justify-center min-h-screen pb-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 tracking-tight">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight leading-tight">
             WELCOME TO<br />
             <span className="text-primary-foreground">TOT INTERNATIONAL</span>
           </h1>

@@ -40,7 +40,7 @@ export const Hero = () => {
               JOIN US THIS SUNDAY
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
-            <Button size="lg" variant="outline" className="border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary font-bold px-8 py-4 text-lg">
+            <Button size="lg" variant="outline" className="border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary font-bold px-8 py-4 text-lg whitespace-nowrap">
               <Play className="h-5 w-5 mr-2" />
               WATCH LIVE
             </Button>

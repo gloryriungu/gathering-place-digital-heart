@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, ShoppingCart, Facebook, Instagram, Youtube, Music2, MessageCircle } from "lucide-react";
 import {
@@ -54,21 +55,21 @@ export const Navigation = () => {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <a href="/">
+            <Link to="/">
               <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">TOT INT</h1>
-            </a>
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.name}
-                href={item.href}
+                to={item.href}
                 className="text-white hover:text-gray-300 font-bold text-sm tracking-wide transition-colors"
               >
                 {item.name}
-              </a>
+              </Link>
             ))}
             
             {/* Get Involved Dropdown */}
@@ -82,12 +83,12 @@ export const Navigation = () => {
               <DropdownMenuContent className="bg-black/95 backdrop-blur-md border-white/10 z-50">
                 {getInvolvedItems.map((item) => (
                   <DropdownMenuItem key={item.name} asChild>
-                    <a
-                      href={item.href}
+                    <Link
+                      to={item.href}
                       className="text-white hover:text-gray-300 font-bold text-sm tracking-wide cursor-pointer"
                     >
                       {item.name}
-                    </a>
+                    </Link>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -111,24 +112,24 @@ export const Navigation = () => {
 
             {/* Cart Icon */}
             <div className="relative">
-              <a href="/shop" className="text-white hover:text-gray-300 transition-colors">
+              <Link to="/shop" className="text-white hover:text-gray-300 transition-colors">
                 <ShoppingCart className="h-5 w-5" />
                 {cartItems > 0 && (
                   <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {cartItems}
                   </span>
                 )}
-              </a>
+              </Link>
             </div>
           </div>
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             <Button variant="outline" className="text-white border-white hover:bg-white hover:text-black font-bold" asChild>
-              <a href="/login">LOG IN</a>
+              <Link to="/login">LOG IN</Link>
             </Button>
             <Button className="bg-white text-black hover:bg-gray-100 font-bold" asChild>
-              <a href="/visit-us">VISIT US</a>
+              <Link to="/visit-us">VISIT US</Link>
             </Button>
           </div>
 
@@ -150,21 +151,23 @@ export const Navigation = () => {
           <div className="md:hidden bg-black/95 backdrop-blur-md max-h-[calc(100vh-5rem)] overflow-y-auto">
             <div className="px-2 pt-2 pb-6 space-y-4">
               {navItems.map((item) => (
-                <a
+                <Link
                   key={item.name}
-                  href={item.href}
+                  to={item.href}
                   className="block px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
+                  onClick={() => setIsOpen(false)}
                 >
                   {item.name}
-                </a>
+                </Link>
               ))}
               
-              <a
-                href="/login"
+              <Link
+                to="/login"
                 className="block px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
+                onClick={() => setIsOpen(false)}
               >
                 LOG IN
-              </a>
+              </Link>
               
               {/* Mobile Get Involved Collapsible Section */}
               <Collapsible open={isGetInvolvedOpen} onOpenChange={setIsGetInvolvedOpen}>
@@ -174,13 +177,14 @@ export const Navigation = () => {
                 </CollapsibleTrigger>
                 <CollapsibleContent className="ml-4 space-y-2">
                   {getInvolvedItems.map((item) => (
-                    <a
+                    <Link
                       key={item.name}
-                      href={item.href}
+                      to={item.href}
                       className="block py-2 px-3 text-white hover:text-gray-300 font-medium text-base tracking-wide"
+                      onClick={() => setIsOpen(false)}
                     >
                       {item.name}
-                    </a>
+                    </Link>
                   ))}
                 </CollapsibleContent>
               </Collapsible>
@@ -206,7 +210,7 @@ export const Navigation = () => {
 
               {/* Mobile Cart */}
               <div className="px-3 py-3">
-                <a href="/shop" className="flex items-center text-white hover:text-gray-300 font-bold text-lg tracking-wide">
+                <Link to="/shop" className="flex items-center text-white hover:text-gray-300 font-bold text-lg tracking-wide" onClick={() => setIsOpen(false)}>
                   <ShoppingCart className="h-6 w-6 mr-2" />
                   CART
                   {cartItems > 0 && (
@@ -214,12 +218,12 @@ export const Navigation = () => {
                       {cartItems}
                     </span>
                   )}
-                </a>
+                </Link>
               </div>
               
               <div className="pt-4 px-3">
                 <Button className="w-full bg-white text-black hover:bg-gray-100 font-bold" asChild>
-                  <a href="/visit-us">VISIT US</a>
+                  <Link to="/visit-us" onClick={() => setIsOpen(false)}>VISIT US</Link>
                 </Button>
               </div>
             </div>

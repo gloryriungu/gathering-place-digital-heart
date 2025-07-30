@@ -12,6 +12,8 @@ import Give from "./pages/Give";
 import Shop from "./pages/Shop";
 import VisitUs from "./pages/VisitUs";
 import AdminDashboard from "./pages/AdminDashboard";
+import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import JoinTheFamily from "./pages/JoinTheFamily";
 import ServeWithUs from "./pages/ServeWithUs";
@@ -37,6 +39,8 @@ const App = () => (
           <Route path="/give" element={<Give />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/visit-us" element={<VisitUs />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/login" element={<AdminDashboard />} />
           <Route path="/join-the-family" element={<JoinTheFamily />} />
           <Route path="/serve-with-us" element={<ServeWithUs />} />

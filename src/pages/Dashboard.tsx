@@ -20,7 +20,9 @@ import { FinancialContributions } from "@/components/dashboard/FinancialContribu
 import { ReportsOverview } from "@/components/dashboard/ReportsOverview";
 
 const Dashboard = () => {
-  const [userRole] = useState("registration"); // Mock role - will get from auth context
+  const [userRole] = useState(() => {
+    return (localStorage.getItem("userRole") as string) || "user";
+  });
 
   const getRoleBasedTabs = () => {
     const baseTabs = [

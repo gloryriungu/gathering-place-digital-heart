@@ -67,7 +67,7 @@ const Auth = () => {
     // Mock signup - will implement with Supabase later
     setTimeout(() => {
       setIsLoading(false);
-      navigate("/join-family");
+      navigate("/join-the-family");
     }, 1000);
   };
 

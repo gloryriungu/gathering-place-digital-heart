@@ -4,22 +4,59 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
-import { Eye, EyeOff, UserPlus, LogIn } from "lucide-react";
+import { Eye, EyeOff, UserPlus, LogIn, Users, Calculator, Settings, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
+
+  const demoAccounts = [
+    { email: "admin@tot.com", password: "admin123", role: "Admin", icon: Settings, description: "Full system access" },
+    { email: "registration@tot.com", password: "reg123", role: "Registration", icon: Users, description: "Attendance tracking" },
+    { email: "accounts@tot.com", password: "acc123", role: "Accounts", icon: Calculator, description: "Financial management" },
+    { email: "user@tot.com", password: "user123", role: "User", icon: User, description: "General access" }
+  ];
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Mock login - will implement with Supabase later
+    
+    // Check for demo credentials and redirect based on role
+    const demoAccount = demoAccounts.find(account => 
+      account.email === email && account.password === password
+    );
+    
     setTimeout(() => {
       setIsLoading(false);
+      if (demoAccount) {
+        // Store role in localStorage for demo purposes
+        localStorage.setItem('userRole', demoAccount.role.toLowerCase());
+        localStorage.setItem('userEmail', demoAccount.email);
+        navigate("/dashboard");
+      } else {
+        // For other credentials, default to user role
+        localStorage.setItem('userRole', 'user');
+        navigate("/dashboard");
+      }
+    }, 1000);
+  };
+
+  const handleDemoLogin = (account: typeof demoAccounts[0]) => {
+    setEmail(account.email);
+    setPassword(account.password);
+    setIsLoading(true);
+    
+    setTimeout(() => {
+      setIsLoading(false);
+      localStorage.setItem('userRole', account.role.toLowerCase());
+      localStorage.setItem('userEmail', account.email);
       navigate("/dashboard");
     }, 1000);
   };
@@ -72,6 +109,8 @@ const Auth = () => {
                         id="email"
                         type="email"
                         placeholder="Enter your email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                         required
                       />
                     </div>
@@ -82,6 +121,8 @@ const Auth = () => {
                           id="password"
                           type={showPassword ? "text" : "password"}
                           placeholder="Enter your password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
                           required
                         />
                         <Button
@@ -165,6 +206,42 @@ const Auth = () => {
                 </CardContent>
               </TabsContent>
             </Tabs>
+          </Card>
+
+          {/* Demo Accounts Section */}
+          <Card className="mt-6 backdrop-blur-sm bg-card/80 border">
+            <CardHeader>
+              <CardTitle className="text-lg">Demo Accounts</CardTitle>
+              <CardDescription>
+                Quick login with pre-configured roles to explore the system
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {demoAccounts.map((account) => (
+                  <Button
+                    key={account.role}
+                    variant="outline"
+                    className="h-auto p-4 flex flex-col items-start gap-2 hover:bg-accent/50"
+                    onClick={() => handleDemoLogin(account)}
+                    disabled={isLoading}
+                  >
+                    <div className="flex items-center gap-2 w-full">
+                      <account.icon className="h-4 w-4" />
+                      <Badge variant="secondary" className="text-xs">
+                        {account.role}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground text-left">
+                      {account.description}
+                    </p>
+                    <p className="text-xs font-mono text-left">
+                      {account.email}
+                    </p>
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
           </Card>
 
           <div className="text-center mt-6">

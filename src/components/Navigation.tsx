@@ -72,13 +72,6 @@ export const Navigation = () => {
               </Link>
             ))}
             
-            {/* Sign In Button */}
-            <Link
-              to="/auth"
-              className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md font-bold text-sm tracking-wide transition-colors"
-            >
-              SIGN IN
-            </Link>
             
             {/* Get Involved Dropdown */}
             <DropdownMenu>
@@ -134,7 +127,7 @@ export const Navigation = () => {
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             <Button variant="outline" className="text-white border-white hover:bg-white hover:text-black font-bold" asChild>
-              <Link to="/login">LOG IN</Link>
+              <Link to="/auth">SIGN IN</Link>
             </Button>
             <Button className="bg-white text-black hover:bg-gray-100 font-bold" asChild>
               <Link to="/visit-us">VISIT US</Link>
@@ -170,11 +163,11 @@ export const Navigation = () => {
               ))}
               
               <Link
-                to="/login"
+                to="/auth"
                 className="block px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
                 onClick={() => setIsOpen(false)}
               >
-                LOG IN
+                SIGN IN
               </Link>
               
               {/* Mobile Get Involved Collapsible Section */}

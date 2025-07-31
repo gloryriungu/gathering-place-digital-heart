@@ -23,8 +23,8 @@ export const AuthGuard = ({ children, isAuthenticated = false }: AuthGuardProps)
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full" onClick={() => window.location.href = "/login"}>
-              Log In to Continue
+            <Button className="w-full" onClick={() => window.location.href = "/auth"}>
+              Sign In to Continue
             </Button>
           </CardContent>
         </Card>

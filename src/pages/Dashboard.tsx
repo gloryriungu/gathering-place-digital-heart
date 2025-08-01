@@ -18,6 +18,8 @@ import {
 import { AttendanceTracker } from "@/components/dashboard/AttendanceTracker";
 import { FinancialContributions } from "@/components/dashboard/FinancialContributions";
 import { ReportsOverview } from "@/components/dashboard/ReportsOverview";
+import { MyGiving } from "@/components/dashboard/MyGiving";
+import { MyEvents } from "@/components/dashboard/MyEvents";
 
 const Dashboard = () => {
   const [userRole] = useState(() => {
@@ -214,6 +216,14 @@ const Dashboard = () => {
 
             <TabsContent value="reports">
               <ReportsOverview />
+            </TabsContent>
+
+            <TabsContent value="giving">
+              <MyGiving />
+            </TabsContent>
+
+            <TabsContent value="events">
+              <MyEvents />
             </TabsContent>
 
             <TabsContent value="profile">

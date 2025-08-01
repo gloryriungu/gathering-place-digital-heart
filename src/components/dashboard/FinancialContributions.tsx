@@ -9,10 +9,10 @@ import { Badge } from "@/components/ui/badge";
 import { DollarSign, TrendingUp, Calendar, Download } from "lucide-react";
 
 const mockContributions = [
-  { id: 1, date: "2024-01-07", type: "tithe", amount: 500, member: "John Smith" },
-  { id: 2, date: "2024-01-07", type: "offering", amount: 150, member: "Sarah Johnson" },
-  { id: 3, date: "2024-01-07", type: "gift1", amount: 200, member: "Michael Brown" },
-  { id: 4, date: "2024-01-07", type: "gift2", amount: 100, member: "Emily Davis" },
+  { id: 1, date: "2024-01-07", type: "tithe", amount: 500, service: "Sunday Morning Service" },
+  { id: 2, date: "2024-01-07", type: "offering", amount: 150, service: "Evening Service" },
+  { id: 3, date: "2024-01-07", type: "gift1", amount: 200, service: "Wednesday Prayer Service" },
+  { id: 4, date: "2024-01-07", type: "gift2", amount: 100, service: "Friday Youth Service" },
 ];
 
 export const FinancialContributions = () => {
@@ -20,7 +20,7 @@ export const FinancialContributions = () => {
   const [newContribution, setNewContribution] = useState({
     type: "offering",
     amount: "",
-    member: "",
+    service: "",
     date: new Date().toISOString().split('T')[0]
   });
 
@@ -32,7 +32,7 @@ export const FinancialContributions = () => {
   ];
 
   const addContribution = () => {
-    if (newContribution.amount && newContribution.member) {
+    if (newContribution.amount && newContribution.service) {
       const contribution = {
         id: Date.now(),
         ...newContribution,
@@ -42,7 +42,7 @@ export const FinancialContributions = () => {
       setNewContribution({
         type: "offering",
         amount: "",
-        member: "",
+        service: "",
         date: new Date().toISOString().split('T')[0]
       });
     }
@@ -229,12 +229,12 @@ export const FinancialContributions = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="member">Member Name</Label>
+                  <Label htmlFor="service">Service Name</Label>
                   <Input
-                    id="member"
-                    placeholder="Enter member name"
-                    value={newContribution.member}
-                    onChange={(e) => setNewContribution(prev => ({ ...prev, member: e.target.value }))}
+                    id="service"
+                    placeholder="Enter service name"
+                    value={newContribution.service}
+                    onChange={(e) => setNewContribution(prev => ({ ...prev, service: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-2">
@@ -322,7 +322,7 @@ export const FinancialContributions = () => {
                       <div className="flex items-center gap-3">
                         <Badge className={typeInfo?.color}>{typeInfo?.label}</Badge>
                         <div>
-                          <p className="font-medium">{contribution.member}</p>
+                          <p className="font-medium">{contribution.service}</p>
                           <p className="text-sm text-muted-foreground">{contribution.date}</p>
                         </div>
                       </div>

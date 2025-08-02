@@ -22,6 +22,10 @@ import Partners from "./pages/Partners";
 import Baptism from "./pages/Baptism";
 import BabyDedication from "./pages/BabyDedication";
 import PropheticSchool from "./pages/PropheticSchool";
+import CounselingMentalHealth from "./pages/CounselingMentalHealth";
+import Newsletter from "./pages/Newsletter";
+import NoticeOfFilming from "./pages/NoticeOfFilming";
+import FAQ from "./pages/FAQ";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +53,10 @@ const App = () => (
           <Route path="/baptism" element={<Baptism />} />
           <Route path="/baby-dedication" element={<BabyDedication />} />
           <Route path="/prophetic-school" element={<PropheticSchool />} />
+          <Route path="/counseling-mental-health" element={<CounselingMentalHealth />} />
+          <Route path="/newsletter" element={<Newsletter />} />
+          <Route path="/notice-of-filming" element={<NoticeOfFilming />} />
+          <Route path="/faq" element={<FAQ />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -108,7 +108,7 @@ const CounselingMentalHealth = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <Mail className="h-5 w-5 text-primary" />
-                  <span>counseling@lifespringchurch.com</span>
+                  <span>counseling@tentoftestimony.org</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <MapPin className="h-5 w-5 text-primary" />

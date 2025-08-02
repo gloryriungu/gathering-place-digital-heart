@@ -160,9 +160,9 @@ const NoticeOfFilming = () => {
                 </p>
                 
                 <div className="space-y-2">
-                  <p><strong>Media Ministry Team:</strong> media@lifespringchurch.com</p>
+                  <p><strong>Media Ministry Team:</strong> media@tentoftestimony.org</p>
                   <p><strong>Church Office:</strong> (555) 123-4567</p>
-                  <p><strong>Privacy Officer:</strong> privacy@lifespringchurch.com</p>
+                  <p><strong>Privacy Officer:</strong> privacy@tentoftestimony.org</p>
                 </div>
 
                 <div className="bg-muted/50 p-4 rounded-lg">

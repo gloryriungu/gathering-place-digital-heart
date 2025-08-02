@@ -32,13 +32,13 @@ export const Navigation = () => {
     { name: "SERVE WITH US", href: "/serve-with-us" },
     { name: "BAPTISM", href: "/baptism" },
     { name: "MINISTRIES", href: "/ministries" },
-    { name: "COUNSELING & MENTAL HEALTH", href: "#" },
+    { name: "COUNSELING & MENTAL HEALTH", href: "/counseling-mental-health" },
     { name: "PARTNERS", href: "/partners" },
     { name: "BABY DEDICATIONS", href: "/baby-dedication" },
     { name: "PROPHETIC SCHOOL", href: "/prophetic-school" },
-    { name: "NEWSLETTER", href: "#" },
-    { name: "NOTICE OF FILMING", href: "#" },
-    { name: "FAQ", href: "#" },
+    { name: "NEWSLETTER", href: "/newsletter" },
+    { name: "NOTICE OF FILMING", href: "/notice-of-filming" },
+    { name: "FAQ", href: "/faq" },
   ];
 
   const socialLinks = [

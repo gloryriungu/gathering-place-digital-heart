@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Heart, Users, MapPin, Phone, Mail } from "lucide-react";
+import { Heart, Users, MapPin, Phone, Mail, Baby, Plus, Trash2 } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 
@@ -31,7 +31,10 @@ const JoinTheFamily = () => {
     interests: [],
     testimony: "",
     prayerRequests: "",
+    children: []
   });
+
+  const [showChildrenSection, setShowChildrenSection] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +63,59 @@ const JoinTheFamily = () => {
     "Missions",
     "Administration"
   ];
+
+  const getAgeGroup = (birthDate: string) => {
+    if (!birthDate) return null;
+    const today = new Date();
+    const birth = new Date(birthDate);
+    const age = today.getFullYear() - birth.getFullYear();
+    
+    if (age >= 4 && age <= 5) return "Toppers (Age 4-5)";
+    if (age >= 6 && age <= 10) return "Diamond (Age 6-10)";
+    if (age >= 11 && age <= 12) return "Onyx (Age 11-12)";
+    if (age >= 13 && age <= 17) return "House of Jesse (Age 13-17)";
+    return "Not applicable for Sunday School";
+  };
+
+  const addChild = () => {
+    const newChild = {
+      id: Date.now(),
+      firstName: "",
+      lastName: "",
+      birthDate: "",
+      ageGroup: "",
+      medicalConditions: "",
+      allergies: "",
+      specialNeeds: "",
+      emergencyContactName: "",
+      emergencyContactPhone: "",
+      emergencyContactRelation: "",
+      babyDedicated: "",
+      interestedInDedication: false
+    };
+    setFormData({
+      ...formData,
+      children: [...formData.children, newChild]
+    });
+  };
+
+  const removeChild = (childId: number) => {
+    setFormData({
+      ...formData,
+      children: formData.children.filter(child => child.id !== childId)
+    });
+  };
+
+  const updateChild = (childId: number, field: string, value: any) => {
+    setFormData({
+      ...formData,
+      children: formData.children.map(child => 
+        child.id === childId 
+          ? { ...child, [field]: value, ...(field === 'birthDate' ? { ageGroup: getAgeGroup(value) } : {}) }
+          : child
+      )
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -333,6 +389,190 @@ const JoinTheFamily = () => {
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* Children Information Section */}
+              <div className="border-t pt-8">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-2">
+                    <Baby className="h-6 w-6 text-primary" />
+                    <h3 className="text-xl font-semibold">Children Information</h3>
+                  </div>
+                  <Button 
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowChildrenSection(!showChildrenSection)}
+                  >
+                    {showChildrenSection ? "Hide Section" : "Add Children"}
+                  </Button>
+                </div>
+
+                {showChildrenSection && (
+                  <div className="space-y-6">
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <p className="text-sm text-blue-800">
+                        <strong>Sunday School Information:</strong> Children will be automatically assigned to age-appropriate groups:
+                      </p>
+                      <ul className="text-xs text-blue-700 mt-2 ml-4 list-disc">
+                        <li><strong>Toppers:</strong> Ages 4-5 years</li>
+                        <li><strong>Diamond:</strong> Ages 6-10 years</li>
+                        <li><strong>Onyx:</strong> Ages 11-12 years</li>
+                        <li><strong>House of Jesse:</strong> Ages 13-17 years</li>
+                      </ul>
+                    </div>
+
+                    {formData.children.map((child, index) => (
+                      <Card key={child.id} className="p-6 border-2 border-dashed border-gray-200">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-lg font-semibold text-primary">Child {index + 1}</h4>
+                          <Button 
+                            type="button"
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => removeChild(child.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div>
+                            <Label>First Name *</Label>
+                            <Input 
+                              value={child.firstName}
+                              onChange={(e) => updateChild(child.id, 'firstName', e.target.value)}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <Label>Last Name *</Label>
+                            <Input 
+                              value={child.lastName}
+                              onChange={(e) => updateChild(child.id, 'lastName', e.target.value)}
+                              required
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                          <div>
+                            <Label>Birth Date *</Label>
+                            <Input 
+                              type="date"
+                              value={child.birthDate}
+                              onChange={(e) => updateChild(child.id, 'birthDate', e.target.value)}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <Label>Sunday School Group</Label>
+                            <Input 
+                              value={child.ageGroup || "Select birth date first"}
+                              disabled
+                              className="bg-gray-50"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-4 mb-4">
+                          <div>
+                            <Label>Medical Conditions/Medications</Label>
+                            <Textarea 
+                              value={child.medicalConditions}
+                              onChange={(e) => updateChild(child.id, 'medicalConditions', e.target.value)}
+                              placeholder="List any medical conditions, medications, or health concerns..."
+                              className="min-h-20"
+                            />
+                          </div>
+                          <div>
+                            <Label>Allergies</Label>
+                            <Textarea 
+                              value={child.allergies}
+                              onChange={(e) => updateChild(child.id, 'allergies', e.target.value)}
+                              placeholder="Food allergies, environmental allergies, etc..."
+                            />
+                          </div>
+                          <div>
+                            <Label>Special Needs</Label>
+                            <Textarea 
+                              value={child.specialNeeds}
+                              onChange={(e) => updateChild(child.id, 'specialNeeds', e.target.value)}
+                              placeholder="Learning differences, behavioral needs, accommodations required..."
+                            />
+                          </div>
+                        </div>
+
+                        <div className="border-t pt-4 mb-4">
+                          <h5 className="font-medium mb-3">Emergency Contact (Other than Parents)</h5>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                              <Label>Emergency Contact Name</Label>
+                              <Input 
+                                value={child.emergencyContactName}
+                                onChange={(e) => updateChild(child.id, 'emergencyContactName', e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label>Emergency Contact Phone</Label>
+                              <Input 
+                                type="tel"
+                                value={child.emergencyContactPhone}
+                                onChange={(e) => updateChild(child.id, 'emergencyContactPhone', e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label>Relationship</Label>
+                              <Select onValueChange={(value) => updateChild(child.id, 'emergencyContactRelation', value)}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select relationship" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="grandparent">Grandparent</SelectItem>
+                                  <SelectItem value="aunt-uncle">Aunt/Uncle</SelectItem>
+                                  <SelectItem value="family-friend">Family Friend</SelectItem>
+                                  <SelectItem value="sibling">Sibling</SelectItem>
+                                  <SelectItem value="other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="border-t pt-4">
+                          <h5 className="font-medium mb-3">Baby Dedication</h5>
+                          <RadioGroup 
+                            value={child.babyDedicated}
+                            onValueChange={(value) => updateChild(child.id, 'babyDedicated', value)}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="yes" id={`dedicated-yes-${child.id}`} />
+                              <Label htmlFor={`dedicated-yes-${child.id}`}>Yes, already dedicated</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="no" id={`dedicated-no-${child.id}`} />
+                              <Label htmlFor={`dedicated-no-${child.id}`}>No, not dedicated</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="interested" id={`dedicated-interested-${child.id}`} />
+                              <Label htmlFor={`dedicated-interested-${child.id}`}>No, but interested in baby dedication</Label>
+                            </div>
+                          </RadioGroup>
+                        </div>
+                      </Card>
+                    ))}
+
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      onClick={addChild}
+                      className="w-full border-dashed"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Another Child
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-center pt-8">

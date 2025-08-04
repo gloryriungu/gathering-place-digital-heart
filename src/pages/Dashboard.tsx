@@ -20,6 +20,8 @@ import { FinancialContributions } from "@/components/dashboard/FinancialContribu
 import { ReportsOverview } from "@/components/dashboard/ReportsOverview";
 import { MyGiving } from "@/components/dashboard/MyGiving";
 import { MyEvents } from "@/components/dashboard/MyEvents";
+import { SundaySchoolDashboard } from "@/components/dashboard/SundaySchoolDashboard";
+import { TeacherInterface } from "@/components/dashboard/TeacherInterface";
 
 const Dashboard = () => {
   const [userRole] = useState(() => {
@@ -46,6 +48,14 @@ const Dashboard = () => {
         { value: "contributions", label: "Contributions", icon: DollarSign },
         { value: "reports", label: "Financial Reports", icon: FileText },
       ],
+      sunday_school: [
+        { value: "sunday-school", label: "Sunday School", icon: BookOpen },
+        { value: "reports", label: "Reports", icon: FileText },
+      ],
+      teacher: [
+        { value: "teacher-dashboard", label: "My Class", icon: Users },
+        { value: "reports", label: "Reports", icon: FileText },
+      ],
       user: [
         { value: "giving", label: "My Giving", icon: Heart },
         { value: "events", label: "Events", icon: Calendar },
@@ -60,6 +70,8 @@ const Dashboard = () => {
       admin: "destructive" as const,
       registration: "secondary" as const,
       accounts: "default" as const,
+      sunday_school: "default" as const,
+      teacher: "secondary" as const,
       user: "outline" as const
     };
     
@@ -224,6 +236,14 @@ const Dashboard = () => {
 
             <TabsContent value="events">
               <MyEvents />
+            </TabsContent>
+
+            <TabsContent value="sunday-school">
+              <SundaySchoolDashboard />
+            </TabsContent>
+
+            <TabsContent value="teacher-dashboard">
+              <TeacherInterface />
             </TabsContent>
 
             <TabsContent value="profile">

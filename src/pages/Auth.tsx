@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
-import { Eye, EyeOff, UserPlus, LogIn, Users, Calculator, Settings, User } from "lucide-react";
+import { Eye, EyeOff, UserPlus, LogIn, Users, Calculator, Settings, User, GraduationCap, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
@@ -21,6 +21,8 @@ const Auth = () => {
     { email: "admin@tot.com", password: "admin123", role: "Admin", icon: Settings, description: "Full system access" },
     { email: "registration@tot.com", password: "reg123", role: "Registration", icon: Users, description: "Attendance tracking" },
     { email: "accounts@tot.com", password: "acc123", role: "Accounts", icon: Calculator, description: "Financial management" },
+    { email: "sundayschool@tot.com", password: "ss123", role: "Sunday School", icon: GraduationCap, description: "Manage children's ministry" },
+    { email: "teacher@tot.com", password: "teach123", role: "Teacher", icon: BookOpen, description: "Class management & attendance" },
     { email: "user@tot.com", password: "user123", role: "User", icon: User, description: "General access" }
   ];
 
@@ -37,7 +39,7 @@ const Auth = () => {
       setIsLoading(false);
       if (demoAccount) {
         // Store role in localStorage for demo purposes
-        localStorage.setItem('userRole', demoAccount.role.toLowerCase());
+        localStorage.setItem('userRole', demoAccount.role.toLowerCase().replace(' ', '_'));
         localStorage.setItem('userEmail', demoAccount.email);
         navigate("/dashboard");
       } else {
@@ -55,7 +57,7 @@ const Auth = () => {
     
     setTimeout(() => {
       setIsLoading(false);
-      localStorage.setItem('userRole', account.role.toLowerCase());
+      localStorage.setItem('userRole', account.role.toLowerCase().replace(' ', '_'));
       localStorage.setItem('userEmail', account.email);
       navigate("/dashboard");
     }, 1000);

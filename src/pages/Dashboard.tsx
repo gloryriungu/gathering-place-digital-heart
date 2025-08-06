@@ -13,7 +13,11 @@ import {
   Bell,
   Heart,
   BookOpen,
-  UserCheck
+  UserCheck,
+  Monitor,
+  Shield,
+  Activity,
+  Ticket
 } from "lucide-react";
 import { AttendanceTracker } from "@/components/dashboard/AttendanceTracker";
 import { FinancialContributions } from "@/components/dashboard/FinancialContributions";
@@ -22,6 +26,10 @@ import { MyGiving } from "@/components/dashboard/MyGiving";
 import { MyEvents } from "@/components/dashboard/MyEvents";
 import { SundaySchoolDashboard } from "@/components/dashboard/SundaySchoolDashboard";
 import { TeacherInterface } from "@/components/dashboard/TeacherInterface";
+import { ITUserManagement } from "@/components/dashboard/ITUserManagement";
+import { ITSystemLogs } from "@/components/dashboard/ITSystemLogs";
+import { ITTicketingSystem } from "@/components/dashboard/ITTicketingSystem";
+import { ITSystemMonitoring } from "@/components/dashboard/ITSystemMonitoring";
 
 const Dashboard = () => {
   const [userRole, setUserRole] = useState(() => {
@@ -62,6 +70,13 @@ const Dashboard = () => {
         { value: "teacher-dashboard", label: "My Class", icon: Users },
         { value: "reports", label: "Reports", icon: FileText },
       ],
+      it: [
+        { value: "user-management", label: "User Management", icon: Users },
+        { value: "system-logs", label: "System Logs", icon: Activity },
+        { value: "ticketing", label: "Support Tickets", icon: Ticket },
+        { value: "monitoring", label: "System Monitor", icon: Monitor },
+        { value: "security", label: "Security", icon: Shield },
+      ],
       user: [
         { value: "giving", label: "My Giving", icon: Heart },
         { value: "events", label: "Events", icon: Calendar },
@@ -78,6 +93,7 @@ const Dashboard = () => {
       accounts: "default" as const,
       sunday_school: "default" as const,
       teacher: "secondary" as const,
+      it: "destructive" as const,
       user: "outline" as const
     };
     
@@ -111,6 +127,7 @@ const Dashboard = () => {
                 <option value="accounts">Accounts</option>
                 <option value="sunday_school">Sunday School</option>
                 <option value="teacher">Teacher</option>
+                <option value="it">IT</option>
               </select>
               <Button variant="outline" size="icon">
                 <Bell className="h-4 w-4" />
@@ -262,6 +279,39 @@ const Dashboard = () => {
 
             <TabsContent value="teacher-dashboard">
               <TeacherInterface />
+            </TabsContent>
+
+            <TabsContent value="user-management">
+              <ITUserManagement />
+            </TabsContent>
+
+            <TabsContent value="system-logs">
+              <ITSystemLogs />
+            </TabsContent>
+
+            <TabsContent value="ticketing">
+              <ITTicketingSystem />
+            </TabsContent>
+
+            <TabsContent value="monitoring">
+              <ITSystemMonitoring />
+            </TabsContent>
+
+            <TabsContent value="security">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="h-5 w-5" />
+                    Security Dashboard
+                  </CardTitle>
+                  <CardDescription>
+                    Advanced security monitoring and configuration
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Advanced security features coming soon...</p>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="profile">

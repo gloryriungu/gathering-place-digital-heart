@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
-import { Eye, EyeOff, UserPlus, LogIn, Users, Calculator, Settings, User, GraduationCap, BookOpen } from "lucide-react";
+import { Eye, EyeOff, UserPlus, LogIn, Users, Calculator, Settings, User, GraduationCap, BookOpen, Monitor } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
@@ -23,6 +23,7 @@ const Auth = () => {
     { email: "accounts@tot.com", password: "acc123", role: "Accounts", icon: Calculator, description: "Financial management" },
     { email: "sundayschool@tot.com", password: "ss123", role: "Sunday School", icon: GraduationCap, description: "Manage children's ministry" },
     { email: "teacher@tot.com", password: "teach123", role: "Teacher", icon: BookOpen, description: "Class management & attendance" },
+    { email: "it@tot.com", password: "it123", role: "IT", icon: Monitor, description: "System administration & support" },
     { email: "user@tot.com", password: "user123", role: "User", icon: User, description: "General access" }
   ];
 

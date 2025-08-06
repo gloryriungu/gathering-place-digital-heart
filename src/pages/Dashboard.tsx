@@ -24,9 +24,15 @@ import { SundaySchoolDashboard } from "@/components/dashboard/SundaySchoolDashbo
 import { TeacherInterface } from "@/components/dashboard/TeacherInterface";
 
 const Dashboard = () => {
-  const [userRole] = useState(() => {
+  const [userRole, setUserRole] = useState(() => {
     return (localStorage.getItem("userRole") as string) || "user";
   });
+
+  // Quick role switcher for testing (remove in production)
+  const handleRoleChange = (role: string) => {
+    localStorage.setItem("userRole", role);
+    setUserRole(role);
+  };
 
   const getRoleBasedTabs = () => {
     const baseTabs = [
@@ -94,6 +100,18 @@ const Dashboard = () => {
             </div>
             <div className="flex items-center gap-4">
               {getUserRoleBadge()}
+              <select 
+                value={userRole} 
+                onChange={(e) => handleRoleChange(e.target.value)}
+                className="px-3 py-1 border rounded text-sm"
+              >
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+                <option value="registration">Registration</option>
+                <option value="accounts">Accounts</option>
+                <option value="sunday_school">Sunday School</option>
+                <option value="teacher">Teacher</option>
+              </select>
               <Button variant="outline" size="icon">
                 <Bell className="h-4 w-4" />
               </Button>

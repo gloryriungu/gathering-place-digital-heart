@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthGuard } from "@/components/shared/AuthGuard";
 import { ProgressTracker, defaultSteps } from "@/components/shared/ProgressTracker";
 import { ReadingModule } from "@/components/shared/ReadingModule";
@@ -133,7 +133,14 @@ const dedicationQuestions = [
 ];
 
 const BabyDedication = () => {
-  const [isAuthenticated] = useState(false); // Mock - will be connected to real auth later
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Check authentication status from localStorage
+  useEffect(() => {
+    const userRole = localStorage.getItem('userRole');
+    const userEmail = localStorage.getItem('userEmail');
+    setIsAuthenticated(!!userRole && !!userEmail);
+  }, []);
   const [currentStage, setCurrentStage] = useState<"reading" | "test" | "complete">("reading");
   const [readingTopics, setReadingTopics] = useState(dedicationTopics);
   const [testScore, setTestScore] = useState<number | null>(null);

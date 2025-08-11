@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthGuard } from "@/components/shared/AuthGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -83,7 +83,14 @@ const mockCourses: Course[] = [
 ];
 
 const PropheticSchool = () => {
-  const [isAuthenticated] = useState(false); // Mock - will be connected to real auth later
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Check authentication status from localStorage
+  useEffect(() => {
+    const userRole = localStorage.getItem('userRole');
+    const userEmail = localStorage.getItem('userEmail');
+    setIsAuthenticated(!!userRole && !!userEmail);
+  }, []);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [courses] = useState(mockCourses);
 

@@ -36,11 +36,11 @@ export const Hero = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <Button size="lg" className="bg-white text-black font-bold px-8 py-4 text-lg shadow-lg">
+            <Button size="lg" className="bg-white text-black font-bold px-8 py-4 text-lg shadow-lg hover:bg-white">
               JOIN US THIS SUNDAY
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
-            <Button size="lg" variant="outline" className="border-2 border-white text-white bg-transparent font-bold px-8 py-4 text-lg whitespace-nowrap shadow-lg">
+            <Button size="lg" className="border-2 border-white text-white bg-white/10 backdrop-blur-sm font-bold px-8 py-4 text-lg whitespace-nowrap shadow-lg hover:bg-white/20">
               <Play className="h-5 w-5 mr-2" />
               WATCH LIVE
             </Button>

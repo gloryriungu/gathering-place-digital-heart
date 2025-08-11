@@ -5,6 +5,7 @@ import { ReadingModule } from "@/components/shared/ReadingModule";
 import { TestInterface } from "@/components/shared/TestInterface";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Navigation } from "@/components/Navigation";
 import { Award, Download } from "lucide-react";
 
 const baptismTopics = [
@@ -181,7 +182,8 @@ const Baptism = () => {
 
   return (
     <AuthGuard isAuthenticated={isAuthenticated}>
-      <div className="min-h-screen bg-background py-8">
+      <Navigation />
+      <div className="min-h-screen bg-background py-8 pt-28">
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Header */}
           <div className="text-center mb-8">

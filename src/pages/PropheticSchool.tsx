@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Navigation } from "@/components/Navigation";
 import { Calendar, Clock, DollarSign, Users, BookOpen, Star, Play, Lock } from "lucide-react";
 
 interface Course {
@@ -122,7 +123,8 @@ const PropheticSchool = () => {
 
   return (
     <AuthGuard isAuthenticated={isAuthenticated}>
-      <div className="min-h-screen bg-background py-8">
+      <Navigation />
+      <div className="min-h-screen bg-background py-8 pt-28">
         <div className="container mx-auto px-4 max-w-6xl">
           {/* Header */}
           <div className="text-center mb-8">

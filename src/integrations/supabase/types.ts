@@ -7,14 +7,112 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
   }
   public: {
     Tables: {
-      [_ in never]: never
+      page_content: {
+        Row: {
+          content: string
+          content_type: string
+          created_at: string
+          id: string
+          is_published: boolean | null
+          page_name: string
+          section_name: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          content_type: string
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          page_name: string
+          section_name: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          is_published?: boolean | null
+          page_name?: string
+          section_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pastor_roles: {
+        Row: {
+          created_at: string
+          id: string
+          permissions: string[] | null
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permissions?: string[] | null
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permissions?: string[] | null
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      serve_departments: {
+        Row: {
+          created_at: string
+          description: string
+          display_order: number | null
+          icon: string
+          id: string
+          is_visible: boolean | null
+          name: string
+          requirements: string[]
+          time_commitment: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          display_order?: number | null
+          icon: string
+          id: string
+          is_visible?: boolean | null
+          name: string
+          requirements: string[]
+          time_commitment: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          display_order?: number | null
+          icon?: string
+          id?: string
+          is_visible?: boolean | null
+          name?: string
+          requirements?: string[]
+          time_commitment?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

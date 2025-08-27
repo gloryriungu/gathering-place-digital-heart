@@ -19,8 +19,9 @@ const Auth = () => {
 
   const demoAccounts = [
     { email: "admin@tot.com", password: "admin123", role: "Admin", icon: Settings, description: "Full system access" },
+    { email: "pastor@tot.com", password: "pastor123", role: "Pastor", icon: BookOpen, description: "Content management & ministry oversight" },
     { email: "registration@tot.com", password: "reg123", role: "Registration", icon: Users, description: "Attendance tracking" },
-    { email: "accounts@tot.com", password: "acc123", role: "Accounts", icon: Calculator, description: "Financial management" },
+    { email: "accounts@tot.com", password: "acc123", role: "Accounts", icon: Calculator, description: "Financial management & requisitions" },
     { email: "sundayschool@tot.com", password: "ss123", role: "Sunday School", icon: GraduationCap, description: "Manage children's ministry" },
     { email: "teacher@tot.com", password: "teach123", role: "Teacher", icon: BookOpen, description: "Class management & attendance" },
     { email: "it@tot.com", password: "it123", role: "IT", icon: Monitor, description: "System administration & support" },
@@ -42,7 +43,17 @@ const Auth = () => {
         // Store role in localStorage for demo purposes
         localStorage.setItem('userRole', demoAccount.role.toLowerCase().replace(' ', '_'));
         localStorage.setItem('userEmail', demoAccount.email);
-        navigate("/dashboard");
+        
+        // Redirect based on role
+        if (demoAccount.role === 'Pastor') {
+          navigate("/pastors");
+        } else if (demoAccount.role === 'Admin') {
+          navigate("/admin");
+        } else if (demoAccount.role === 'Accounts') {
+          navigate("/requisitions");
+        } else {
+          navigate("/dashboard");
+        }
       } else {
         // For other credentials, default to user role
         localStorage.setItem('userRole', 'user');
@@ -60,7 +71,17 @@ const Auth = () => {
       setIsLoading(false);
       localStorage.setItem('userRole', account.role.toLowerCase().replace(' ', '_'));
       localStorage.setItem('userEmail', account.email);
-      navigate("/dashboard");
+      
+      // Redirect based on role
+      if (account.role === 'Pastor') {
+        navigate("/pastors");
+      } else if (account.role === 'Admin') {
+        navigate("/admin");
+      } else if (account.role === 'Accounts') {
+        navigate("/requisitions");
+      } else {
+        navigate("/dashboard");
+      }
     }, 1000);
   };
 

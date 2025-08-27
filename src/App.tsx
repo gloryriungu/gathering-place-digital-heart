@@ -12,6 +12,7 @@ import Give from "./pages/Give";
 import Shop from "./pages/Shop";
 import VisitUs from "./pages/VisitUs";
 import AdminDashboard from "./pages/AdminDashboard";
+import PastorsDashboard from "./pages/PastorsDashboard";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
@@ -45,6 +46,8 @@ const App = () => (
           <Route path="/visit-us" element={<VisitUs />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/pastors" element={<PastorsDashboard />} />
           
           <Route path="/join-the-family" element={<JoinTheFamily />} />
           <Route path="/serve-with-us" element={<ServeWithUs />} />

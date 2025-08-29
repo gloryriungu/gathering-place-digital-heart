@@ -1,21 +1,63 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Eye, EyeOff, UserPlus, LogIn, Users, Calculator, Settings, User, GraduationCap, BookOpen, Monitor } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [signupData, setSignupData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    phone: "",
+    address: "",
+    county: ""
+  });
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  // Kenya counties list
+  const kenyaCounties = [
+    "Baringo", "Bomet", "Bungoma", "Busia", "Elgeyo-Marakwet", "Embu", "Garissa", "Homa Bay",
+    "Isiolo", "Kajiado", "Kakamega", "Kericho", "Kiambu", "Kilifi", "Kirinyaga", "Kisii",
+    "Kisumu", "Kitui", "Kwale", "Laikipia", "Lamu", "Machakos", "Makueni", "Mandera", "Marsabit",
+    "Meru", "Migori", "Mombasa", "Murang'a", "Nairobi", "Nakuru", "Nandi", "Narok", "Nyamira",
+    "Nyandarua", "Nyeri", "Samburu", "Siaya", "Taita-Taveta", "Tana River", "Tharaka-Nithi",
+    "Trans Nzoia", "Turkana", "Uasin Gishu", "Vihiga", "Wajir", "West Pokot"
+  ];
+
+  // Check authentication state
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        // User is authenticated, redirect to dashboard
+        navigate("/dashboard");
+      }
+    });
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        navigate("/dashboard");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const demoAccounts = [
     { email: "admin@tot.com", password: "admin123", role: "Admin", icon: Settings, description: "Full system access" },
@@ -32,15 +74,14 @@ const Auth = () => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Check for demo credentials and redirect based on role
-    const demoAccount = demoAccounts.find(account => 
-      account.email === email && account.password === password
-    );
-    
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      // Check for demo credentials first
+      const demoAccount = demoAccounts.find(account => 
+        account.email === email && account.password === password
+      );
+      
       if (demoAccount) {
-        // Store role in localStorage for demo purposes
+        // Handle demo login
         localStorage.setItem('userRole', demoAccount.role.toLowerCase().replace(' ', '_'));
         localStorage.setItem('userEmail', demoAccount.email);
         
@@ -55,11 +96,34 @@ const Auth = () => {
           navigate("/dashboard");
         }
       } else {
-        // For other credentials, default to user role
-        localStorage.setItem('userRole', 'user');
-        navigate("/dashboard");
+        // Real Supabase authentication
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          toast({
+            title: "Login Failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Welcome back!",
+            description: "You have successfully logged in.",
+          });
+        }
       }
-    }, 1000);
+    } catch (error) {
+      toast({
+        title: "Login Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDemoLogin = (account: typeof demoAccounts[0]) => {
@@ -88,11 +152,54 @@ const Auth = () => {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Mock signup - will implement with Supabase later
-    setTimeout(() => {
+    
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: signupData.email,
+        password: signupData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            first_name: signupData.firstName,
+            last_name: signupData.lastName,
+            phone: signupData.phone,
+            address: signupData.address,
+            county: signupData.county,
+          }
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Signup Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Account Created!",
+          description: "Welcome to our church family! Please check your email to verify your account.",
+        });
+        // Reset form
+        setSignupData({
+          firstName: "",
+          lastName: "",
+          email: "",
+          password: "",
+          phone: "",
+          address: "",
+          county: ""
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Signup Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-      navigate("/join-the-family");
-    }, 1000);
+    }
   };
 
   return (
@@ -182,6 +289,8 @@ const Auth = () => {
                         <Input
                           id="firstName"
                           placeholder="John"
+                          value={signupData.firstName}
+                          onChange={(e) => setSignupData({...signupData, firstName: e.target.value})}
                           required
                         />
                       </div>
@@ -190,6 +299,8 @@ const Auth = () => {
                         <Input
                           id="lastName"
                           placeholder="Doe"
+                          value={signupData.lastName}
+                          onChange={(e) => setSignupData({...signupData, lastName: e.target.value})}
                           required
                         />
                       </div>
@@ -200,8 +311,46 @@ const Auth = () => {
                         id="signupEmail"
                         type="email"
                         placeholder="john@example.com"
+                        value={signupData.email}
+                        onChange={(e) => setSignupData({...signupData, email: e.target.value})}
                         required
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="+254 700 000 000"
+                        value={signupData.phone}
+                        onChange={(e) => setSignupData({...signupData, phone: e.target.value})}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="address">Address</Label>
+                      <Input
+                        id="address"
+                        placeholder="Your home address"
+                        value={signupData.address}
+                        onChange={(e) => setSignupData({...signupData, address: e.target.value})}
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="county">County (Kenya)</Label>
+                      <Select value={signupData.county} onValueChange={(value) => setSignupData({...signupData, county: value})}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your county" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {kenyaCounties.map((county) => (
+                            <SelectItem key={county} value={county}>
+                              {county}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="signupPassword">Password</Label>
@@ -210,6 +359,8 @@ const Auth = () => {
                           id="signupPassword"
                           type={showPassword ? "text" : "password"}
                           placeholder="Create a strong password"
+                          value={signupData.password}
+                          onChange={(e) => setSignupData({...signupData, password: e.target.value})}
                           required
                         />
                         <Button

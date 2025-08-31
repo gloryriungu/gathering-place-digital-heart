@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -30,17 +32,41 @@ import { ITUserManagement } from "@/components/dashboard/ITUserManagement";
 import { ITSystemLogs } from "@/components/dashboard/ITSystemLogs";
 import { ITTicketingSystem } from "@/components/dashboard/ITTicketingSystem";
 import { ITSystemMonitoring } from "@/components/dashboard/ITSystemMonitoring";
+import { ITSecurity } from "@/components/dashboard/ITSecurity";
 
 const Dashboard = () => {
-  const [userRole, setUserRole] = useState(() => {
-    return (localStorage.getItem("userRole") as string) || "user";
-  });
+  const { isAuthenticated, userRole: authUserRole, loading, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [userRole, setUserRole] = useState<string>("user");
 
-  // Quick role switcher for testing (remove in production)
-  const handleRoleChange = (role: string) => {
-    localStorage.setItem("userRole", role);
-    setUserRole(role);
-  };
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      navigate('/auth');
+    }
+  }, [isAuthenticated, loading, navigate]);
+
+  useEffect(() => {
+    if (authUserRole) {
+      setUserRole(authUserRole);
+    }
+  }, [authUserRole]);
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const getRoleBasedTabs = () => {
     const baseTabs = [
@@ -116,21 +142,11 @@ const Dashboard = () => {
             </div>
             <div className="flex items-center gap-4">
               {getUserRoleBadge()}
-              <select 
-                value={userRole} 
-                onChange={(e) => handleRoleChange(e.target.value)}
-                className="px-3 py-1 border rounded text-sm"
-              >
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-                <option value="registration">Registration</option>
-                <option value="accounts">Accounts</option>
-                <option value="sunday_school">Sunday School</option>
-                <option value="teacher">Teacher</option>
-                <option value="it">IT</option>
-              </select>
               <Button variant="outline" size="icon">
                 <Bell className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" onClick={signOut}>
+                Sign Out
               </Button>
             </div>
           </div>
@@ -298,20 +314,7 @@ const Dashboard = () => {
             </TabsContent>
 
             <TabsContent value="security">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="h-5 w-5" />
-                    Security Dashboard
-                  </CardTitle>
-                  <CardDescription>
-                    Advanced security monitoring and configuration
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Advanced security features coming soon...</p>
-                </CardContent>
-              </Card>
+              <ITSecurity />
             </TabsContent>
 
             <TabsContent value="profile">

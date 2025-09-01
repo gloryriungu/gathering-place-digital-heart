@@ -36,16 +36,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
-        .eq('user_id', userId)
-        .single();
+        .eq('user_id', userId);
 
-      if (error) {
+      if (error || !data || data.length === 0) {
         console.log('No role found, defaulting to user');
         setUserRole('user');
         return;
       }
 
-      setUserRole(data.role);
+      // Prioritize roles: admin > it > user
+      const roles = data.map(item => item.role);
+      if (roles.includes('admin')) {
+        setUserRole('admin');
+      } else if (roles.includes('it')) {
+        setUserRole('it');
+      } else {
+        setUserRole('user');
+      }
     } catch (error) {
       console.error('Error fetching user role:', error);
       setUserRole('user');

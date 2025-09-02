@@ -1,4 +1,6 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -19,7 +21,7 @@ import {
 } from "lucide-react";
 
 export const ITSystemMonitoring = () => {
-  const systemMetrics = {
+  const [systemMetrics, setSystemMetrics] = useState({
     servers: [
       { name: 'Web Server', status: 'online', cpu: 45, memory: 67, disk: 23, uptime: '15 days' },
       { name: 'Database Server', status: 'online', cpu: 78, memory: 85, disk: 45, uptime: '15 days' },
@@ -36,6 +38,47 @@ export const ITSystemMonitoring = () => {
       blockedAttempts: 23,
       lastScan: '2 hours ago',
       firewallStatus: 'active'
+    }
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSystemMetrics();
+    const interval = setInterval(fetchSystemMetrics, 30000); // Refresh every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchSystemMetrics = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('system_metrics')
+        .select('*')
+        .order('timestamp', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+
+      // Process the metrics data to update system status
+      if (data && data.length > 0) {
+        const latestMetrics = data[0];
+        const metrics = latestMetrics.metric_value as any;
+        
+        // Update system metrics based on real data
+        setSystemMetrics(prev => ({
+          ...prev,
+          servers: prev.servers.map(server => ({
+            ...server,
+            cpu: metrics.cpu || server.cpu,
+            memory: metrics.memory || server.memory,
+            disk: metrics.disk || server.disk,
+            status: metrics.status || server.status
+          }))
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching system metrics:', error);
+    } finally {
+      setLoading(false);
     }
   };
 

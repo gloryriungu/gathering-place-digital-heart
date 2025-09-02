@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,58 +32,69 @@ interface LogEntry {
 }
 
 export const ITSystemLogs = () => {
-  const [logs] = useState<LogEntry[]>([
-    {
-      id: '1',
-      timestamp: '2024-01-15 14:30:25',
-      level: 'info',
-      category: 'Authentication',
-      user: 'john@tot.com',
-      action: 'User Login',
-      details: 'Successful login attempt',
-      ip: '192.168.1.100'
-    },
-    {
-      id: '2',
-      timestamp: '2024-01-15 14:25:10',
-      level: 'warning',
-      category: 'System',
-      user: 'System',
-      action: 'Database Connection',
-      details: 'High connection pool usage (85%)',
-      ip: 'localhost'
-    },
-    {
-      id: '3',
-      timestamp: '2024-01-15 14:20:45',
-      level: 'error',
-      category: 'Payment',
-      user: 'jane@tot.com',
-      action: 'Payment Processing',
-      details: 'Failed to process donation payment',
-      ip: '192.168.1.105'
-    },
-    {
-      id: '4',
-      timestamp: '2024-01-15 14:15:30',
-      level: 'success',
-      category: 'User Management',
-      user: 'admin@tot.com',
-      action: 'User Creation',
-      details: 'New user account created for mike@tot.com',
-      ip: '192.168.1.101'
-    },
-    {
-      id: '5',
-      timestamp: '2024-01-15 14:10:15',
-      level: 'info',
-      category: 'Attendance',
-      user: 'registration@tot.com',
-      action: 'Attendance Record',
-      details: 'Sunday service attendance marked: 856 members',
-      ip: '192.168.1.102'
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchLogs();
+  }, []);
+
+  const fetchLogs = async () => {
+    try {
+      // For now, use fallback data since direct analytics API isn't available in client
+      // In a production environment, you would create edge functions to fetch analytics data
+      const fallbackLogs: LogEntry[] = [
+        {
+          id: '1',
+          timestamp: new Date(Date.now() - 300000).toLocaleString(),
+          level: 'info',
+          category: 'Authentication',
+          user: 'System',
+          action: 'User Login',
+          details: 'Successful authentication',
+          ip: 'N/A'
+        },
+        {
+          id: '2',
+          timestamp: new Date(Date.now() - 600000).toLocaleString(),
+          level: 'warning',
+          category: 'System',
+          user: 'System',
+          action: 'High CPU Usage',
+          details: 'Server load above 80%',
+          ip: 'localhost'
+        },
+        {
+          id: '3',
+          timestamp: new Date(Date.now() - 900000).toLocaleString(),
+          level: 'error',
+          category: 'Database',
+          user: 'System',
+          action: 'Connection Error',
+          details: 'Failed to establish database connection',
+          ip: 'localhost'
+        }
+      ];
+
+      setLogs(fallbackLogs);
+    } catch (error) {
+      console.error('Error fetching logs:', error);
+      setLogs([
+        {
+          id: '1',
+          timestamp: new Date().toLocaleString(),
+          level: 'info',
+          category: 'System',
+          user: 'System',
+          action: 'System Start',
+          details: 'Application started successfully',
+          ip: 'localhost'
+        }
+      ]);
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterLevel, setFilterLevel] = useState('all');

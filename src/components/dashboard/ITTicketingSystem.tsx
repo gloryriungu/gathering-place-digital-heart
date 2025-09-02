@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,106 +22,42 @@ import {
   Search
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 
-interface TicketType {
-  id: string;
-  title: string;
-  description: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  status: 'open' | 'in-progress' | 'resolved' | 'closed';
-  category: string;
-  department: string;
-  submittedBy: string;
-  assignedTo: string;
-  createdAt: string;
-  updatedAt: string;
-  messages: Array<{
-    id: string;
-    author: string;
-    message: string;
-    timestamp: string;
-  }>;
-}
+type TicketType = Database['public']['Tables']['support_tickets']['Row'] & {
+  messages?: Database['public']['Tables']['ticket_messages']['Row'][];
+};
 
 export const ITTicketingSystem = () => {
   const { toast } = useToast();
-  const [tickets, setTickets] = useState<TicketType[]>([
-    {
-      id: 'TCK-001',
-      title: 'Login Issues - Password Reset Required',
-      description: 'Multiple users reporting login problems after system update',
-      priority: 'high',
-      status: 'open',
-      category: 'Authentication',
-      department: 'Registration',
-      submittedBy: 'registration@tot.com',
-      assignedTo: 'Unassigned',
-      createdAt: '2024-01-15T09:30:00',
-      updatedAt: '2024-01-15T09:30:00',
-      messages: [
-        {
-          id: '1',
-          author: 'registration@tot.com',
-          message: 'Users are unable to log in since this morning. Getting "invalid credentials" error.',
-          timestamp: '2024-01-15T09:30:00'
-        }
-      ]
-    },
-    {
-      id: 'TCK-002',
-      title: 'Financial Report Generation Slow',
-      description: 'Monthly financial reports taking too long to generate',
-      priority: 'medium',
-      status: 'in-progress',
-      category: 'Performance',
-      department: 'Accounts',
-      submittedBy: 'accounts@tot.com',
-      assignedTo: 'IT Team',
-      createdAt: '2024-01-14T14:15:00',
-      updatedAt: '2024-01-15T08:45:00',
-      messages: [
-        {
-          id: '1',
-          author: 'accounts@tot.com',
-          message: 'Report generation is taking over 5 minutes. Previously took 30 seconds.',
-          timestamp: '2024-01-14T14:15:00'
-        },
-        {
-          id: '2',
-          author: 'IT Team',
-          message: 'Investigating database performance. Running optimization queries.',
-          timestamp: '2024-01-15T08:45:00'
-        }
-      ]
-    },
-    {
-      id: 'TCK-003',
-      title: 'New User Account Setup',
-      description: 'Need to create account for new Sunday School teacher',
-      priority: 'low',
-      status: 'resolved',
-      category: 'User Management',
-      department: 'Sunday School',
-      submittedBy: 'sundayschool@tot.com',
-      assignedTo: 'IT Team',
-      createdAt: '2024-01-13T11:20:00',
-      updatedAt: '2024-01-14T16:30:00',
-      messages: [
-        {
-          id: '1',
-          author: 'sundayschool@tot.com',
-          message: 'Please create account for Sarah Johnson - new children\'s ministry teacher.',
-          timestamp: '2024-01-13T11:20:00'
-        },
-        {
-          id: '2',
-          author: 'IT Team',
-          message: 'Account created. Temporary password sent to sarah.johnson@tot.com',
-          timestamp: '2024-01-14T16:30:00'
-        }
-      ]
+  const [tickets, setTickets] = useState<TicketType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTickets();
+  }, []);
+
+  const fetchTickets = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('support_tickets')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setTickets(data || []);
+    } catch (error) {
+      console.error('Error fetching tickets:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load tickets",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
 
   const [selectedTicket, setSelectedTicket] = useState<TicketType | null>(null);
   const [isCreateTicketOpen, setIsCreateTicketOpen] = useState(false);
@@ -138,16 +74,16 @@ export const ITTicketingSystem = () => {
   const [filterPriority, setFilterPriority] = useState('all');
 
   const filteredTickets = tickets.filter(ticket => {
-    const matchesSearch = ticket.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         ticket.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         ticket.id.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = ticket.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         ticket.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         ticket.ticket_number?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'all' || ticket.status === filterStatus;
     const matchesPriority = filterPriority === 'all' || ticket.priority === filterPriority;
     
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  const handleCreateTicket = () => {
+  const handleCreateTicket = async () => {
     if (!newTicket.title || !newTicket.description) {
       toast({
         title: "Error",
@@ -157,42 +93,78 @@ export const ITTicketingSystem = () => {
       return;
     }
 
-    const ticket: TicketType = {
-      id: `TCK-${String(tickets.length + 1).padStart(3, '0')}`,
-      title: newTicket.title,
-      description: newTicket.description,
-      priority: newTicket.priority as any,
-      status: 'open',
-      category: newTicket.category,
-      department: newTicket.department,
-      submittedBy: 'IT Administrator',
-      assignedTo: 'Unassigned',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      messages: []
-    };
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to create a ticket",
+          variant: "destructive"
+        });
+        return;
+      }
 
-    setTickets([ticket, ...tickets]);
-    setNewTicket({ title: '', description: '', priority: 'medium', category: '', department: '' });
-    setIsCreateTicketOpen(false);
-    
-    toast({
-      title: "Ticket Created",
-      description: `Ticket ${ticket.id} has been created successfully`,
-    });
+      const { data, error } = await supabase
+        .from('support_tickets')
+        .insert({
+          title: newTicket.title,
+          description: newTicket.description,
+          priority: newTicket.priority,
+          category: newTicket.category,
+          department: newTicket.department,
+          submitted_by: user.id,
+          ticket_number: '' // Will be generated by database trigger
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setTickets([data, ...tickets]);
+      setNewTicket({ title: '', description: '', priority: 'medium', category: '', department: '' });
+      setIsCreateTicketOpen(false);
+      
+      toast({
+        title: "Ticket Created",
+        description: `Ticket ${data.ticket_number} has been created successfully`,
+      });
+    } catch (error) {
+      console.error('Error creating ticket:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create ticket",
+        variant: "destructive"
+      });
+    }
   };
 
-  const updateTicketStatus = (ticketId: string, newStatus: string) => {
-    setTickets(tickets.map(ticket => 
-      ticket.id === ticketId 
-        ? { ...ticket, status: newStatus as any, updatedAt: new Date().toISOString() }
-        : ticket
-    ));
-    
-    toast({
-      title: "Ticket Updated",
-      description: "Ticket status has been updated",
-    });
+  const updateTicketStatus = async (ticketId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('support_tickets')
+        .update({ status: newStatus })
+        .eq('id', ticketId);
+
+      if (error) throw error;
+
+      setTickets(tickets.map(ticket => 
+        ticket.id === ticketId 
+          ? { ...ticket, status: newStatus }
+          : ticket
+      ));
+      
+      toast({
+        title: "Ticket Updated",
+        description: "Ticket status has been updated",
+      });
+    } catch (error) {
+      console.error('Error updating ticket:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update ticket status",
+        variant: "destructive"
+      });
+    }
   };
 
   const getPriorityBadge = (priority: string) => {
@@ -457,7 +429,7 @@ export const ITTicketingSystem = () => {
                       <TableCell>{getPriorityBadge(ticket.priority)}</TableCell>
                       <TableCell>{getStatusBadge(ticket.status)}</TableCell>
                       <TableCell>{ticket.department}</TableCell>
-                      <TableCell>{new Date(ticket.createdAt).toLocaleDateString()}</TableCell>
+                      <TableCell>{new Date(ticket.created_at).toLocaleDateString()}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Dialog>

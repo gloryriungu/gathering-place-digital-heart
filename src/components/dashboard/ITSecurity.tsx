@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Database as DatabaseType } from "@/integrations/supabase/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,15 +23,10 @@ import {
   Activity
 } from "lucide-react";
 
-interface SecurityEvent {
-  id: string;
-  timestamp: string;
-  type: 'threat' | 'blocked' | 'warning' | 'info';
-  description: string;
-  source: string;
+type SecurityEvent = DatabaseType['public']['Tables']['security_events']['Row'] & {
+  type: string;
   action: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-}
+};
 
 interface SecurityMetric {
   name: string;
@@ -51,53 +47,25 @@ export const ITSecurity = () => {
 
   const fetchSecurityEvents = async () => {
     try {
-      // For now, use fallback data since direct analytics API isn't available in client
-      // In production, you would create edge functions to fetch security analytics
-      const fallbackEvents: SecurityEvent[] = [
-        {
-          id: '1',
-          timestamp: new Date(Date.now() - 180000).toLocaleString(),
-          type: 'blocked',
-          description: 'Multiple failed login attempts detected',
-          source: 'Authentication System',
-          action: 'IP temporarily blocked',
-          severity: 'medium'
-        },
-        {
-          id: '2',
-          timestamp: new Date(Date.now() - 300000).toLocaleString(),
-          type: 'warning',
-          description: 'Unusual access pattern detected',
-          source: 'Security Monitor',
-          action: 'Flagged for review',
-          severity: 'low'
-        },
-        {
-          id: '3',
-          timestamp: new Date(Date.now() - 600000).toLocaleString(),
-          type: 'info',
-          description: 'Security scan completed successfully',
-          source: 'System',
-          action: 'No threats found',
-          severity: 'low'
-        }
-      ];
+      const { data, error } = await supabase
+        .from('security_events')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
 
-      setSecurityEvents(fallbackEvents);
+      if (error) throw error;
+      
+      // Map database fields to component expected format
+      const mappedEvents: SecurityEvent[] = (data || []).map(event => ({
+        ...event,
+        type: event.event_type,
+        action: event.action_taken
+      }));
+      
+      setSecurityEvents(mappedEvents);
     } catch (error) {
       console.error('Error fetching security events:', error);
-      // Fallback data
-      setSecurityEvents([
-        {
-          id: '1',
-          timestamp: new Date().toLocaleString(),
-          type: 'info',
-          description: 'Security system operational',
-          source: 'System',
-          action: 'All systems secure',
-          severity: 'low'
-        }
-      ]);
+      setSecurityEvents([]);
     } finally {
       setLoading(false);
     }
@@ -339,7 +307,9 @@ export const ITSecurity = () => {
                 <TableBody>
                   {securityEvents.map((event) => (
                     <TableRow key={event.id}>
-                      <TableCell className="font-mono text-sm">{event.timestamp}</TableCell>
+                      <TableCell className="font-mono text-sm">
+                        {new Date(event.created_at).toLocaleString()}
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {getEventIcon(event.type)}

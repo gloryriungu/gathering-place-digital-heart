@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,16 +21,7 @@ import {
   Clock
 } from "lucide-react";
 
-interface LogEntry {
-  id: string;
-  timestamp: string;
-  level: 'info' | 'warning' | 'error' | 'success';
-  category: string;
-  user: string;
-  action: string;
-  details: string;
-  ip: string;
-}
+type LogEntry = Database['public']['Tables']['system_logs']['Row'];
 
 export const ITSystemLogs = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -41,56 +33,17 @@ export const ITSystemLogs = () => {
 
   const fetchLogs = async () => {
     try {
-      // For now, use fallback data since direct analytics API isn't available in client
-      // In a production environment, you would create edge functions to fetch analytics data
-      const fallbackLogs: LogEntry[] = [
-        {
-          id: '1',
-          timestamp: new Date(Date.now() - 300000).toLocaleString(),
-          level: 'info',
-          category: 'Authentication',
-          user: 'System',
-          action: 'User Login',
-          details: 'Successful authentication',
-          ip: 'N/A'
-        },
-        {
-          id: '2',
-          timestamp: new Date(Date.now() - 600000).toLocaleString(),
-          level: 'warning',
-          category: 'System',
-          user: 'System',
-          action: 'High CPU Usage',
-          details: 'Server load above 80%',
-          ip: 'localhost'
-        },
-        {
-          id: '3',
-          timestamp: new Date(Date.now() - 900000).toLocaleString(),
-          level: 'error',
-          category: 'Database',
-          user: 'System',
-          action: 'Connection Error',
-          details: 'Failed to establish database connection',
-          ip: 'localhost'
-        }
-      ];
+      const { data, error } = await supabase
+        .from('system_logs')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
 
-      setLogs(fallbackLogs);
+      if (error) throw error;
+      setLogs(data || []);
     } catch (error) {
       console.error('Error fetching logs:', error);
-      setLogs([
-        {
-          id: '1',
-          timestamp: new Date().toLocaleString(),
-          level: 'info',
-          category: 'System',
-          user: 'System',
-          action: 'System Start',
-          details: 'Application started successfully',
-          ip: 'localhost'
-        }
-      ]);
+      setLogs([]);
     } finally {
       setLoading(false);
     }
@@ -101,10 +54,11 @@ export const ITSystemLogs = () => {
   const [filterCategory, setFilterCategory] = useState('all');
 
   const filteredLogs = logs.filter(log => {
-    const matchesSearch = log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         log.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         log.details.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesLevel = filterLevel === 'all' || log.level === filterLevel;
+    const searchText = log.action.toLowerCase() + ' ' + 
+                      (log.user_id || 'System').toLowerCase() + ' ' +
+                      log.details.toLowerCase();
+    const matchesSearch = searchText.includes(searchTerm.toLowerCase());
+    const matchesLevel = filterLevel === 'all' || log.log_level === filterLevel;
     const matchesCategory = filterCategory === 'all' || log.category === filterCategory;
     
     return matchesSearch && matchesLevel && matchesCategory;
@@ -132,7 +86,7 @@ export const ITSystemLogs = () => {
 
   const getLogStats = () => {
     const stats = logs.reduce((acc, log) => {
-      acc[log.level] = (acc[log.level] || 0) + 1;
+      acc[log.log_level] = (acc[log.log_level] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
     
@@ -295,18 +249,20 @@ export const ITSystemLogs = () => {
                 <TableBody>
                   {filteredLogs.map((log) => (
                     <TableRow key={log.id}>
-                      <TableCell className="font-mono text-sm">{log.timestamp}</TableCell>
+                      <TableCell className="font-mono text-sm">
+                        {new Date(log.created_at).toLocaleString()}
+                      </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          {getLevelIcon(log.level)}
-                          {getLevelBadge(log.level)}
+                          {getLevelIcon(log.log_level)}
+                          {getLevelBadge(log.log_level)}
                         </div>
                       </TableCell>
                       <TableCell>{log.category}</TableCell>
-                      <TableCell>{log.user}</TableCell>
+                      <TableCell>{log.user_id || 'System'}</TableCell>
                       <TableCell className="font-medium">{log.action}</TableCell>
                       <TableCell className="max-w-xs truncate">{log.details}</TableCell>
-                      <TableCell className="font-mono text-sm">{log.ip}</TableCell>
+                      <TableCell className="font-mono text-sm">{log.ip_address || 'N/A'}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -328,7 +284,7 @@ export const ITSystemLogs = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {logs.filter(log => log.level === 'error').map((log) => (
+                {logs.filter(log => log.log_level === 'error').map((log) => (
                   <Card key={log.id} className="border-destructive/20">
                     <CardContent className="pt-4">
                       <div className="flex items-start justify-between">
@@ -340,9 +296,9 @@ export const ITSystemLogs = () => {
                           </div>
                           <p className="text-sm text-muted-foreground">{log.details}</p>
                           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span>User: {log.user}</span>
-                            <span>Time: {log.timestamp}</span>
-                            <span>IP: {log.ip}</span>
+                            <span>User: {log.user_id || 'System'}</span>
+                            <span>Time: {new Date(log.created_at).toLocaleString()}</span>
+                            <span>IP: {log.ip_address || 'N/A'}</span>
                           </div>
                         </div>
                         <Button variant="outline" size="sm">

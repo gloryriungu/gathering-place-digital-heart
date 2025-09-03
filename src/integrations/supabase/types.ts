@@ -110,6 +110,81 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          created_at: string
+          description: string
+          file_size: number | null
+          file_url: string | null
+          generated_by: string | null
+          id: string
+          period: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          file_size?: number | null
+          file_url?: string | null
+          generated_by?: string | null
+          id?: string
+          period: string
+          status?: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          file_size?: number | null
+          file_url?: string | null
+          generated_by?: string | null
+          id?: string
+          period?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      security_events: {
+        Row: {
+          action_taken: string
+          created_at: string
+          description: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          severity: string
+          source: string
+        }
+        Insert: {
+          action_taken: string
+          created_at?: string
+          description: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          severity: string
+          source: string
+        }
+        Update: {
+          action_taken?: string
+          created_at?: string
+          description?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          severity?: string
+          source?: string
+        }
+        Relationships: []
+      }
       serve_departments: {
         Row: {
           created_at: string
@@ -191,6 +266,42 @@ export type Database = {
           ticket_number?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      system_logs: {
+        Row: {
+          action: string
+          category: string
+          created_at: string
+          details: string
+          id: string
+          ip_address: string | null
+          log_level: string
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          category: string
+          created_at?: string
+          details: string
+          id?: string
+          ip_address?: string | null
+          log_level: string
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          category?: string
+          created_at?: string
+          details?: string
+          id?: string
+          ip_address?: string | null
+          log_level?: string
+          metadata?: Json | null
+          user_id?: string | null
         }
         Relationships: []
       }

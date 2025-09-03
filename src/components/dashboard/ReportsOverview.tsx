@@ -3,46 +3,37 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar, Download, TrendingUp, Users, DollarSign, FileText, BarChart } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Database } from "@/integrations/supabase/types";
 
-const mockReports = [
-  {
-    id: 1,
-    title: "Monthly Attendance Report",
-    description: "December 2024 attendance summary",
-    type: "attendance",
-    date: "2024-12-01",
-    status: "ready"
-  },
-  {
-    id: 2,
-    title: "Q4 Financial Summary",
-    description: "October-December financial overview",
-    type: "financial",
-    date: "2024-12-31",
-    status: "ready"
-  },
-  {
-    id: 3,
-    title: "Annual Membership Report",
-    description: "2024 membership growth and statistics",
-    type: "membership",
-    date: "2024-12-31",
-    status: "generating"
-  },
-  {
-    id: 4,
-    title: "Weekly Service Analytics",
-    description: "Last 4 weeks service data",
-    type: "analytics",
-    date: "2024-12-29",
-    status: "ready"
-  }
-];
+type Report = Database['public']['Tables']['reports']['Row'];
 
 export const ReportsOverview = () => {
+  const [reports, setReports] = useState<Report[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedPeriod, setSelectedPeriod] = useState("monthly");
   const [selectedType, setSelectedType] = useState("all");
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const fetchReports = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('reports')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setReports(data || []);
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getReportIcon = (type: string) => {
     switch (type) {
@@ -67,14 +58,32 @@ export const ReportsOverview = () => {
     }
   };
 
-  const generateReport = (type: string, period: string) => {
-    console.log(`Generating ${type} report for ${period}`);
-    // This would trigger actual report generation
+  const generateReport = async (type: string, period: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('reports')
+        .insert({
+          title: `${type.charAt(0).toUpperCase() + type.slice(1)} Report`,
+          description: `${period.charAt(0).toUpperCase() + period.slice(1)} ${type} report`,
+          type,
+          period,
+          status: 'generating',
+          generated_by: user.id
+        });
+
+      if (error) throw error;
+      fetchReports(); // Refresh the list
+    } catch (error) {
+      console.error('Error generating report:', error);
+    }
   };
 
-  const downloadReport = (reportId: number) => {
+  const downloadReport = (reportId: string) => {
     console.log(`Downloading report ${reportId}`);
-    // This would download the actual report
+    // This would download the actual report file
   };
 
   return (
@@ -93,13 +102,13 @@ export const ReportsOverview = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Available Reports</p>
-                <p className="text-2xl font-bold">{mockReports.length}</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Available Reports</p>
+                  <p className="text-2xl font-bold">{reports.length}</p>
+                </div>
+                <FileText className="h-8 w-8 text-blue-600" />
               </div>
-              <FileText className="h-8 w-8 text-blue-600" />
-            </div>
           </CardContent>
         </Card>
 
@@ -108,7 +117,7 @@ export const ReportsOverview = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Ready to Download</p>
-                <p className="text-2xl font-bold">{mockReports.filter(r => r.status === 'ready').length}</p>
+                <p className="text-2xl font-bold">{reports.filter(r => r.status === 'ready').length}</p>
               </div>
               <Download className="h-8 w-8 text-green-600" />
             </div>
@@ -120,7 +129,7 @@ export const ReportsOverview = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Generating</p>
-                <p className="text-2xl font-bold">{mockReports.filter(r => r.status === 'generating').length}</p>
+                <p className="text-2xl font-bold">{reports.filter(r => r.status === 'generating').length}</p>
               </div>
               <TrendingUp className="h-8 w-8 text-orange-600" />
             </div>
@@ -149,32 +158,40 @@ export const ReportsOverview = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockReports.map((report) => (
-                  <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="p-2 bg-muted rounded-lg">
-                        {getReportIcon(report.type)}
+                {loading ? (
+                  <p className="text-muted-foreground">Loading reports...</p>
+                ) : reports.length === 0 ? (
+                  <p className="text-muted-foreground">No reports available</p>
+                ) : (
+                  reports.map((report) => (
+                    <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="p-2 bg-muted rounded-lg">
+                          {getReportIcon(report.type)}
+                        </div>
+                        <div>
+                          <h4 className="font-medium">{report.title}</h4>
+                          <p className="text-sm text-muted-foreground">{report.description}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {new Date(report.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-medium">{report.title}</h4>
-                        <p className="text-sm text-muted-foreground">{report.description}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{report.date}</p>
+                      <div className="flex items-center gap-3">
+                        {getStatusBadge(report.status)}
+                        {report.status === 'ready' && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => downloadReport(report.id)}
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      {getStatusBadge(report.status)}
-                      {report.status === 'ready' && (
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => downloadReport(report.id)}
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>

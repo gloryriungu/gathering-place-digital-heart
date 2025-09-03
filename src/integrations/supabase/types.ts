@@ -14,6 +14,193 @@ export type Database = {
   }
   public: {
     Tables: {
+      attendance_records: {
+        Row: {
+          checked_in_at: string | null
+          created_at: string | null
+          id: string
+          member_id: string | null
+          service_date: string
+          service_type: string | null
+        }
+        Insert: {
+          checked_in_at?: string | null
+          created_at?: string | null
+          id?: string
+          member_id?: string | null
+          service_date: string
+          service_type?: string | null
+        }
+        Update: {
+          checked_in_at?: string | null
+          created_at?: string | null
+          id?: string
+          member_id?: string | null
+          service_date?: string
+          service_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_records_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      church_events: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          current_attendees: number | null
+          description: string | null
+          event_date: string
+          event_time: string | null
+          id: string
+          location: string | null
+          max_attendees: number | null
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          current_attendees?: number | null
+          description?: string | null
+          event_date: string
+          event_time?: string | null
+          id?: string
+          location?: string | null
+          max_attendees?: number | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          current_attendees?: number | null
+          description?: string | null
+          event_date?: string
+          event_time?: string | null
+          id?: string
+          location?: string | null
+          max_attendees?: number | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      contributions: {
+        Row: {
+          amount: number
+          contribution_date: string | null
+          contribution_type: string | null
+          created_at: string | null
+          id: string
+          member_id: string | null
+          notes: string | null
+          payment_method: string | null
+        }
+        Insert: {
+          amount: number
+          contribution_date?: string | null
+          contribution_type?: string | null
+          created_at?: string | null
+          id?: string
+          member_id?: string | null
+          notes?: string | null
+          payment_method?: string | null
+        }
+        Update: {
+          amount?: number
+          contribution_date?: string | null
+          contribution_type?: string | null
+          created_at?: string | null
+          id?: string
+          member_id?: string | null
+          notes?: string | null
+          payment_method?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contributions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dashboard_stats: {
+        Row: {
+          created_at: string | null
+          id: string
+          stat_type: string
+          stat_value: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          stat_type: string
+          stat_value: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          stat_type?: string
+          stat_value?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      members: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          date_joined: string | null
+          email: string | null
+          first_name: string
+          id: string
+          last_name: string
+          phone: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          date_joined?: string | null
+          email?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          phone?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          date_joined?: string | null
+          email?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          phone?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       page_content: {
         Row: {
           content: string
@@ -393,6 +580,15 @@ export type Database = {
       generate_ticket_number: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_dashboard_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          monthly_contributions: number
+          total_members: number
+          upcoming_events: number
+          weekly_attendance: number
+        }[]
       }
       has_role: {
         Args: {

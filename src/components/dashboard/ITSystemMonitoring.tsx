@@ -122,7 +122,7 @@ export const ITSystemMonitoring = () => {
           <h2 className="text-2xl font-bold text-foreground">System Monitoring</h2>
           <p className="text-muted-foreground">Real-time system health and performance monitoring</p>
         </div>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" onClick={fetchSystemMetrics}>
           <RefreshCw className="mr-2 h-4 w-4" />
           Refresh Data
         </Button>

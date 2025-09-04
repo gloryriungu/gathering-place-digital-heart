@@ -159,6 +159,57 @@ export type Database = {
         }
         Relationships: []
       }
+      media_content: {
+        Row: {
+          content_data: Json
+          content_type: string
+          created_at: string
+          created_by: string
+          description: string | null
+          expire_date: string | null
+          id: string
+          image_url: string | null
+          priority: number | null
+          publish_date: string | null
+          status: string
+          title: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          content_data?: Json
+          content_type: string
+          created_at?: string
+          created_by: string
+          description?: string | null
+          expire_date?: string | null
+          id?: string
+          image_url?: string | null
+          priority?: number | null
+          publish_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          content_data?: Json
+          content_type?: string
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          expire_date?: string | null
+          id?: string
+          image_url?: string | null
+          priority?: number | null
+          publish_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Relationships: []
+      }
       members: {
         Row: {
           address: string | null

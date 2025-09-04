@@ -7,9 +7,10 @@ import { useAuth } from "@/components/auth/AuthProvider";
 interface AuthGuardProps {
   children: ReactNode;
   requiredRole?: string;
+  allowedRoles?: string[];
 }
 
-export const AuthGuard = ({ children, requiredRole }: AuthGuardProps) => {
+export const AuthGuard = ({ children, requiredRole, allowedRoles }: AuthGuardProps) => {
   const { isAuthenticated, userRole, loading } = useAuth();
   
   if (loading) {
@@ -46,7 +47,13 @@ export const AuthGuard = ({ children, requiredRole }: AuthGuardProps) => {
     );
   }
 
-  if (requiredRole && userRole !== requiredRole && userRole !== 'admin') {
+  const hasAccess = allowedRoles 
+    ? allowedRoles.includes(userRole || '') || userRole === 'it'
+    : requiredRole 
+      ? userRole === requiredRole || userRole === 'it'
+      : true;
+
+  if (!hasAccess) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="w-full max-w-md">

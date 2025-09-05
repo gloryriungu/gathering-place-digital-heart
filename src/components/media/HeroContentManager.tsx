@@ -12,14 +12,7 @@ interface HeroContentData {
   id: string;
   title: string;
   description: string;
-  content_data: {
-    heading: string;
-    subheading: string;
-    background_video: string;
-    background_image: string;
-    cta_primary: string;
-    cta_secondary: string;
-  };
+  content_data: any;
   status: string;
 }
 
@@ -57,13 +50,14 @@ export const HeroContentManager = () => {
 
       if (data) {
         setHeroContent(data);
+        const contentData = data.content_data as any;
         setFormData({
-          heading: data.content_data.heading || "",
-          subheading: data.content_data.subheading || "",
-          background_video: data.content_data.background_video || "",
-          background_image: data.content_data.background_image || "",
-          cta_primary: data.content_data.cta_primary || "JOIN US THIS SUNDAY",
-          cta_secondary: data.content_data.cta_secondary || "WATCH LIVE",
+          heading: contentData?.heading || "",
+          subheading: contentData?.subheading || "",
+          background_video: contentData?.background_video || "",
+          background_image: contentData?.background_image || "",
+          cta_primary: contentData?.cta_primary || "JOIN US THIS SUNDAY",
+          cta_secondary: contentData?.cta_secondary || "WATCH LIVE",
           backgroundFile: null
         });
       }

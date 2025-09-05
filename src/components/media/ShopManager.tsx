@@ -14,12 +14,7 @@ interface ProductData {
   id: string;
   title: string;
   description: string;
-  content_data: {
-    price: number;
-    category: string;
-    stock: number;
-    featured: boolean;
-  };
+  content_data: any;
   image_url?: string;
   status: string;
   created_at: string;
@@ -57,7 +52,7 @@ export const ShopManager = () => {
 
       if (error) throw error;
 
-      setProducts(data || []);
+      setProducts(data as any || []);
     } catch (error) {
       console.error('Error fetching products:', error);
       toast.error('Failed to load products');
@@ -81,13 +76,14 @@ export const ShopManager = () => {
 
   const handleEdit = (product: ProductData) => {
     setEditingProduct(product);
+    const contentData = product.content_data as any;
     setFormData({
       title: product.title,
       description: product.description || "",
-      price: product.content_data.price?.toString() || "",
-      category: product.content_data.category || "",
-      stock: product.content_data.stock?.toString() || "",
-      featured: product.content_data.featured || false,
+      price: contentData?.price?.toString() || "",
+      category: contentData?.category || "",
+      stock: contentData?.stock?.toString() || "",
+      featured: contentData?.featured || false,
       image: null
     });
     setIsCreateDialogOpen(true);
@@ -388,7 +384,7 @@ export const ShopManager = () => {
                         alt={product.title}
                         className="w-full h-full object-cover"
                       />
-                      {product.content_data.featured && (
+                      {(product.content_data as any)?.featured && (
                         <Badge className="absolute top-2 left-2 bg-yellow-500">
                           Featured
                         </Badge>
@@ -399,7 +395,7 @@ export const ShopManager = () => {
                     <div className="flex items-start justify-between">
                       <CardTitle className="text-lg line-clamp-2">{product.title}</CardTitle>
                       <Badge variant="secondary">
-                        {product.content_data.category || 'Product'}
+                        {(product.content_data as any)?.category || 'Product'}
                       </Badge>
                     </div>
                   </CardHeader>
@@ -407,10 +403,10 @@ export const ShopManager = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
                         <DollarSign className="h-4 w-4 text-green-600" />
-                        <span className="font-bold text-lg">KSh {product.content_data.price}</span>
+                        <span className="font-bold text-lg">KSh {(product.content_data as any)?.price || 0}</span>
                       </div>
                       <Badge variant="outline">
-                        Stock: {product.content_data.stock || 0}
+                        Stock: {(product.content_data as any)?.stock || 0}
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground line-clamp-2">

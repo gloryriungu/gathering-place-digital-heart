@@ -14,11 +14,7 @@ interface AnnouncementData {
   id: string;
   title: string;
   description: string;
-  content_data: {
-    priority: 'low' | 'medium' | 'high';
-    expires_at: string;
-    show_on_homepage: boolean;
-  };
+  content_data: any;
   status: string;
   created_at: string;
 }
@@ -52,7 +48,7 @@ export const AnnouncementsManager = () => {
 
       if (error) throw error;
 
-      setAnnouncements(data || []);
+      setAnnouncements(data as any || []);
     } catch (error) {
       console.error('Error fetching announcements:', error);
       toast.error('Failed to load announcements');
@@ -74,12 +70,13 @@ export const AnnouncementsManager = () => {
 
   const handleEdit = (announcement: AnnouncementData) => {
     setEditingAnnouncement(announcement);
+    const contentData = announcement.content_data as any;
     setFormData({
       title: announcement.title,
       description: announcement.description || "",
-      priority: announcement.content_data.priority || "medium",
-      expires_at: announcement.content_data.expires_at || "",
-      show_on_homepage: announcement.content_data.show_on_homepage || false
+      priority: contentData?.priority || "medium",
+      expires_at: contentData?.expires_at || "",
+      show_on_homepage: contentData?.show_on_homepage || false
     });
     setIsCreateDialogOpen(true);
   };
@@ -311,19 +308,19 @@ export const AnnouncementsManager = () => {
           ) : (
             <div className="space-y-4">
               {announcements.map((announcement) => (
-                <Card key={announcement.id} className={`${isExpired(announcement.content_data.expires_at) ? 'opacity-60' : ''}`}>
+                        <Card key={announcement.id} className={`${(announcement.content_data as any)?.expires_at && isExpired((announcement.content_data as any).expires_at) ? 'opacity-60' : ''}`}>
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-2 mb-2">
                           <h3 className="font-semibold text-lg">{announcement.title}</h3>
-                          <Badge className={getPriorityColor(announcement.content_data.priority)}>
-                            {announcement.content_data.priority.toUpperCase()}
+                          <Badge className={getPriorityColor((announcement.content_data as any)?.priority || 'medium')}>
+                            {((announcement.content_data as any)?.priority || 'medium').toUpperCase()}
                           </Badge>
-                          {announcement.content_data.show_on_homepage && (
+                          {(announcement.content_data as any)?.show_on_homepage && (
                             <Badge variant="outline">Homepage</Badge>
                           )}
-                          {isExpired(announcement.content_data.expires_at) && (
+                          {(announcement.content_data as any)?.expires_at && isExpired((announcement.content_data as any).expires_at) && (
                             <Badge variant="destructive">Expired</Badge>
                           )}
                         </div>
@@ -337,10 +334,10 @@ export const AnnouncementsManager = () => {
                             <Calendar className="h-3 w-3 mr-1" />
                             Created: {new Date(announcement.created_at).toLocaleDateString()}
                           </div>
-                          {announcement.content_data.expires_at && (
+                          {(announcement.content_data as any)?.expires_at && (
                             <div className="flex items-center">
                               <Clock className="h-3 w-3 mr-1" />
-                              Expires: {new Date(announcement.content_data.expires_at).toLocaleDateString()}
+                              Expires: {new Date((announcement.content_data as any).expires_at).toLocaleDateString()}
                             </div>
                           )}
                         </div>

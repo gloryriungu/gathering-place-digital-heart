@@ -28,6 +28,7 @@ import PropheticSchool from "./pages/PropheticSchool";
 import CounselingMentalHealth from "./pages/CounselingMentalHealth";
 import Newsletter from "./pages/Newsletter";
 import NoticeOfFilming from "./pages/NoticeOfFilming";
+import MediaDashboard from "./pages/MediaDashboard";
 import FAQ from "./pages/FAQ";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/pastors" element={<PastorsDashboard />} />
+          <Route path="/media-dashboard" element={<MediaDashboard />} />
           <Route path="/requisitions" element={<RequisitionsPage />} />
           
           <Route path="/join-the-family" element={<JoinTheFamily />} />

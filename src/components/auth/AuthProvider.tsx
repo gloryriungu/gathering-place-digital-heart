@@ -80,6 +80,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
+    // Set up real-time subscription for role changes
+    let roleSubscription: any = null;
+    
+    const setupRoleSubscription = (userId: string) => {
+      roleSubscription = supabase
+        .channel('user_role_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'user_roles',
+            filter: `user_id=eq.${userId}`
+          },
+          () => {
+            // Role changed - refresh the role
+            fetchUserRole(userId);
+          }
+        )
+        .subscribe();
+    };
+
     // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -87,12 +109,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (session?.user) {
         fetchUserRole(session.user.id);
+        setupRoleSubscription(session.user.id);
       }
       
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      if (roleSubscription) {
+        roleSubscription.unsubscribe();
+      }
+    };
   }, []);
 
   const signUp = async (email: string, password: string, userData: any) => {

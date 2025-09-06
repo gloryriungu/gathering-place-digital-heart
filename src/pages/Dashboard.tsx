@@ -38,7 +38,7 @@ import { RecentActivityCard } from "@/components/dashboard/RecentActivityCard";
 import { QuickActionsCard } from "@/components/dashboard/QuickActionsCard";
 
 const Dashboard = () => {
-  const { isAuthenticated, userRole: authUserRole, loading, signOut } = useAuth();
+  const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState<string>("user");
 
@@ -53,6 +53,13 @@ const Dashboard = () => {
       setUserRole(authUserRole);
     }
   }, [authUserRole]);
+
+  // Refresh role when dashboard loads to get latest role changes
+  useEffect(() => {
+    if (isAuthenticated && refreshRole) {
+      refreshRole();
+    }
+  }, [isAuthenticated, refreshRole]);
 
   // Show loading state
   if (loading) {

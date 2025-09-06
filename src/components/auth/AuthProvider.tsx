@@ -11,6 +11,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, userData: any) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
+  refreshRole: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -162,6 +163,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const refreshRole = async () => {
+    if (user) {
+      await fetchUserRole(user.id);
+    }
+  };
+
   const signOut = async () => {
     try {
       const { error } = await supabase.auth.signOut();
@@ -198,6 +205,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signUp,
     signIn,
     signOut,
+    refreshRole,
     isAuthenticated: !!user
   };
 

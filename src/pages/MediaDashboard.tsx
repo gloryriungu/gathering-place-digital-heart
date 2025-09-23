@@ -7,10 +7,11 @@ import { EventsManager } from "@/components/media/EventsManager";
 import { ShopManager } from "@/components/media/ShopManager";
 import { HeroContentManager } from "@/components/media/HeroContentManager";
 import { AnnouncementsManager } from "@/components/media/AnnouncementsManager";
+import { WatchPageManager } from "@/components/media/WatchPageManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Video, Calendar, ShoppingBag, Home, Megaphone, BarChart3 } from "lucide-react";
+import { Video, Calendar, ShoppingBag, Home, Megaphone, BarChart3, Play } from "lucide-react";
 
 const MediaDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -23,13 +24,14 @@ const MediaDashboard = () => {
           <MediaDashboardHeader />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-              <TabsList className="grid w-full grid-cols-6 bg-white shadow-lg rounded-xl p-1">
+              <TabsList className="grid w-full grid-cols-7 bg-white shadow-lg rounded-xl p-1">
                 <TabsTrigger value="overview" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Overview</TabsTrigger>
                 <TabsTrigger value="livestream" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Live Stream</TabsTrigger>
                 <TabsTrigger value="events" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Events</TabsTrigger>
                 <TabsTrigger value="shop" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Shop</TabsTrigger>
                 <TabsTrigger value="hero" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Homepage</TabsTrigger>
                 <TabsTrigger value="announcements" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Announcements</TabsTrigger>
+                <TabsTrigger value="watch" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Watch Page</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
@@ -131,6 +133,24 @@ const MediaDashboard = () => {
                     </CardContent>
                   </Card>
 
+                  <Card className="hover:shadow-xl transition-all duration-300 border-0 shadow-lg hover:-translate-y-1 cursor-pointer" onClick={() => setActiveTab("watch")}>
+                    <CardHeader className="pb-4">
+                      <div className="flex items-center justify-between">
+                        <div className="bg-red-100 p-3 rounded-full">
+                          <Play className="w-6 h-6 text-red-600" />
+                        </div>
+                        <Badge variant="secondary" className="bg-red-50 text-red-700">Manage</Badge>
+                      </div>
+                      <CardTitle className="text-xl">Watch Page</CardTitle>
+                      <CardDescription>Manage Watch Online page content</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-gray-600">
+                        Update sermon listings, service information, and all content displayed on the Watch Online page.
+                      </p>
+                    </CardContent>
+                  </Card>
+
                   <Card className="hover:shadow-xl transition-all duration-300 border-0 shadow-lg hover:-translate-y-1">
                     <CardHeader className="pb-4">
                       <div className="flex items-center justify-between">
@@ -169,6 +189,10 @@ const MediaDashboard = () => {
 
               <TabsContent value="announcements">
                 <AnnouncementsManager />
+              </TabsContent>
+
+              <TabsContent value="watch">
+                <WatchPageManager />
               </TabsContent>
             </Tabs>
           </div>

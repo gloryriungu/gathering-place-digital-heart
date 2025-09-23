@@ -1,8 +1,10 @@
 
-import { MapPin, Phone, Mail, Facebook, Instagram, Youtube } from "lucide-react";
+import { MapPin, Phone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useSocialMedia } from "@/hooks/useSocialMedia";
 
 export const Footer = () => {
+  const { socialLinks } = useSocialMedia();
   return (
     <footer className="bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -14,9 +16,18 @@ export const Footer = () => {
               Raising champions for Christ through sound biblical teaching, authentic worship, and transformational encounters with God.
             </p>
             <div className="flex space-x-6">
-              <Facebook className="h-8 w-8 text-gray-400 hover:text-white cursor-pointer transition-colors" />
-              <Instagram className="h-8 w-8 text-gray-400 hover:text-white cursor-pointer transition-colors" />
-              <Youtube className="h-8 w-8 text-gray-400 hover:text-white cursor-pointer transition-colors" />
+              {socialLinks.map((social) => (
+                <a
+                  key={social.platform}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white cursor-pointer transition-colors"
+                  aria-label={social.platform}
+                >
+                  <social.icon className="h-8 w-8" />
+                </a>
+              ))}
             </div>
           </div>
 

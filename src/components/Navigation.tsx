@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronDown, ShoppingCart, Facebook, Instagram, Youtube, Music2, MessageCircle } from "lucide-react";
+import { Menu, X, ChevronDown, ShoppingCart } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,11 +13,13 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { useSocialMedia } from "@/hooks/useSocialMedia";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [cartItems, setCartItems] = useState(0);
   const [isGetInvolvedOpen, setIsGetInvolvedOpen] = useState(false);
+  const { socialLinks } = useSocialMedia();
 
   const navItems = [
     { name: "ABOUT", href: "/about" },
@@ -39,14 +41,6 @@ export const Navigation = () => {
     { name: "NEWSLETTER", href: "/newsletter" },
     { name: "NOTICE OF FILMING", href: "/notice-of-filming" },
     { name: "FAQ", href: "/faq" },
-  ];
-
-  const socialLinks = [
-    { name: "Facebook", href: "https://facebook.com/totinternational", icon: Facebook },
-    { name: "Instagram", href: "https://instagram.com/totinternational", icon: Instagram },
-    { name: "YouTube", href: "https://youtube.com/totinternational", icon: Youtube },
-    { name: "Spotify", href: "https://spotify.com/totinternational", icon: Music2 },
-    { name: "TikTok", href: "https://tiktok.com/@totinternational", icon: MessageCircle },
   ];
 
   return (
@@ -99,12 +93,12 @@ export const Navigation = () => {
             <div className="flex items-center space-x-4">
               {socialLinks.map((social) => (
                 <a
-                  key={social.name}
-                  href={social.href}
+                  key={social.platform}
+                  href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-white hover:text-gray-300 transition-colors"
-                  aria-label={social.name}
+                  aria-label={social.platform}
                 >
                   <social.icon className="h-5 w-5" />
                 </a>
@@ -196,12 +190,12 @@ export const Navigation = () => {
                 <div className="flex space-x-4">
                   {socialLinks.map((social) => (
                     <a
-                      key={social.name}
-                      href={social.href}
+                      key={social.platform}
+                      href={social.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-white hover:text-gray-300 transition-colors"
-                      aria-label={social.name}
+                      aria-label={social.platform}
                     >
                       <social.icon className="h-6 w-6" />
                     </a>

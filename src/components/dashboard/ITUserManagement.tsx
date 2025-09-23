@@ -54,7 +54,8 @@ export const ITUserManagement = () => {
     { value: "sunday_school", label: "Sunday School", description: "Manage children's ministry" },
     { value: "teacher", label: "Teacher", description: "Class management & attendance" },
     { value: "it", label: "IT", description: "System administration & support" },
-    { value: "media", label: "Media", description: "Content and media management" }
+    { value: "media", label: "Media", description: "Content and media management" },
+    { value: "marketing", label: "Marketing", description: "Social media, testimonials, newsletters & outreach" }
   ];
 
   // System logging function
@@ -316,6 +317,8 @@ export const ITUserManagement = () => {
       registration: "bg-yellow-500 hover:bg-yellow-600",
       sunday_school: "bg-pink-500 hover:bg-pink-600",
       teacher: "bg-indigo-500 hover:bg-indigo-600",
+      media: "bg-orange-500 hover:bg-orange-600",
+      marketing: "bg-teal-500 hover:bg-teal-600",
       user: "bg-gray-500 hover:bg-gray-600"
     };
 

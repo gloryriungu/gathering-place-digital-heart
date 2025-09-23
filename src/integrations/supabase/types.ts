@@ -255,6 +255,7 @@ export type Database = {
           first_name: string
           id: string
           last_name: string
+          member_number: string | null
           phone: string | null
           status: string | null
           updated_at: string | null
@@ -268,6 +269,7 @@ export type Database = {
           first_name: string
           id?: string
           last_name: string
+          member_number?: string | null
           phone?: string | null
           status?: string | null
           updated_at?: string | null
@@ -281,6 +283,7 @@ export type Database = {
           first_name?: string
           id?: string
           last_name?: string
+          member_number?: string | null
           phone?: string | null
           status?: string | null
           updated_at?: string | null
@@ -787,6 +790,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_member_number: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       generate_ticket_number: {
         Args: Record<PropertyKey, never>
         Returns: string

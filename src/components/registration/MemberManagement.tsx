@@ -557,8 +557,8 @@ export const MemberManagement = () => {
                             onClick={() => convertUserToMember(user)}
                             className="flex items-center gap-2"
                           >
-                            <UserPlus className="h-4 w-4" />
-                            Add as Member
+                      <UserPlus className="h-4 w-4" />
+                      Add as Member ({user.user_id ? user.user_id.substring(0,8) : 'No ID'})
                           </Button>
                         </TableCell>
                       </TableRow>

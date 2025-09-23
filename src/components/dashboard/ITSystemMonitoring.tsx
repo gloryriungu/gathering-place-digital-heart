@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Server, 
   Database, 
@@ -21,6 +23,7 @@ import {
 } from "lucide-react";
 
 export const ITSystemMonitoring = () => {
+  const { toast } = useToast();
   const [systemMetrics, setSystemMetrics] = useState({
     servers: [
       { name: 'Web Server', status: 'online', cpu: 45, memory: 67, disk: 23, uptime: '15 days' },
@@ -41,25 +44,37 @@ export const ITSystemMonitoring = () => {
     }
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('📊 ITSystemMonitoring: Component mounted, starting initial fetch');
     fetchSystemMetrics();
     const interval = setInterval(fetchSystemMetrics, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval);
   }, []);
 
   const fetchSystemMetrics = async () => {
+    console.log('📊 ITSystemMonitoring: Starting to fetch system metrics...');
+    setLoading(true);
+    setError(null);
     try {
+      console.log('📊 ITSystemMonitoring: Making Supabase query to system_metrics table');
       const { data, error } = await supabase
         .from('system_metrics')
         .select('*')
         .order('timestamp', { ascending: false })
         .limit(10);
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ ITSystemMonitoring: Supabase error:', error);
+        throw error;
+      }
 
+      console.log('✅ ITSystemMonitoring: Successfully fetched metrics:', data?.length || 0, 'records');
+      
       // Process the metrics data to update system status
       if (data && data.length > 0) {
+        console.log('📊 ITSystemMonitoring: Processing latest metrics data:', data[0]);
         const latestMetrics = data[0];
         const metrics = latestMetrics.metric_value as any;
         
@@ -74,11 +89,32 @@ export const ITSystemMonitoring = () => {
             status: metrics.status || server.status
           }))
         }));
+        console.log('📊 ITSystemMonitoring: Updated system metrics with real data');
+        
+        toast({
+          title: "Metrics Updated",
+          description: `System monitoring data refreshed`,
+        });
+      } else {
+        console.log('📊 ITSystemMonitoring: No metrics data found, using default values');
+        toast({
+          title: "No Data",
+          description: "Using simulated monitoring data",
+        });
       }
     } catch (error) {
-      console.error('Error fetching system metrics:', error);
+      console.error('❌ ITSystemMonitoring: Error fetching system metrics:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error occurred';
+      setError(errorMsg);
+      
+      toast({
+        title: "Error Loading Metrics",
+        description: errorMsg,
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
+      console.log('📊 ITSystemMonitoring: Fetch operation completed');
     }
   };
 
@@ -122,11 +158,33 @@ export const ITSystemMonitoring = () => {
           <h2 className="text-2xl font-bold text-foreground">System Monitoring</h2>
           <p className="text-muted-foreground">Real-time system health and performance monitoring</p>
         </div>
-        <Button variant="outline" size="sm" onClick={fetchSystemMetrics} disabled={loading}>
-          <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-          Refresh Data
-        </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 px-3 py-1 rounded-md bg-muted">
+            <Activity className="h-4 w-4" />
+            <span className="text-sm">
+              {loading ? 'Monitoring...' : error ? 'Monitor Error' : 'System Active'}
+            </span>
+            <div className={`w-2 h-2 rounded-full ${
+              loading ? 'bg-yellow-500 animate-pulse' : 
+              error ? 'bg-red-500' : 
+              'bg-green-500'
+            }`} />
+          </div>
+          <Button variant="outline" size="sm" onClick={fetchSystemMetrics} disabled={loading}>
+            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh Data
+          </Button>
+        </div>
       </div>
+
+      {error && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Failed to load system metrics: {error}. Showing default monitoring data.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

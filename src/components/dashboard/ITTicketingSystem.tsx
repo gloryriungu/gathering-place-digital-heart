@@ -39,16 +39,24 @@ export const ITTicketingSystem = () => {
   }, []);
 
   const fetchTickets = async () => {
+    console.log('🎫 ITTicketingSystem: Starting to fetch tickets...');
+    setLoading(true);
     try {
+      console.log('🎫 ITTicketingSystem: Making Supabase query to support_tickets table');
       const { data, error } = await supabase
         .from('support_tickets')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ ITTicketingSystem: Supabase error:', error);
+        throw error;
+      }
+      
+      console.log('✅ ITTicketingSystem: Successfully fetched tickets:', data?.length || 0, 'records');
       setTickets(data || []);
     } catch (error) {
-      console.error('Error fetching tickets:', error);
+      console.error('❌ ITTicketingSystem: Error fetching tickets:', error);
       toast({
         title: "Error",
         description: "Failed to load tickets",
@@ -56,6 +64,7 @@ export const ITTicketingSystem = () => {
       });
     } finally {
       setLoading(false);
+      console.log('🎫 ITTicketingSystem: Fetch operation completed');
     }
   };
 

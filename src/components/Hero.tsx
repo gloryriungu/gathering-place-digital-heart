@@ -1,13 +1,116 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, ArrowRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface HeroContent {
+  id: string;
+  title: string;
+  description: string;
+  content_data: {
+    heading?: string;
+    subheading?: string;
+    cta1_text?: string;
+    cta2_text?: string;
+    video_url?: string;
+    image_url?: string;
+  };
+  image_url?: string;
+  video_url?: string;
+}
+
 export const Hero = () => {
+  const [heroContent, setHeroContent] = useState<HeroContent | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchHeroContent();
+    
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('hero-content-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'media_content',
+          filter: "content_type=eq.hero_content"
+        },
+        () => {
+          fetchHeroContent();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const fetchHeroContent = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('media_content')
+        .select('*')
+        .eq('content_type', 'hero_content')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching hero content:', error);
+      } else {
+        setHeroContent(data as HeroContent);
+      }
+    } catch (error) {
+      console.error('Error fetching hero content:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <section className="relative min-h-screen bg-primary text-primary-foreground overflow-hidden">
+        <div className="relative flex items-center justify-center min-h-screen pb-32">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-7 text-center space-y-6">
+            <Skeleton className="h-20 w-full max-w-4xl mx-auto" />
+            <Skeleton className="h-16 w-full max-w-6xl mx-auto" />
+            <Skeleton className="h-12 w-full max-w-4xl mx-auto" />
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <Skeleton className="h-14 w-48" />
+              <Skeleton className="h-14 w-48" />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Fallback content if no data exists
+  const defaultContent = {
+    heading: "WELCOME TO TOT INTERNATIONAL",
+    subheading: "A ministry committed to raising champions for Christ through sound biblical teaching, authentic worship, and transformational encounters with God.",
+    cta1_text: "JOIN US THIS SUNDAY",
+    cta2_text: "WATCH LIVE",
+    video_url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+    image_url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80"
+  };
+
+  const content = heroContent?.content_data || defaultContent;
+  const backgroundVideo = heroContent?.video_url || content.video_url || defaultContent.video_url;
+  const backgroundImage = heroContent?.image_url || content.image_url || defaultContent.image_url;
+
   return <section className="relative min-h-screen bg-primary text-primary-foreground overflow-hidden">
       {/* Background Video */}
       <video className="absolute inset-0 w-full h-full object-cover" autoPlay loop muted playsInline>
-        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4" />
+        <source src={backgroundVideo} type="video/mp4" />
         {/* Fallback image if video fails to load */}
         <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
-        backgroundImage: `url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')`
+        backgroundImage: `url('${backgroundImage}')`
       }}></div>
       </video>
       <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/80"></div>
@@ -16,21 +119,20 @@ export const Hero = () => {
       <div className="relative flex items-center justify-center min-h-screen pb-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-7 text-center">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight leading-tight">
-            WELCOME TO<br />
-            <span className="text-primary-foreground">TOT INTERNATIONAL</span>
+            {content.heading || defaultContent.heading}
           </h1>
           <p className="text-xl md:text-2xl mb-12 max-w-4xl mx-auto font-light leading-relaxed">
-            A ministry committed to raising champions for Christ through sound biblical teaching, authentic worship, and transformational encounters with God.
+            {content.subheading || defaultContent.subheading}
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Button size="lg" className="bg-white text-black font-bold px-8 py-4 text-lg shadow-lg hover:bg-white">
-              JOIN US THIS SUNDAY
+              {content.cta1_text || defaultContent.cta1_text}
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
             <Button size="lg" className="border-2 border-white text-white bg-white/10 backdrop-blur-sm font-bold px-8 py-4 text-lg whitespace-nowrap shadow-lg hover:bg-white/20">
               <Play className="h-5 w-5 mr-2" />
-              WATCH LIVE
+              {content.cta2_text || defaultContent.cta2_text}
             </Button>
           </div>
         </div>

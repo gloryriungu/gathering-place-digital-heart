@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,14 +8,18 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, Plus, Minus, X, Facebook, Instagram, Youtube, Twitter } from "lucide-react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   price: number;
   description: string;
   image: string;
   category: string;
+  stock?: number;
+  featured?: boolean;
 }
 
 interface CartItem extends Product {
@@ -25,10 +29,73 @@ interface CartItem extends Product {
 const Shop = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const products: Product[] = [
+  useEffect(() => {
+    fetchProducts();
+    
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('products-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'media_content',
+          filter: "content_type=eq.product"
+        },
+        () => {
+          fetchProducts();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('media_content')
+        .select('*')
+        .eq('content_type', 'product')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching products:', error);
+      } else {
+        const formattedProducts = data?.map(item => {
+          const contentData = item.content_data as any;
+          return {
+            id: item.id,
+            name: item.title,
+            price: contentData?.price || 0,
+            description: item.description,
+            image: item.image_url || "/placeholder.svg",
+            category: contentData?.category || "General",
+            stock: contentData?.stock || 0,
+            featured: contentData?.featured || false
+          };
+        }) || [];
+        
+        setProducts(formattedProducts);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fallback products if no data exists
+  const defaultProducts: Product[] = [
     {
-      id: 1,
+      id: "1",
       name: "Faith Over Fear T-Shirt",
       price: 25.99,
       description: "Comfortable cotton t-shirt with inspirational message",
@@ -36,7 +103,7 @@ const Shop = () => {
       category: "Apparel"
     },
     {
-      id: 2,
+      id: "2",
       name: "Daily Devotional Book",
       price: 19.99,
       description: "365 days of spiritual guidance and inspiration",
@@ -44,7 +111,7 @@ const Shop = () => {
       category: "Books"
     },
     {
-      id: 3,
+      id: "3",
       name: "Worship Music CD",
       price: 15.99,
       description: "Latest worship songs from our church",
@@ -52,7 +119,7 @@ const Shop = () => {
       category: "Music"
     },
     {
-      id: 4,
+      id: "4",
       name: "Prayer Journal",
       price: 12.99,
       description: "Beautiful journal for your daily prayers",
@@ -60,7 +127,7 @@ const Shop = () => {
       category: "Books"
     },
     {
-      id: 5,
+      id: "5",
       name: "Church Hoodie",
       price: 39.99,
       description: "Warm and comfortable hoodie with church logo",
@@ -68,7 +135,7 @@ const Shop = () => {
       category: "Apparel"
     },
     {
-      id: 6,
+      id: "6",
       name: "Scripture Coffee Mug",
       price: 14.99,
       description: "Start your day with God's word",
@@ -76,6 +143,8 @@ const Shop = () => {
       category: "Accessories"
     }
   ];
+
+  const displayProducts = products.length > 0 ? products : defaultProducts;
 
   const addToCart = (product: Product) => {
     setCart(prevCart => {
@@ -91,11 +160,11 @@ const Shop = () => {
     });
   };
 
-  const removeFromCart = (productId: number) => {
+  const removeFromCart = (productId: string) => {
     setCart(prevCart => prevCart.filter(item => item.id !== productId));
   };
 
-  const updateQuantity = (productId: number, newQuantity: number) => {
+  const updateQuantity = (productId: string, newQuantity: number) => {
     if (newQuantity === 0) {
       removeFromCart(productId);
       return;
@@ -247,39 +316,63 @@ const Shop = () => {
               </Sheet>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
-                <Card key={product.id} className="overflow-hidden">
-                  <CardHeader className="p-0">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="h-48 w-full object-cover"
-                    />
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <CardTitle className="text-lg">{product.name}</CardTitle>
-                      <Badge variant="secondary">{product.category}</Badge>
-                    </div>
-                    <CardDescription className="mb-4">
-                      {product.description}
-                    </CardDescription>
-                    <p className="text-2xl font-bold text-primary">
-                      KSh {product.price}
-                    </p>
-                  </CardContent>
-                  <CardFooter className="p-4 pt-0">
-                    <Button
-                      className="w-full"
-                      onClick={() => addToCart(product)}
-                    >
-                      Add to Cart
-                    </Button>
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <Card key={i} className="overflow-hidden">
+                    <CardHeader className="p-0">
+                      <Skeleton className="h-48 w-full" />
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <Skeleton className="h-6 w-3/4" />
+                        <Skeleton className="h-5 w-16" />
+                      </div>
+                      <Skeleton className="h-16 w-full mb-4" />
+                      <Skeleton className="h-8 w-20" />
+                    </CardContent>
+                    <CardFooter className="p-4 pt-0">
+                      <Skeleton className="h-10 w-full" />
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {displayProducts.map((product) => (
+                  <Card key={product.id} className="overflow-hidden">
+                    <CardHeader className="p-0">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="h-48 w-full object-cover"
+                      />
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <CardTitle className="text-lg">{product.name}</CardTitle>
+                        <Badge variant="secondary">{product.category}</Badge>
+                      </div>
+                      <CardDescription className="mb-4">
+                        {product.description}
+                      </CardDescription>
+                      <p className="text-2xl font-bold text-primary">
+                        KSh {product.price}
+                      </p>
+                    </CardContent>
+                    <CardFooter className="p-4 pt-0">
+                      <Button
+                        className="w-full"
+                        onClick={() => addToCart(product)}
+                        disabled={product.stock === 0}
+                      >
+                        {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </main>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,40 +7,181 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Download, Users, Calendar, Check } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-const mockMembers = [
-  { id: 1, name: "John Smith", phone: "+1234567890", status: "present" },
-  { id: 2, name: "Sarah Johnson", phone: "+1234567891", status: "absent" },
-  { id: 3, name: "Michael Brown", phone: "+1234567892", status: "present" },
-  { id: 4, name: "Emily Davis", phone: "+1234567893", status: "present" },
-  { id: 5, name: "David Wilson", phone: "+1234567894", status: "absent" },
-  { id: 6, name: "Lisa Anderson", phone: "+1234567895", status: "present" },
-];
+interface Member {
+  id: string;
+  first_name: string;
+  last_name: string;
+  phone?: string;
+  email?: string;
+  status: string;
+}
+
+interface AttendanceRecord {
+  id: string;
+  member_id: string;
+  service_date: string;
+  service_type: string;
+  checked_in_at: string;
+}
+
+interface MemberWithAttendance extends Member {
+  isPresent: boolean;
+  attendance_id?: string;
+}
 
 export const AttendanceTracker = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [serviceType, setServiceType] = useState("sunday-service");
+  const [serviceType, setServiceType] = useState("sunday_service");
   const [searchTerm, setSearchTerm] = useState("");
-  const [members, setMembers] = useState(mockMembers);
+  const [members, setMembers] = useState<MemberWithAttendance[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  const filteredMembers = members.filter(member =>
-    member.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    fetchMembersWithAttendance();
+  }, [selectedDate, serviceType]);
 
-  const presentCount = members.filter(m => m.status === "present").length;
-  const totalCount = members.length;
-  const attendanceRate = Math.round((presentCount / totalCount) * 100);
+  const fetchMembersWithAttendance = async () => {
+    try {
+      setLoading(true);
 
-  const toggleAttendance = (memberId: number) => {
-    setMembers(prev => prev.map(member =>
-      member.id === memberId
-        ? { ...member, status: member.status === "present" ? "absent" : "present" }
-        : member
-    ));
+      // Fetch all active members
+      const { data: membersData, error: membersError } = await supabase
+        .from('members')
+        .select('*')
+        .eq('status', 'active')
+        .order('first_name');
+
+      if (membersError) throw membersError;
+
+      // Fetch attendance records for selected date and service type
+      const { data: attendanceData, error: attendanceError } = await supabase
+        .from('attendance_records')
+        .select('*')
+        .eq('service_date', selectedDate)
+        .eq('service_type', serviceType);
+
+      if (attendanceError) throw attendanceError;
+
+      // Combine members with their attendance status
+      const membersWithAttendance: MemberWithAttendance[] = (membersData || []).map(member => {
+        const attendanceRecord = attendanceData?.find(record => record.member_id === member.id);
+        return {
+          ...member,
+          isPresent: !!attendanceRecord,
+          attendance_id: attendanceRecord?.id
+        };
+      });
+
+      setMembers(membersWithAttendance);
+    } catch (error) {
+      console.error('Error fetching members and attendance:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load attendance data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const markAllPresent = () => {
-    setMembers(prev => prev.map(member => ({ ...member, status: "present" })));
+  const filteredMembers = members.filter(member =>
+    `${member.first_name} ${member.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    member.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    member.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const presentCount = members.filter(m => m.isPresent).length;
+  const totalCount = members.length;
+  const attendanceRate = totalCount > 0 ? Math.round((presentCount / totalCount) * 100) : 0;
+
+  const toggleAttendance = async (memberId: string) => {
+    try {
+      const member = members.find(m => m.id === memberId);
+      if (!member) return;
+
+      if (member.isPresent && member.attendance_id) {
+        // Remove attendance record
+        const { error } = await supabase
+          .from('attendance_records')
+          .delete()
+          .eq('id', member.attendance_id);
+
+        if (error) throw error;
+      } else {
+        // Add attendance record
+        const { error } = await supabase
+          .from('attendance_records')
+          .insert({
+            member_id: memberId,
+            service_date: selectedDate,
+            service_type: serviceType,
+            checked_in_at: new Date().toISOString()
+          });
+
+        if (error) throw error;
+      }
+
+      // Refresh the data
+      fetchMembersWithAttendance();
+      
+      toast({
+        title: "Success",
+        description: member.isPresent ? "Member marked absent" : "Member marked present",
+      });
+    } catch (error) {
+      console.error('Error toggling attendance:', error);
+      toast({
+        title: "Error", 
+        description: "Failed to update attendance",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const markAllPresent = async () => {
+    try {
+      const absentMembers = members.filter(m => !m.isPresent);
+      
+      if (absentMembers.length === 0) {
+        toast({
+          title: "Info",
+          description: "All members are already marked present",
+        });
+        return;
+      }
+
+      const attendanceRecords = absentMembers.map(member => ({
+        member_id: member.id,
+        service_date: selectedDate,
+        service_type: serviceType,
+        checked_in_at: new Date().toISOString()
+      }));
+
+      const { error } = await supabase
+        .from('attendance_records')
+        .insert(attendanceRecords);
+
+      if (error) throw error;
+
+      fetchMembersWithAttendance();
+      
+      toast({
+        title: "Success",
+        description: `Marked ${absentMembers.length} members as present`,
+      });
+    } catch (error) {
+      console.error('Error marking all present:', error);
+      toast({
+        title: "Error",
+        description: "Failed to mark all members present",
+        variant: "destructive",
+      });
+    }
   };
 
   const exportAttendance = () => {
@@ -51,9 +192,10 @@ export const AttendanceTracker = () => {
       presentMembers: presentCount,
       attendanceRate: `${attendanceRate}%`,
       members: members.map(m => ({
-        name: m.name,
-        phone: m.phone,
-        status: m.status
+        name: `${m.first_name} ${m.last_name}`,
+        phone: m.phone || '',
+        email: m.email || '',
+        status: m.isPresent ? 'present' : 'absent'
       }))
     };
     
@@ -151,10 +293,10 @@ export const AttendanceTracker = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="sunday-service">Sunday Service</SelectItem>
-                  <SelectItem value="wednesday-service">Wednesday Service</SelectItem>
-                  <SelectItem value="friday-service">Friday Service</SelectItem>
-                  <SelectItem value="special-event">Special Event</SelectItem>
+                  <SelectItem value="sunday_service">Sunday Service</SelectItem>
+                  <SelectItem value="wednesday_service">Wednesday Service</SelectItem>
+                  <SelectItem value="friday_service">Friday Service</SelectItem>
+                  <SelectItem value="special_event">Special Event</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -185,31 +327,45 @@ export const AttendanceTracker = () => {
             </div>
           </div>
 
-          <div className="space-y-2 max-h-96 overflow-y-auto">
-            {filteredMembers.map((member) => (
-              <div
-                key={member.id}
-                className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center space-x-4">
-                  <Checkbox
-                    checked={member.status === "present"}
-                    onCheckedChange={() => toggleAttendance(member.id)}
-                  />
-                  <div>
-                    <p className="font-medium">{member.name}</p>
-                    <p className="text-sm text-muted-foreground">{member.phone}</p>
+          {loading ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {filteredMembers.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">
+                  {searchTerm ? "No members found matching your search" : "No members available"}
+                </p>
+              ) : (
+                filteredMembers.map((member) => (
+                  <div
+                    key={member.id}
+                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <Checkbox
+                        checked={member.isPresent}
+                        onCheckedChange={() => toggleAttendance(member.id)}
+                      />
+                      <div>
+                        <p className="font-medium">{member.first_name} {member.last_name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {member.phone || member.email || 'No contact info'}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge
+                      variant={member.isPresent ? "default" : "secondary"}
+                      className={member.isPresent ? "bg-green-100 text-green-800" : ""}
+                    >
+                      {member.isPresent ? "Present" : "Absent"}
+                    </Badge>
                   </div>
-                </div>
-                <Badge
-                  variant={member.status === "present" ? "default" : "secondary"}
-                  className={member.status === "present" ? "bg-green-100 text-green-800" : ""}
-                >
-                  {member.status === "present" ? "Present" : "Absent"}
-                </Badge>
-              </div>
-            ))}
-          </div>
+                ))
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -65,6 +65,14 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, loading, authUserRole, navigate]);
 
+  // Redirect registration users to registration dashboard
+  useEffect(() => {
+    if (!loading && isAuthenticated && authUserRole === 'registration') {
+      console.log('Redirecting registration user to registration dashboard');
+      navigate('/registration-dashboard');
+    }
+  }, [isAuthenticated, loading, authUserRole, navigate]);
+
   useEffect(() => {
     if (authUserRole) {
       setUserRole(authUserRole);

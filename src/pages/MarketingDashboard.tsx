@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { Navigation } from "@/components/Navigation";
 import { AuthGuard } from "@/components/shared/AuthGuard";
+import { MarketingDashboardHeader } from "@/components/marketing/MarketingDashboardHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, Users, Star, MessageSquare, Share2, HelpCircle, FileText, Mail } from "lucide-react";
@@ -62,27 +64,11 @@ const MarketingDashboard = () => {
 
   return (
     <AuthGuard allowedRoles={["marketing", "it"]}>
-      <div className="min-h-screen bg-background">
-        <div className="border-b bg-card">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="py-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-3xl font-bold text-foreground">Marketing Dashboard</h1>
-                  <p className="text-muted-foreground mt-2">
-                    Manage all marketing content, CRM, and public communications
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Users className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Marketing Team</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="pt-20">
+          <MarketingDashboardHeader />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -150,6 +136,7 @@ const MarketingDashboard = () => {
               <FAQManager />
             </TabsContent>
           </Tabs>
+          </div>
         </div>
       </div>
     </AuthGuard>

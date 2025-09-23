@@ -109,8 +109,8 @@ export const ITSystemLogs = () => {
           <p className="text-muted-foreground">Monitor system activity and troubleshoot issues</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <RefreshCw className="mr-2 h-4 w-4" />
+          <Button variant="outline" size="sm" onClick={fetchLogs} disabled={loading}>
+            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
           <Button variant="outline" size="sm">
@@ -234,39 +234,52 @@ export const ITSystemLogs = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Time</TableHead>
-                    <TableHead>Level</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>User</TableHead>
-                    <TableHead>Action</TableHead>
-                    <TableHead>Details</TableHead>
-                    <TableHead>IP Address</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredLogs.map((log) => (
-                    <TableRow key={log.id}>
-                      <TableCell className="font-mono text-sm">
-                        {new Date(log.created_at).toLocaleString()}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getLevelIcon(log.log_level)}
-                          {getLevelBadge(log.log_level)}
-                        </div>
-                      </TableCell>
-                      <TableCell>{log.category}</TableCell>
-                      <TableCell>{log.user_id || 'System'}</TableCell>
-                      <TableCell className="font-medium">{log.action}</TableCell>
-                      <TableCell className="max-w-xs truncate">{log.details}</TableCell>
-                      <TableCell className="font-mono text-sm">{log.ip_address || 'N/A'}</TableCell>
+              {loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <RefreshCw className="h-6 w-6 animate-spin mr-2" />
+                  <span>Loading system logs...</span>
+                </div>
+              ) : filteredLogs.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No system logs found</p>
+                  <p className="text-sm">Check your filters or try refreshing</p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Time</TableHead>
+                      <TableHead>Level</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>User</TableHead>
+                      <TableHead>Action</TableHead>
+                      <TableHead>Details</TableHead>
+                      <TableHead>IP Address</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredLogs.map((log) => (
+                      <TableRow key={log.id}>
+                        <TableCell className="font-mono text-sm">
+                          {new Date(log.created_at).toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {getLevelIcon(log.log_level)}
+                            {getLevelBadge(log.log_level)}
+                          </div>
+                        </TableCell>
+                        <TableCell>{log.category}</TableCell>
+                        <TableCell>{log.user_id || 'System'}</TableCell>
+                        <TableCell className="font-medium">{log.action}</TableCell>
+                        <TableCell className="max-w-xs truncate">{log.details}</TableCell>
+                        <TableCell className="font-mono text-sm">{log.ip_address || 'N/A'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

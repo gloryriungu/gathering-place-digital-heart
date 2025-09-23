@@ -124,8 +124,8 @@ export const ITSecurity = () => {
           <p className="text-muted-foreground">Monitor and manage system security</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
-            <RefreshCw className="mr-2 h-4 w-4" />
+          <Button variant="outline" size="sm" onClick={fetchSecurityEvents} disabled={loading}>
+            <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             Run Security Scan
           </Button>
           <Button variant="outline" size="sm">
@@ -305,23 +305,40 @@ export const ITSecurity = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {securityEvents.map((event) => (
-                    <TableRow key={event.id}>
-                      <TableCell className="font-mono text-sm">
-                        {new Date(event.created_at).toLocaleString()}
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8">
+                        <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />
+                        <p>Loading security events...</p>
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {getEventIcon(event.type)}
-                          <span className="capitalize">{event.type}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>{event.description}</TableCell>
-                      <TableCell className="font-mono text-sm">{event.source}</TableCell>
-                      <TableCell>{getSeverityBadge(event.severity)}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{event.action}</TableCell>
                     </TableRow>
-                  ))}
+                  ) : securityEvents.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        <Shield className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p>No security events found</p>
+                        <p className="text-sm">Your system is secure</p>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    securityEvents.map((event) => (
+                      <TableRow key={event.id}>
+                        <TableCell className="font-mono text-sm">
+                          {new Date(event.created_at).toLocaleString()}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {getEventIcon(event.type)}
+                            <span className="capitalize">{event.type}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{event.description}</TableCell>
+                        <TableCell className="font-mono text-sm">{event.source}</TableCell>
+                        <TableCell>{getSeverityBadge(event.severity)}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">{event.action}</TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </CardContent>

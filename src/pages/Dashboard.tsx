@@ -50,7 +50,9 @@ const Dashboard = () => {
 
   // Redirect media users to media dashboard
   useEffect(() => {
+    console.log('Dashboard redirect check:', { loading, isAuthenticated, authUserRole });
     if (!loading && isAuthenticated && authUserRole === 'media') {
+      console.log('Redirecting media user to media dashboard');
       navigate('/media-dashboard');
     }
   }, [isAuthenticated, loading, authUserRole, navigate]);
@@ -137,12 +139,24 @@ const Dashboard = () => {
       sunday_school: "default" as const,
       teacher: "secondary" as const,
       it: "destructive" as const,
+      media: "default" as const,
       user: "outline" as const
+    };
+
+    const roleLabels = {
+      admin: "Admin",
+      registration: "Registration", 
+      accounts: "Accounts",
+      sunday_school: "Sunday School",
+      teacher: "Teacher",
+      it: "IT",
+      media: "Media",
+      user: "User"
     };
     
     return (
       <Badge variant={roleColors[userRole as keyof typeof roleColors] || "outline"}>
-        {userRole.charAt(0).toUpperCase() + userRole.slice(1)} Department
+        {roleLabels[userRole as keyof typeof roleLabels] || "User"} Department
       </Badge>
     );
   };

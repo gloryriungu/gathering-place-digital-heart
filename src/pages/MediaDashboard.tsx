@@ -17,7 +17,7 @@ const MediaDashboard = () => {
 
   return (
     <AuthGuard allowedRoles={["media", "it"]}>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="min-h-screen bg-gray-50">
         <Navigation />
         <div className="pt-20">
           <MediaDashboardHeader />

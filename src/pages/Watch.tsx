@@ -1,48 +1,92 @@
 
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Play, Calendar, Clock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface WatchPageData {
+  hero_title: string;
+  hero_subtitle: string;
+  live_service_title: string;
+  live_service_description: string;
+  service_times: string;
+  sermons: Array<{
+    title: string;
+    date: string;
+    duration: string;
+    description: string;
+    video_url?: string;
+  }>;
+}
 
 const Watch = () => {
-  const sermons = [
-    {
-      title: "Champions of Faith",
-      date: "January 21, 2024",
-      duration: "52 min",
-      description: "Discover how to live as a champion of faith, overcoming every obstacle through God's power and promises."
-    },
-    {
-      title: "Destined for Greatness",
-      date: "January 14, 2024", 
-      duration: "48 min",
-      description: "Understanding your divine destiny and walking in the greatness God has planned for your life."
-    },
-    {
-      title: "The Power of Prayer",
-      date: "January 7, 2024",
-      duration: "45 min", 
-      description: "Unlocking the supernatural power of prayer and intercession in your daily walk with God."
-    },
-    {
-      title: "Walking in Victory",
-      date: "December 31, 2023",
-      duration: "50 min",
-      description: "How to maintain victory in every area of your life through faith and obedience to God's Word."
-    },
-    {
-      title: "The Heart of Worship",
-      date: "December 24, 2023",
-      duration: "43 min",
-      description: "Cultivating a heart of true worship that brings transformation and touches the heart of God."
-    },
-    {
-      title: "Prophetic Destiny",
-      date: "December 17, 2023",
-      duration: "55 min",
-      description: "Understanding and walking in your prophetic destiny as a champion raised for this generation."
+  const [watchData, setWatchData] = useState<WatchPageData>({
+    hero_title: "WATCH ONLINE",
+    hero_subtitle: "Experience the presence of God from anywhere in the world. Join our live services and be transformed by God's Word.",
+    live_service_title: "Worship With Us Live",
+    live_service_description: "Every Sunday at 9:00 AM & 11:00 AM EAT - Experience powerful worship, life-changing messages, and the presence of God.",
+    service_times: "Sundays: 9:00 AM & 11:00 AM EAT\nWednesday: 7:00 PM Bible Study",
+    sermons: [
+      {
+        title: "Champions of Faith",
+        date: "January 21, 2024",
+        duration: "52 min",
+        description: "Discover how to live as a champion of faith, overcoming every obstacle through God's power and promises."
+      },
+      {
+        title: "Destined for Greatness",
+        date: "January 14, 2024", 
+        duration: "48 min",
+        description: "Understanding your divine destiny and walking in the greatness God has planned for your life."
+      },
+      {
+        title: "The Power of Prayer",
+        date: "January 7, 2024",
+        duration: "45 min", 
+        description: "Unlocking the supernatural power of prayer and intercession in your daily walk with God."
+      }
+    ]
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchWatchPageData();
+  }, []);
+
+  const fetchWatchPageData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('media_content')
+        .select('*')
+        .eq('content_type', 'watch_page')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.error('Error fetching watch page data:', error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const content = data[0].content_data as any;
+        setWatchData({
+          hero_title: content?.hero_title || watchData.hero_title,
+          hero_subtitle: content?.hero_subtitle || watchData.hero_subtitle,
+          live_service_title: content?.live_service_title || watchData.live_service_title,
+          live_service_description: content?.live_service_description || watchData.live_service_description,
+          service_times: content?.service_times || watchData.service_times,
+          sermons: content?.sermons || watchData.sermons
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching watch page data:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -52,9 +96,9 @@ const Watch = () => {
         <section className="relative bg-black text-white py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-black mb-6">WATCH ONLINE</h1>
+              <h1 className="text-4xl md:text-6xl font-black mb-6">{watchData.hero_title}</h1>
               <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-8">
-                Experience the presence of God from anywhere in the world. Join our live services and be transformed by God's Word.
+                {watchData.hero_subtitle}
               </p>
               <Button className="bg-white text-black hover:bg-gray-100 font-bold text-lg px-8 py-4">
                 <Play className="mr-2 h-5 w-5" />
@@ -68,9 +112,9 @@ const Watch = () => {
         <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">Worship With Us Live</h2>
+              <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">{watchData.live_service_title}</h2>
               <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-                Every Sunday at 9:00 AM & 11:00 AM EAT - Experience powerful worship, life-changing messages, and the presence of God.
+                {watchData.live_service_description}
               </p>
             </div>
             
@@ -87,8 +131,9 @@ const Watch = () => {
                 <div className="bg-gray-50 p-6 rounded-lg">
                   <Calendar className="h-8 w-8 mx-auto mb-4 text-black" />
                   <h3 className="text-xl font-bold text-black mb-2">Service Times</h3>
-                  <p className="text-gray-700">Sundays: 9:00 AM & 11:00 AM EAT</p>
-                  <p className="text-gray-700">Wednesday: 7:00 PM Bible Study</p>
+                  {watchData.service_times.split('\n').map((time, index) => (
+                    <p key={index} className="text-gray-700">{time}</p>
+                  ))}
                 </div>
                 <div className="bg-gray-50 p-6 rounded-lg">
                   <Clock className="h-8 w-8 mx-auto mb-4 text-black" />
@@ -112,7 +157,7 @@ const Watch = () => {
             </div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {sermons.map((sermon, index) => (
+              {watchData.sermons.map((sermon, index) => (
                 <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
                   <div className="aspect-video bg-black flex items-center justify-center">
                     <Play className="h-12 w-12 text-white opacity-60" />

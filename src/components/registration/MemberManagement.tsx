@@ -80,7 +80,10 @@ export const MemberManagement = () => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (membersError) throw membersError;
+      if (membersError) {
+        console.error('Members error:', membersError);
+        throw membersError;
+      }
 
       // Fetch registered users who are not yet members
       const { data: profilesData, error: profilesError } = await supabase
@@ -88,11 +91,20 @@ export const MemberManagement = () => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error('Profiles error:', profilesError);
+        throw profilesError;
+      }
+
+      console.log('Profiles data:', profilesData);
+      console.log('Members data:', membersData);
 
       // Filter out users who are already members
       const memberUserIds = (membersData || []).map(m => m.user_id).filter(Boolean);
       const nonMemberUsers = (profilesData || []).filter(p => !memberUserIds.includes(p.user_id));
+
+      console.log('Member user IDs:', memberUserIds);
+      console.log('Non-member users:', nonMemberUsers);
 
       setMembers(membersData || []);
       setRegisteredUsers(nonMemberUsers);

@@ -8,6 +8,73 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Mail, Calendar, Users, BookOpen } from "lucide-react";
 
 const Newsletter = () => {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    preferences: {
+      weekly: true,
+      events: true,
+      prayer: false,
+      devotional: false
+    }
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from('newsletter_subscribers')
+        .insert([{
+          email: formData.email,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          subscription_preferences: formData.preferences
+        }]);
+
+      if (error) {
+        if (error.code === '23505') { // Unique constraint violation
+          toast({
+            title: "Already Subscribed",
+            description: "This email is already subscribed to our newsletter.",
+            variant: "destructive",
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({
+          title: "Success!",
+          description: "You've been successfully subscribed to our newsletter.",
+        });
+        // Reset form
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          preferences: {
+            weekly: true,
+            events: true,
+            prayer: false,
+            devotional: false
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error subscribing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to subscribe. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -36,47 +103,106 @@ const Newsletter = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" placeholder="Enter your first name" />
-                </div>
-                <div>
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" placeholder="Enter your last name" />
-                </div>
-              </div>
-              
-              <div>
-                <Label htmlFor="email">Email Address</Label>
-                <Input id="email" type="email" placeholder="Enter your email address" />
-              </div>
+              <form onSubmit={handleSubmit}>
+                <div className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="firstName">First Name</Label>
+                      <Input 
+                        id="firstName" 
+                        value={formData.firstName}
+                        onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                        placeholder="Enter your first name" 
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <Input 
+                        id="lastName" 
+                        value={formData.lastName}
+                        onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                        placeholder="Enter your last name" 
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      value={formData.email}
+                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                      placeholder="Enter your email address" 
+                      required
+                    />
+                  </div>
 
-              <div className="space-y-3">
-                <Label>Subscription Preferences</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="weekly" defaultChecked />
-                    <Label htmlFor="weekly">Weekly Newsletter (Sundays)</Label>
+                  <div className="space-y-3">
+                    <Label>Subscription Preferences</Label>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="weekly" 
+                          checked={formData.preferences.weekly}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({
+                              ...prev, 
+                              preferences: { ...prev.preferences, weekly: checked as boolean }
+                            }))
+                          }
+                        />
+                        <Label htmlFor="weekly">Weekly Newsletter (Sundays)</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="events" 
+                          checked={formData.preferences.events}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({
+                              ...prev, 
+                              preferences: { ...prev.preferences, events: checked as boolean }
+                            }))
+                          }
+                        />
+                        <Label htmlFor="events">Event Announcements</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="prayer" 
+                          checked={formData.preferences.prayer}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({
+                              ...prev, 
+                              preferences: { ...prev.preferences, prayer: checked as boolean }
+                            }))
+                          }
+                        />
+                        <Label htmlFor="prayer">Prayer Requests & Updates</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="devotional" 
+                          checked={formData.preferences.devotional}
+                          onCheckedChange={(checked) => 
+                            setFormData(prev => ({
+                              ...prev, 
+                              preferences: { ...prev.preferences, devotional: checked as boolean }
+                            }))
+                          }
+                        />
+                        <Label htmlFor="devotional">Daily Devotionals</Label>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="events" defaultChecked />
-                    <Label htmlFor="events">Event Announcements</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="prayer" />
-                    <Label htmlFor="prayer">Prayer Requests & Updates</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox id="devotional" />
-                    <Label htmlFor="devotional">Daily Devotionals</Label>
-                  </div>
-                </div>
-              </div>
 
-              <Button className="w-full" size="lg">
-                Subscribe Now
-              </Button>
+                  <Button className="w-full" size="lg" type="submit" disabled={submitting}>
+                    {submitting ? "Subscribing..." : "Subscribe Now"}
+                  </Button>
+                </div>
+              </form>
               
               <p className="text-xs text-muted-foreground text-center">
                 By subscribing, you agree to our privacy policy. You can unsubscribe at any time.

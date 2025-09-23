@@ -159,6 +159,42 @@ export type Database = {
         }
         Relationships: []
       }
+      faq_content: {
+        Row: {
+          answer: string
+          category: string
+          created_at: string
+          created_by: string | null
+          display_order: number | null
+          id: string
+          is_published: boolean | null
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          category: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number | null
+          id?: string
+          is_published?: boolean | null
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          display_order?: number | null
+          id?: string
+          is_published?: boolean | null
+          question?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       media_content: {
         Row: {
           content_data: Json
@@ -249,6 +285,48 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string | null
+          id: string
+          is_active: boolean | null
+          last_email_sent: string | null
+          last_name: string | null
+          subscription_date: string
+          subscription_preferences: Json | null
+          unsubscribe_token: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_email_sent?: string | null
+          last_name?: string | null
+          subscription_date?: string
+          subscription_preferences?: Json | null
+          unsubscribe_token?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_email_sent?: string | null
+          last_name?: string | null
+          subscription_date?: string
+          subscription_preferences?: Json | null
+          unsubscribe_token?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -462,6 +540,42 @@ export type Database = {
         }
         Relationships: []
       }
+      social_media_handles: {
+        Row: {
+          created_at: string
+          display_order: number | null
+          handle: string
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          platform: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number | null
+          handle: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          platform: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number | null
+          handle?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          platform?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       support_tickets: {
         Row: {
           assigned_to: string | null
@@ -564,6 +678,51 @@ export type Database = {
           metric_type?: string
           metric_value?: Json
           timestamp?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number | null
+          id: string
+          image_url: string | null
+          is_featured: boolean | null
+          is_published: boolean | null
+          name: string
+          position: string | null
+          testimonial_text: string
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          name: string
+          position?: string | null
+          testimonial_text: string
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          is_published?: boolean | null
+          name?: string
+          position?: string | null
+          testimonial_text?: string
+          updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -9,17 +10,64 @@ import {
 } from "@/components/ui/accordion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
 import { HelpCircle, Search, Phone, Mail } from "lucide-react";
 
 const FAQ = () => {
-  const faqCategories = [
-    {
-      title: "Visiting & Services",
-      questions: [
+  const [faqCategories, setFaqCategories] = useState<Array<{
+    title: string;
+    questions: Array<{ q: string; a: string }>;
+  }>>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchFAQContent();
+  }, []);
+
+  const fetchFAQContent = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('faq_content')
+        .select('*')
+        .eq('is_published', true)
+        .order('category', { ascending: true })
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+
+      // Group FAQs by category
+      const groupedFAQs = (data || []).reduce((acc, faq) => {
+        const existingCategory = acc.find(cat => cat.title === faq.category);
+        if (existingCategory) {
+          existingCategory.questions.push({
+            q: faq.question,
+            a: faq.answer
+          });
+        } else {
+          acc.push({
+            title: faq.category,
+            questions: [{
+              q: faq.question,
+              a: faq.answer
+            }]
+          });
+        }
+        return acc;
+      }, [] as Array<{ title: string; questions: Array<{ q: string; a: string }> }>);
+
+      setFaqCategories(groupedFAQs);
+    } catch (error) {
+      console.error('Error fetching FAQ content:', error);
+      // Fallback to default content if database fetch fails
+      setFaqCategories([
         {
-          q: "What time are your services?",
-          a: "We have three Sunday services: 8:00 AM, 10:30 AM, and 6:00 PM. We also have Tuesday Prayer at 7:00 PM, Thursday Bible Study at 7:00 PM, and Saturday Youth service at 7:00 PM."
-        },
+          title: "Visiting & Services",
+          questions: [
+            {
+              q: "What time are your services?",
+              a: "We have three Sunday services: 8:00 AM, 10:30 AM, and 6:00 PM. We also have Tuesday Prayer at 7:00 PM, Thursday Bible Study at 7:00 PM, and Saturday Youth service at 7:00 PM."
+            },
         {
           q: "What should I wear to church?",
           a: "Come as you are! We welcome people in casual or formal attire. Our focus is on your heart, not your clothing. You'll see everything from jeans to suits."
@@ -102,7 +150,11 @@ const FAQ = () => {
         }
       ]
     }
-  ];
+  ]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -133,7 +185,16 @@ const FAQ = () => {
       {/* FAQ Section */}
       <section className="py-16 px-4">
         <div className="max-w-4xl mx-auto">
-          {faqCategories.map((category, categoryIndex) => (
+          {loading ? (
+            <div className="flex items-center justify-center p-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : faqCategories.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No FAQ content available at this time.
+            </div>
+          ) : (
+            faqCategories.map((category, categoryIndex) => (
             <div key={categoryIndex} className="mb-12">
               <h2 className="text-2xl font-bold mb-6 text-primary">{category.title}</h2>
               <Accordion type="single" collapsible className="space-y-4">
@@ -149,7 +210,8 @@ const FAQ = () => {
                 ))}
               </Accordion>
             </div>
-          ))}
+          ))
+          )}
         </div>
       </section>
 

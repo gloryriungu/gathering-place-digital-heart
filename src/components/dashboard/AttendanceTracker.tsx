@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface Member {
   id: string;
+  member_number?: string;
   first_name: string;
   last_name: string;
   phone?: string;
@@ -51,7 +52,7 @@ export const AttendanceTracker = () => {
       // Fetch all active members
       const { data: membersData, error: membersError } = await supabase
         .from('members')
-        .select('*')
+        .select('*, member_number')
         .eq('status', 'active')
         .order('first_name');
 
@@ -92,7 +93,8 @@ export const AttendanceTracker = () => {
   const filteredMembers = members.filter(member =>
     `${member.first_name} ${member.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
     member.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    member.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    member.member_number?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const presentCount = members.filter(m => m.isPresent).length;
@@ -319,7 +321,7 @@ export const AttendanceTracker = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input
-                placeholder="Search members..."
+                placeholder="Search by name, member ID, phone, or email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -349,7 +351,14 @@ export const AttendanceTracker = () => {
                         onCheckedChange={() => toggleAttendance(member.id)}
                       />
                       <div>
-                        <p className="font-medium">{member.first_name} {member.last_name}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{member.first_name} {member.last_name}</p>
+                          {member.member_number && (
+                            <Badge variant="outline" className="text-xs font-mono">
+                              {member.member_number}
+                            </Badge>
+                          )}
+                        </div>
                         <p className="text-sm text-muted-foreground">
                           {member.phone || member.email || 'No contact info'}
                         </p>

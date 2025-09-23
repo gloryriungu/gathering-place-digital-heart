@@ -7,13 +7,15 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Plus, Edit, Trash2, User } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Search, Plus, Edit, Trash2, User, UserPlus, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 
 interface Member {
   id: string;
+  member_number?: string;
   first_name: string;
   last_name: string;
   email?: string;
@@ -21,6 +23,18 @@ interface Member {
   address?: string;
   status: string;
   date_joined: string;
+  created_at: string;
+  user_id?: string;
+}
+
+interface RegisteredUser {
+  id: string;
+  user_id: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  address?: string;
+  county?: string;
   created_at: string;
 }
 
@@ -35,9 +49,11 @@ interface MemberFormData {
 
 export const MemberManagement = () => {
   const [members, setMembers] = useState<Member[]>([]);
+  const [registeredUsers, setRegisteredUsers] = useState<RegisteredUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState("members");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const { toast } = useToast();
@@ -46,27 +62,45 @@ export const MemberManagement = () => {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isSubmitting }
   } = useForm<MemberFormData>();
 
   useEffect(() => {
-    fetchMembers();
+    fetchData();
   }, []);
 
-  const fetchMembers = async () => {
+  const fetchData = async () => {
     try {
-      const { data, error } = await supabase
+      setLoading(true);
+
+      // Fetch members
+      const { data: membersData, error: membersError } = await supabase
         .from('members')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setMembers(data || []);
+      if (membersError) throw membersError;
+
+      // Fetch registered users who are not yet members
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (profilesError) throw profilesError;
+
+      // Filter out users who are already members
+      const memberUserIds = (membersData || []).map(m => m.user_id).filter(Boolean);
+      const nonMemberUsers = (profilesData || []).filter(p => !memberUserIds.includes(p.user_id));
+
+      setMembers(membersData || []);
+      setRegisteredUsers(nonMemberUsers);
     } catch (error) {
-      console.error('Error fetching members:', error);
+      console.error('Error fetching data:', error);
       toast({
         title: "Error",
-        description: "Failed to load members",
+        description: "Failed to load data",
         variant: "destructive",
       });
     } finally {
@@ -79,12 +113,49 @@ export const MemberManagement = () => {
       member.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       member.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       member.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      member.phone?.includes(searchTerm);
+      member.phone?.includes(searchTerm) ||
+      member.member_number?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus = statusFilter === "all" || member.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
+
+  const filteredUsers = registeredUsers.filter(user => {
+    const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+    return fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           user.phone?.includes(searchTerm);
+  });
+
+  const convertUserToMember = async (user: RegisteredUser) => {
+    try {
+      const { error } = await supabase
+        .from('members')
+        .insert([{
+          user_id: user.user_id,
+          first_name: user.first_name || 'Unknown',
+          last_name: user.last_name || 'User',
+          phone: user.phone,
+          address: user.address,
+          status: 'active'
+        }]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "User converted to member successfully",
+      });
+      fetchData();
+    } catch (error) {
+      console.error('Error converting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to convert user to member",
+        variant: "destructive",
+      });
+    }
+  };
 
   const onSubmit = async (data: MemberFormData) => {
     try {
@@ -116,7 +187,7 @@ export const MemberManagement = () => {
       reset();
       setIsAddDialogOpen(false);
       setEditingMember(null);
-      fetchMembers();
+      fetchData();
     } catch (error) {
       console.error('Error saving member:', error);
       toast({
@@ -142,7 +213,7 @@ export const MemberManagement = () => {
         title: "Success",
         description: "Member deleted successfully",
       });
-      fetchMembers();
+      fetchData();
     } catch (error) {
       console.error('Error deleting member:', error);
       toast({
@@ -279,9 +350,12 @@ export const MemberManagement = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="status">Status</Label>
-                <Select>
+                <Select
+                  value={editingMember?.status || 'active'}
+                  onValueChange={(value) => setValue('status', value)}
+                >
                   <SelectTrigger>
-                    <SelectValue />
+                    <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="active">Active</SelectItem>
@@ -309,90 +383,188 @@ export const MemberManagement = () => {
         </Dialog>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Members List</CardTitle>
-          <CardDescription>
-            Total: {filteredMembers.length} members
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search members..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-                <SelectItem value="visitor">Visitor</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="members" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Members ({members.length})
+          </TabsTrigger>
+          <TabsTrigger value="users" className="flex items-center gap-2">
+            <UserPlus className="h-4 w-4" />
+            Registered Users ({registeredUsers.length})
+          </TabsTrigger>
+        </TabsList>
 
-          <div className="border rounded-lg">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Date Joined</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredMembers.map((member) => (
-                  <TableRow key={member.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        {member.first_name} {member.last_name}
-                      </div>
-                    </TableCell>
-                    <TableCell>{member.email || '-'}</TableCell>
-                    <TableCell>{member.phone || '-'}</TableCell>
-                    <TableCell>{getStatusBadge(member.status)}</TableCell>
-                    <TableCell>
-                      {new Date(member.date_joined).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(member)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => deleteMember(member.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+        <TabsContent value="members">
+          <Card>
+            <CardHeader>
+              <CardTitle>Church Members</CardTitle>
+              <CardDescription>
+                Manage official church members with member IDs
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    placeholder="Search by name, member ID, email, or phone..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="visitor">Visitor</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Member ID</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Date Joined</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredMembers.map((member) => (
+                      <TableRow key={member.id}>
+                        <TableCell>
+                          <Badge variant="outline" className="font-mono">
+                            {member.member_number || 'N/A'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-muted-foreground" />
+                            {member.first_name} {member.last_name}
+                          </div>
+                        </TableCell>
+                        <TableCell>{member.email || '-'}</TableCell>
+                        <TableCell>{member.phone || '-'}</TableCell>
+                        <TableCell>{getStatusBadge(member.status)}</TableCell>
+                        <TableCell>
+                          {new Date(member.date_joined).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleEdit(member)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => deleteMember(member.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {filteredMembers.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-8">
+                          {searchTerm ? "No members found matching your search" : "No members found"}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="users">
+          <Card>
+            <CardHeader>
+              <CardTitle>Registered Users</CardTitle>
+              <CardDescription>
+                Website users who haven't been added as church members yet
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Search registered users..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              <div className="border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Address</TableHead>
+                      <TableHead>Registered</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredUsers.map((user) => (
+                      <TableRow key={user.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-muted-foreground" />
+                            {user.first_name || 'Unknown'} {user.last_name || 'User'}
+                          </div>
+                        </TableCell>
+                        <TableCell>{user.phone || '-'}</TableCell>
+                        <TableCell>{user.address || '-'}</TableCell>
+                        <TableCell>
+                          {new Date(user.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            onClick={() => convertUserToMember(user)}
+                            className="flex items-center gap-2"
+                          >
+                            <UserPlus className="h-4 w-4" />
+                            Add as Member
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {filteredUsers.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8">
+                          {searchTerm ? "No users found matching your search" : "No registered users found"}
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

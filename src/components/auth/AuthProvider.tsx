@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      // Prioritize roles: admin > it > media > registration > accounts > sunday_school > teacher > user
+      // Prioritize roles: admin > it > media > marketing > registration > accounts > sunday_school > teacher > user
       const roles = data.map(item => item.role);
       console.log('User roles found:', roles);
       
@@ -58,6 +58,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else if (roles.includes('media')) {
         console.log('Setting role to media');
         setUserRole('media');
+      } else if (roles.includes('marketing')) {
+        console.log('Setting role to marketing');
+        setUserRole('marketing');
       } else if (roles.includes('registration')) {
         console.log('Setting role to registration');
         setUserRole('registration');

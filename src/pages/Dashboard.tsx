@@ -57,6 +57,14 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, loading, authUserRole, navigate]);
 
+  // Redirect marketing users to marketing dashboard
+  useEffect(() => {
+    if (!loading && isAuthenticated && authUserRole === 'marketing') {
+      console.log('Redirecting marketing user to marketing dashboard');
+      navigate('/marketing-dashboard');
+    }
+  }, [isAuthenticated, loading, authUserRole, navigate]);
+
   useEffect(() => {
     if (authUserRole) {
       setUserRole(authUserRole);

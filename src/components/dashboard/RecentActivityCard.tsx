@@ -44,9 +44,9 @@ export const RecentActivityCard = () => {
       const activities: Activity[] = [];
 
       // Add member activities
-      members?.forEach(member => {
+      members?.forEach((member, index) => {
         activities.push({
-          id: `member-${member.created_at}`,
+          id: `member-${member.created_at}-${index}`,
           type: 'member_joined',
           description: 'New member joined',
           details: `${member.first_name} ${member.last_name} joined the family`,
@@ -55,10 +55,10 @@ export const RecentActivityCard = () => {
       });
 
       // Add contribution activities
-      contributions?.forEach(contribution => {
+      contributions?.forEach((contribution, index) => {
         const member = contribution.members as any;
         activities.push({
-          id: `contribution-${contribution.created_at}`,
+          id: `contribution-${contribution.created_at}-${index}`,
           type: 'contribution_made',
           description: 'New contribution received',
           details: `$${contribution.amount} from ${member?.first_name} ${member?.last_name}`,
@@ -67,9 +67,9 @@ export const RecentActivityCard = () => {
       });
 
       // Add event activities
-      events?.forEach(event => {
+      events?.forEach((event, index) => {
         activities.push({
-          id: `event-${event.created_at}`,
+          id: `event-${event.created_at}-${index}`,
           type: 'event_created',
           description: 'New event created',
           details: event.title,

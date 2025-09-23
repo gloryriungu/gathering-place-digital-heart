@@ -48,6 +48,13 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, loading, navigate]);
 
+  // Redirect media users to media dashboard
+  useEffect(() => {
+    if (!loading && isAuthenticated && authUserRole === 'media') {
+      navigate('/media-dashboard');
+    }
+  }, [isAuthenticated, loading, authUserRole, navigate]);
+
   useEffect(() => {
     if (authUserRole) {
       setUserRole(authUserRole);

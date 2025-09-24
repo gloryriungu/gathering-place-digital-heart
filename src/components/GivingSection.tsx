@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, DollarSign, Target, Users, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const GivingSection = () => {
   const givingImpact = [
@@ -69,13 +70,17 @@ export const GivingSection = () => {
             Join us in partnership as we advance God's kingdom through your generous giving. Every seed you sow makes an eternal difference.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-black text-white hover:bg-gray-800 font-bold px-8">
-              <Heart className="h-5 w-5 mr-2" />
-              GIVE NOW
+            <Button asChild size="lg" className="bg-black text-white hover:bg-gray-800 font-bold px-8">
+              <Link to="/give">
+                <Heart className="h-5 w-5 mr-2" />
+                GIVE NOW
+              </Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-2 border-black text-black hover:bg-black hover:text-white font-bold px-8">
-              LEARN ABOUT GIVING
-              <ArrowRight className="h-5 w-5 ml-2" />
+            <Button asChild size="lg" variant="outline" className="border-2 border-black text-black hover:bg-black hover:text-white font-bold px-8">
+              <Link to="/give">
+                LEARN ABOUT GIVING
+                <ArrowRight className="h-5 w-5 ml-2" />
+              </Link>
             </Button>
           </div>
         </div>

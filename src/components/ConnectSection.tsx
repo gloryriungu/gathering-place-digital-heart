@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Heart, HandHeart, MessageCircle, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const ConnectSection = () => {
   const connectOptions = [
@@ -9,25 +10,29 @@ export const ConnectSection = () => {
       icon: Users,
       title: "LIFE GROUPS",
       description: "Connect with other believers in intimate small groups for fellowship, prayer, and spiritual growth.",
-      action: "JOIN A GROUP"
+      action: "JOIN A GROUP",
+      link: "/ministries"
     },
     {
       icon: HandHeart,
       title: "SERVE TEAMS",
       description: "Use your gifts and talents to serve God and others through various ministry opportunities.",
-      action: "START SERVING"
+      action: "START SERVING",
+      link: "/serve-with-us"
     },
     {
       icon: Heart,
       title: "PRAYER MINISTRY",
       description: "Experience the power of prayer and intercession through our dedicated prayer teams and warriors.",
-      action: "JOIN PRAYER"
+      action: "JOIN PRAYER",
+      link: "/ministries"
     },
     {
       icon: MessageCircle,
       title: "DISCIPLESHIP",
       description: "Grow deeper in your faith through mentorship, Bible study, and spiritual formation programs.",
-      action: "GET DISCIPLED"
+      action: "GET DISCIPLED",
+      link: "/ministries"
     }
   ];
 
@@ -56,9 +61,11 @@ export const ConnectSection = () => {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <p className="text-gray-600 leading-relaxed">{option.description}</p>
-                  <Button className="w-full bg-black text-white hover:bg-gray-800 font-bold">
-                    {option.action}
-                    <ArrowRight className="h-4 w-4 ml-2" />
+                  <Button asChild className="w-full bg-black text-white hover:bg-gray-800 font-bold">
+                    <Link to={option.link}>
+                      {option.action}
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>

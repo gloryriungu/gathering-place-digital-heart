@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Play, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from "react-router-dom";
 
 interface HeroContent {
   id: string;
@@ -126,13 +127,17 @@ export const Hero = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <Button size="lg" className="bg-white text-black font-bold px-8 py-4 text-lg shadow-lg hover:bg-white">
-              {content.cta1_text || defaultContent.cta1_text}
-              <ArrowRight className="h-5 w-5 ml-2" />
+            <Button asChild size="lg" className="bg-white text-black font-bold px-8 py-4 text-lg shadow-lg hover:bg-white">
+              <Link to="/visit-us">
+                {content.cta1_text || defaultContent.cta1_text}
+                <ArrowRight className="h-5 w-5 ml-2" />
+              </Link>
             </Button>
-            <Button size="lg" className="border-2 border-white text-white bg-white/10 backdrop-blur-sm font-bold px-8 py-4 text-lg whitespace-nowrap shadow-lg hover:bg-white/20">
-              <Play className="h-5 w-5 mr-2" />
-              {content.cta2_text || defaultContent.cta2_text}
+            <Button asChild size="lg" className="border-2 border-white text-white bg-white/10 backdrop-blur-sm font-bold px-8 py-4 text-lg whitespace-nowrap shadow-lg hover:bg-white/20">
+              <Link to="/watch">
+                <Play className="h-5 w-5 mr-2" />
+                {content.cta2_text || defaultContent.cta2_text}
+              </Link>
             </Button>
           </div>
         </div>

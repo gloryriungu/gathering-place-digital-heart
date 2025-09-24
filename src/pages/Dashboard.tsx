@@ -19,7 +19,8 @@ import {
   Monitor,
   Shield,
   Activity,
-  Ticket
+  Ticket,
+  Mail
 } from "lucide-react";
 import { AttendanceTracker } from "@/components/dashboard/AttendanceTracker";
 import { FinancialContributions } from "@/components/dashboard/FinancialContributions";
@@ -36,6 +37,7 @@ import { ITSecurity } from "@/components/dashboard/ITSecurity";
 import { DashboardOverviewStats } from "@/components/dashboard/DashboardOverviewStats";
 import { RecentActivityCard } from "@/components/dashboard/RecentActivityCard";
 import { QuickActionsCard } from "@/components/dashboard/QuickActionsCard";
+import { NewsletterSignup } from "@/components/shared/NewsletterSignup";
 
 const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
@@ -107,6 +109,7 @@ const Dashboard = () => {
     const baseTabs = [
       { value: "overview", label: "Overview", icon: Calendar },
       { value: "profile", label: "Profile", icon: Users },
+      { value: "newsletter", label: "Newsletter", icon: Mail },
     ];
 
     const roleTabs = {
@@ -276,6 +279,18 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">Profile management coming soon...</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="newsletter">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Newsletter Subscription</CardTitle>
+                  <CardDescription>Stay connected with weekly inspiration and church updates</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <NewsletterSignup showCard={false} />
                 </CardContent>
               </Card>
             </TabsContent>

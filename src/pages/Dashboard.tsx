@@ -108,6 +108,7 @@ const Dashboard = () => {
   const getRoleBasedTabs = () => {
     const baseTabs = [
       { value: "overview", label: "Overview", icon: Calendar },
+      { value: "give", label: "Give", icon: Heart },
       { value: "profile", label: "Profile", icon: Users },
       { value: "newsletter", label: "Newsletter", icon: Mail },
     ];
@@ -279,6 +280,29 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground">Profile management coming soon...</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="give">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Ready to Give?</CardTitle>
+                  <CardDescription>Join us in partnership as we advance God's kingdom through your generous giving.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <p className="text-muted-foreground">
+                    Every seed you sow makes an eternal difference. Your faithful giving enables us to fulfill our mission of raising champions for Christ.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold px-8">
+                      <Heart className="h-5 w-5 mr-2" />
+                      GIVE NOW
+                    </Button>
+                    <Button size="lg" variant="outline" className="border-2 font-bold px-8">
+                      LEARN ABOUT GIVING
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

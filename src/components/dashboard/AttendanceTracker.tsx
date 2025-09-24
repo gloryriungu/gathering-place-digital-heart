@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Download, Users, Calendar, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import jsPDF from "jspdf";
 
 interface Member {
   id: string;
@@ -187,26 +188,45 @@ export const AttendanceTracker = () => {
   };
 
   const exportAttendance = () => {
-    const data = {
-      date: selectedDate,
-      serviceType,
-      totalMembers: totalCount,
-      presentMembers: presentCount,
-      attendanceRate: `${attendanceRate}%`,
-      members: members.map(m => ({
-        name: `${m.first_name} ${m.last_name}`,
-        phone: m.phone || '',
-        email: m.email || '',
-        status: m.isPresent ? 'present' : 'absent'
-      }))
-    };
+    const doc = new jsPDF();
     
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `attendance-${selectedDate}-${serviceType}.json`;
-    a.click();
+    // Header
+    doc.setFontSize(20);
+    doc.text('Attendance Report', 20, 20);
+    
+    // Service Details
+    doc.setFontSize(12);
+    doc.text(`Date: ${selectedDate}`, 20, 40);
+    doc.text(`Service Type: ${serviceType.replace('_', ' ').toUpperCase()}`, 20, 50);
+    doc.text(`Total Members: ${totalCount}`, 20, 60);
+    doc.text(`Present: ${presentCount}`, 20, 70);
+    doc.text(`Attendance Rate: ${attendanceRate}%`, 20, 80);
+    
+    // Members List
+    doc.setFontSize(14);
+    doc.text('Member Attendance:', 20, 100);
+    
+    let yPosition = 115;
+    doc.setFontSize(10);
+    
+    members.forEach((member, index) => {
+      if (yPosition > 270) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      const status = member.isPresent ? '✓ Present' : '✗ Absent';
+      const name = `${member.first_name} ${member.last_name}`;
+      const contact = member.phone || member.email || '';
+      
+      doc.text(`${name} - ${status}`, 20, yPosition);
+      if (contact) {
+        doc.text(`(${contact})`, 120, yPosition);
+      }
+      yPosition += 8;
+    });
+    
+    doc.save(`attendance-${selectedDate}-${serviceType}.pdf`);
   };
 
   return (

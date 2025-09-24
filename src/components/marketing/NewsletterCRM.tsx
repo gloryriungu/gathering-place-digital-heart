@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Mail, Users, Search, Plus, Download, Send, UserCheck, UserX } from "lucide-react";
+import jsPDF from "jspdf";
 
 interface Subscriber {
   id: string;
@@ -96,23 +97,48 @@ export const NewsletterCRM = () => {
 
   const exportSubscribers = () => {
     const activeSubscribers = subscribers.filter(s => s.is_active);
-    const csvContent = [
-      ['Email', 'First Name', 'Last Name', 'Subscription Date'],
-      ...activeSubscribers.map(s => [
-        s.email,
-        s.first_name || '',
-        s.last_name || '',
-        new Date(s.subscription_date).toLocaleDateString()
-      ])
-    ].map(row => row.join(',')).join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'newsletter_subscribers.csv';
-    a.click();
-    window.URL.revokeObjectURL(url);
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(20);
+    doc.text('Newsletter Subscribers Report', 20, 20);
+    
+    // Summary
+    doc.setFontSize(12);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 40);
+    doc.text(`Total Active Subscribers: ${activeSubscribers.length}`, 20, 50);
+    doc.text(`Total All Subscribers: ${subscribers.length}`, 20, 60);
+    
+    // Subscribers List
+    doc.setFontSize(14);
+    doc.text('Active Subscribers:', 20, 80);
+    
+    let yPosition = 95;
+    doc.setFontSize(10);
+    
+    // Headers
+    doc.text('Email', 20, yPosition);
+    doc.text('Name', 120, yPosition);
+    doc.text('Subscribed', 180, yPosition);
+    yPosition += 10;
+    
+    activeSubscribers.forEach((subscriber, index) => {
+      if (yPosition > 270) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      const name = subscriber.first_name || subscriber.last_name 
+        ? `${subscriber.first_name || ''} ${subscriber.last_name || ''}`.trim()
+        : '-';
+      
+      doc.text(subscriber.email, 20, yPosition);
+      doc.text(name, 120, yPosition);
+      doc.text(new Date(subscriber.subscription_date).toLocaleDateString(), 180, yPosition);
+      yPosition += 8;
+    });
+    
+    doc.save(`newsletter_subscribers_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   const filteredSubscribers = subscribers.filter(subscriber =>
@@ -144,7 +170,7 @@ export const NewsletterCRM = () => {
         <div className="flex gap-2">
           <Button variant="outline" onClick={exportSubscribers}>
             <Download className="h-4 w-4 mr-2" />
-            Export CSV
+            Export PDF
           </Button>
           <Dialog>
             <DialogTrigger asChild>

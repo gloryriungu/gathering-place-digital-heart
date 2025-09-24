@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, TrendingUp, Calendar, Download } from "lucide-react";
+import jsPDF from "jspdf";
 
 const mockContributions = [
   { id: 1, date: "2024-01-07", type: "tithe", amount: 500, service: "Sunday Morning Service" },
@@ -101,27 +102,55 @@ export const FinancialContributions = () => {
         break;
     }
 
-    const data = {
-      period,
-      generatedAt: new Date().toISOString(),
-      summary: {
-        totalAmount: filteredData.reduce((sum, c) => sum + c.amount, 0),
-        totalTransactions: filteredData.length,
-        byType: contributionTypes.map(type => ({
-          type: type.label,
-          amount: filteredData.filter(c => c.type === type.value).reduce((sum, c) => sum + c.amount, 0),
-          count: filteredData.filter(c => c.type === type.value).length
-        }))
-      },
-      transactions: filteredData
-    };
-
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `financial-report-${period}-${today.toISOString().split('T')[0]}.json`;
-    a.click();
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(20);
+    doc.text(`Financial Report - ${period.charAt(0).toUpperCase() + period.slice(1)}`, 20, 20);
+    
+    // Summary
+    doc.setFontSize(12);
+    const totalAmount = filteredData.reduce((sum, c) => sum + c.amount, 0);
+    const totalTransactions = filteredData.length;
+    
+    doc.text(`Generated: ${today.toLocaleDateString()}`, 20, 40);
+    doc.text(`Period: ${period.charAt(0).toUpperCase() + period.slice(1)}`, 20, 50);
+    doc.text(`Total Amount: $${totalAmount.toLocaleString()}`, 20, 60);
+    doc.text(`Total Transactions: ${totalTransactions}`, 20, 70);
+    
+    // By Type Summary
+    doc.setFontSize(14);
+    doc.text('Summary by Type:', 20, 90);
+    
+    let yPosition = 105;
+    doc.setFontSize(10);
+    
+    contributionTypes.forEach(type => {
+      const typeAmount = filteredData.filter(c => c.type === type.value).reduce((sum, c) => sum + c.amount, 0);
+      const typeCount = filteredData.filter(c => c.type === type.value).length;
+      doc.text(`${type.label}: $${typeAmount.toLocaleString()} (${typeCount} transactions)`, 30, yPosition);
+      yPosition += 8;
+    });
+    
+    // Transactions List
+    yPosition += 20;
+    doc.setFontSize(14);
+    doc.text('Transaction Details:', 20, yPosition);
+    yPosition += 15;
+    
+    doc.setFontSize(9);
+    filteredData.forEach((contribution, index) => {
+      if (yPosition > 270) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      const typeInfo = contributionTypes.find(t => t.value === contribution.type);
+      doc.text(`${contribution.date} - ${typeInfo?.label} - ${contribution.service} - $${contribution.amount.toLocaleString()}`, 20, yPosition);
+      yPosition += 8;
+    });
+    
+    doc.save(`financial-report-${period}-${today.toISOString().split('T')[0]}.pdf`);
   };
 
   return (

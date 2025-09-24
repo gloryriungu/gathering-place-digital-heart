@@ -6,7 +6,6 @@ import { Announcements } from "@/components/Announcements";
 import { UpcomingEvents } from "@/components/UpcomingEvents";
 import { Testimonials } from "@/components/Testimonials";
 import { ConnectSection } from "@/components/ConnectSection";
-import { NewsletterSignup } from "@/components/shared/NewsletterSignup";
 import { GivingSection } from "@/components/GivingSection";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
@@ -22,14 +21,6 @@ const Index = () => {
       <UpcomingEvents />
       <Testimonials showOnlyFeatured={true} maxItems={3} />
       <ConnectSection />
-      
-      {/* Newsletter Signup Section */}
-      <section className="py-16 px-4 bg-muted/30">
-        <div className="max-w-2xl mx-auto">
-          <NewsletterSignup />
-        </div>
-      </section>
-      
       <GivingSection />
       <Footer />
     </div>

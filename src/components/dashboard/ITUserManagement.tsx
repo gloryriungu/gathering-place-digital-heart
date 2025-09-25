@@ -49,6 +49,8 @@ export const ITUserManagement = () => {
     { value: "user", label: "User", description: "General access" },
     { value: "admin", label: "Admin", description: "Full system access" },
     { value: "pastor", label: "Pastor", description: "Content management & ministry oversight" },
+    { value: "senior_pastor", label: "Senior Pastor", description: "Senior leadership & church oversight" },
+    { value: "founder", label: "Founder", description: "Highest level access & strategic decisions" },
     { value: "registration", label: "Registration", description: "Attendance tracking" },
     { value: "accounts", label: "Accounts", description: "Financial management & requisitions" },
     { value: "sunday_school", label: "Sunday School", description: "Manage children's ministry" },
@@ -234,7 +236,7 @@ export const ITUserManagement = () => {
         .from("user_roles")
         .insert({ 
           user_id: userId, 
-          role: newRole as "user" | "admin" | "pastor" | "registration" | "accounts" | "sunday_school" | "teacher" | "it" | "media"
+          role: newRole as "user" | "admin" | "pastor" | "senior_pastor" | "founder" | "registration" | "accounts" | "sunday_school" | "teacher" | "it" | "media" | "marketing"
         });
 
       if (insertError) {
@@ -310,6 +312,8 @@ export const ITUserManagement = () => {
     const primaryRole = roles[0] || "user";
     
     const roleColors: { [key: string]: string } = {
+      founder: "bg-gold-500 hover:bg-gold-600",
+      senior_pastor: "bg-violet-500 hover:bg-violet-600",
       admin: "bg-red-500 hover:bg-red-600",
       pastor: "bg-purple-500 hover:bg-purple-600", 
       it: "bg-blue-500 hover:bg-blue-600",

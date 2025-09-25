@@ -47,7 +47,7 @@ import { GivingAnalysis } from "@/components/accounts/GivingAnalysis";
 import { PastorAvailability } from "@/components/pastor/PastorAvailability";
 import { ActivityLogs } from "@/components/admin/ActivityLogs";
 import { AdvancedAnalytics } from "@/components/founder/AdvancedAnalytics";
-import { usePrerequisiteCheck } from "@/hooks/usePrerequisiteCheck";
+import { BudgetProposals } from "@/components/budget/BudgetProposals";
 
 const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
@@ -409,55 +409,11 @@ const Dashboard = () => {
             </TabsContent>
 
             <TabsContent value="budget-requests">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Budget Requests</CardTitle>
-                  <CardDescription>Review and approve budget requests</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Budget request management coming soon...</p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="giving-analysis">
-              <GivingAnalysis />
-            </TabsContent>
-
-            <TabsContent value="activity-logs">
-              <ActivityLogs />
-            </TabsContent>
-
-            <TabsContent value="availability">
-              <PastorAvailability isPastor={true} />
-            </TabsContent>
-
-            <TabsContent value="counseling">
-              <PastorAvailability isPastor={true} />
-            </TabsContent>
-
-            <TabsContent value="family-applications">
-              <ServeApplicationsManager />
-            </TabsContent>
-
-            <TabsContent value="giving-records">
-              <GivingAnalysis />
-            </TabsContent>
-
-            <TabsContent value="requisitions">
-              <RequisitionManager userRole={userRole} />
+              <BudgetProposals userRole={userRole} canReview={true} />
             </TabsContent>
 
             <TabsContent value="budget-create">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Create Budget Request</CardTitle>
-                  <CardDescription>Submit weekly budget requests</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Budget creation system coming soon...</p>
-                </CardContent>
-              </Card>
+              <BudgetProposals userRole={userRole} canCreate={true} />
             </TabsContent>
 
             <TabsContent value="counseling-book">

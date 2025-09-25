@@ -277,7 +277,15 @@ export type Database = {
           quantity?: number
           transaction_type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_inventory_trans_item"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "department_inventory"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       join_family_applications: {
         Row: {
@@ -517,7 +525,15 @@ export type Database = {
           status?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_ministry_members_ministry"
+            columns: ["ministry_id"]
+            isOneToOne: false
+            referencedRelation: "ministries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       newsletter_subscribers: {
         Row: {
@@ -769,7 +785,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_serve_applications_dept"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "serve_departments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       serve_departments: {
         Row: {

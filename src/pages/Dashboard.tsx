@@ -38,6 +38,9 @@ import { DashboardOverviewStats } from "@/components/dashboard/DashboardOverview
 import { RecentActivityCard } from "@/components/dashboard/RecentActivityCard";
 import { QuickActionsCard } from "@/components/dashboard/QuickActionsCard";
 import { NewsletterSignup } from "@/components/shared/NewsletterSignup";
+import { JoinFamilyForm } from "@/components/forms/JoinFamilyForm";
+import { MinistriesManager } from "@/components/admin/MinistriesManager";
+import { ServeApplicationsManager } from "@/components/admin/ServeApplicationsManager";
 
 const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
@@ -115,17 +118,47 @@ const Dashboard = () => {
 
     const roleTabs = {
       admin: [
+        { value: "ministries", label: "Ministries", icon: Users },
+        { value: "serve-management", label: "Serve Management", icon: UserCheck },
+        { value: "applications", label: "Applications", icon: FileText },
+        { value: "inventory", label: "Inventory", icon: Settings },
         { value: "reports", label: "Reports", icon: FileText },
         { value: "users", label: "User Management", icon: UserCheck },
-        { value: "settings", label: "Settings", icon: Settings },
+      ],
+      founder: [
+        { value: "analytics", label: "Advanced Analytics", icon: Activity },
+        { value: "budget-requests", label: "Budget Requests", icon: DollarSign },
+        { value: "inventory", label: "All Inventory", icon: Settings },
+        { value: "system-overview", label: "System Overview", icon: Monitor },
+        { value: "reports", label: "All Reports", icon: FileText },
+        { value: "users", label: "All Users", icon: Users },
+      ],
+      senior_pastor: [
+        { value: "giving-analysis", label: "Giving Analysis", icon: DollarSign },
+        { value: "budget-review", label: "Budget Review", icon: FileText },
+        { value: "inventory", label: "All Inventory", icon: Settings },
+        { value: "activity-logs", label: "Activity Logs", icon: Activity },
+        { value: "users", label: "All Users", icon: Users },
+      ],
+      pastor: [
+        { value: "availability", label: "My Availability", icon: Calendar },
+        { value: "counseling", label: "Counseling Sessions", icon: Users },
+        { value: "ministries-view", label: "View Ministries", icon: Heart },
+        { value: "serve-view", label: "View Departments", icon: UserCheck },
+        { value: "users", label: "All Users", icon: Users },
       ],
       registration: [
+        { value: "family-applications", label: "Family Applications", icon: FileText },
         { value: "attendance", label: "Attendance", icon: UserCheck },
         { value: "reports", label: "Reports", icon: FileText },
       ],
       accounts: [
+        { value: "giving-records", label: "Record Giving", icon: DollarSign },
+        { value: "giving-analysis", label: "Giving Analysis", icon: Activity },
+        { value: "requisitions", label: "Requisitions", icon: FileText },
+        { value: "budget-create", label: "Create Budget", icon: Settings },
+        { value: "inventory", label: "All Inventory", icon: Settings },
         { value: "contributions", label: "Contributions", icon: DollarSign },
-        { value: "reports", label: "Financial Reports", icon: FileText },
       ],
       sunday_school: [
         { value: "sunday-school", label: "Sunday School", icon: BookOpen },
@@ -142,7 +175,13 @@ const Dashboard = () => {
         { value: "monitoring", label: "System Monitor", icon: Monitor },
         { value: "security", label: "Security", icon: Shield },
       ],
+      media: [],
+      marketing: [],
       user: [
+        { value: "join-family", label: "Join Family", icon: Heart },
+        { value: "apply-ministry", label: "Apply to Ministry", icon: Users },
+        { value: "apply-serve", label: "Apply to Serve", icon: UserCheck },
+        { value: "counseling-book", label: "Book Counseling", icon: Calendar },
         { value: "giving", label: "My Giving", icon: Heart },
         { value: "events", label: "Events", icon: Calendar },
       ]
@@ -154,23 +193,31 @@ const Dashboard = () => {
   const getUserRoleBadge = () => {
     const roleColors = {
       admin: "destructive" as const,
+      founder: "destructive" as const,
+      senior_pastor: "destructive" as const,
+      pastor: "secondary" as const,
       registration: "secondary" as const,
       accounts: "default" as const,
       sunday_school: "default" as const,
       teacher: "secondary" as const,
       it: "destructive" as const,
       media: "default" as const,
+      marketing: "default" as const,
       user: "outline" as const
     };
 
     const roleLabels = {
       admin: "Admin",
+      founder: "Founder",
+      senior_pastor: "Senior Pastor",
+      pastor: "Pastor",
       registration: "Registration", 
       accounts: "Accounts",
       sunday_school: "Sunday School",
       teacher: "Teacher",
       it: "IT",
       media: "Media",
+      marketing: "Marketing",
       user: "User"
     };
     
@@ -303,6 +350,162 @@ const Dashboard = () => {
                       LEARN ABOUT GIVING
                     </Button>
                   </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="join-family">
+              <JoinFamilyForm />
+            </TabsContent>
+
+            <TabsContent value="ministries">
+              <MinistriesManager />
+            </TabsContent>
+
+            <TabsContent value="serve-management">
+              <ServeApplicationsManager />
+            </TabsContent>
+
+            <TabsContent value="applications">
+              <Card>
+                <CardHeader>
+                  <CardTitle>All Applications</CardTitle>
+                  <CardDescription>View all pending applications</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Application management coming soon...</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="inventory">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Department Inventory</CardTitle>
+                  <CardDescription>Manage inventory across all departments</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Inventory management coming soon...</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="analytics">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Advanced Analytics</CardTitle>
+                  <CardDescription>Comprehensive system analytics and insights</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Advanced analytics dashboard coming soon...</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="budget-requests">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Budget Requests</CardTitle>
+                  <CardDescription>Review and approve budget requests</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Budget request management coming soon...</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="giving-analysis">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Giving Analysis</CardTitle>
+                  <CardDescription>Analyze giving patterns and trends</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Giving analysis dashboard coming soon...</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="activity-logs">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Activity Logs</CardTitle>
+                  <CardDescription>View system and user activity</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Activity logs coming soon...</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="availability">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Pastor Availability</CardTitle>
+                  <CardDescription>Manage your counseling availability</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Availability management coming soon...</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="counseling">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Counseling Sessions</CardTitle>
+                  <CardDescription>Manage your counseling sessions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Counseling management coming soon...</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="family-applications">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Family Applications</CardTitle>
+                  <CardDescription>Review Join Family applications</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Family applications management coming soon...</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="giving-records">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Record Giving</CardTitle>
+                  <CardDescription>Record cash offerings and other giving</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Giving records system coming soon...</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="requisitions">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Department Requisitions</CardTitle>
+                  <CardDescription>Review and approve department requisitions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Requisitions management coming soon...</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="budget-create">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Create Budget Request</CardTitle>
+                  <CardDescription>Submit weekly budget requests</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Budget creation system coming soon...</p>
                 </CardContent>
               </Card>
             </TabsContent>

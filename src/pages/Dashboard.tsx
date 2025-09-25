@@ -41,6 +41,13 @@ import { NewsletterSignup } from "@/components/shared/NewsletterSignup";
 import { JoinFamilyForm } from "@/components/forms/JoinFamilyForm";
 import { MinistriesManager } from "@/components/admin/MinistriesManager";
 import { ServeApplicationsManager } from "@/components/admin/ServeApplicationsManager";
+import { DepartmentInventory } from "@/components/inventory/DepartmentInventory";
+import { RequisitionManager } from "@/components/requisitions/RequisitionManager";
+import { GivingAnalysis } from "@/components/accounts/GivingAnalysis";
+import { PastorAvailability } from "@/components/pastor/PastorAvailability";
+import { ActivityLogs } from "@/components/admin/ActivityLogs";
+import { AdvancedAnalytics } from "@/components/founder/AdvancedAnalytics";
+import { usePrerequisiteCheck } from "@/hooks/usePrerequisiteCheck";
 
 const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
@@ -379,27 +386,26 @@ const Dashboard = () => {
             </TabsContent>
 
             <TabsContent value="inventory">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Department Inventory</CardTitle>
-                  <CardDescription>Manage inventory across all departments</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Inventory management coming soon...</p>
-                </CardContent>
-              </Card>
+              {userRole === 'admin' || userRole === 'founder' || userRole === 'senior_pastor' || userRole === 'accounts' ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>All Departments Inventory</CardTitle>
+                    <CardDescription>View inventory across all departments</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground">Combined inventory view coming soon...</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                <DepartmentInventory 
+                  departmentId={userRole} 
+                  departmentName={userRole.charAt(0).toUpperCase() + userRole.slice(1)} 
+                />
+              )}
             </TabsContent>
 
             <TabsContent value="analytics">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Advanced Analytics</CardTitle>
-                  <CardDescription>Comprehensive system analytics and insights</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Advanced analytics dashboard coming soon...</p>
-                </CardContent>
-              </Card>
+              <AdvancedAnalytics />
             </TabsContent>
 
             <TabsContent value="budget-requests">
@@ -415,87 +421,31 @@ const Dashboard = () => {
             </TabsContent>
 
             <TabsContent value="giving-analysis">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Giving Analysis</CardTitle>
-                  <CardDescription>Analyze giving patterns and trends</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Giving analysis dashboard coming soon...</p>
-                </CardContent>
-              </Card>
+              <GivingAnalysis />
             </TabsContent>
 
             <TabsContent value="activity-logs">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Activity Logs</CardTitle>
-                  <CardDescription>View system and user activity</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Activity logs coming soon...</p>
-                </CardContent>
-              </Card>
+              <ActivityLogs />
             </TabsContent>
 
             <TabsContent value="availability">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Pastor Availability</CardTitle>
-                  <CardDescription>Manage your counseling availability</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Availability management coming soon...</p>
-                </CardContent>
-              </Card>
+              <PastorAvailability isPastor={true} />
             </TabsContent>
 
             <TabsContent value="counseling">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Counseling Sessions</CardTitle>
-                  <CardDescription>Manage your counseling sessions</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Counseling management coming soon...</p>
-                </CardContent>
-              </Card>
+              <PastorAvailability isPastor={true} />
             </TabsContent>
 
             <TabsContent value="family-applications">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Family Applications</CardTitle>
-                  <CardDescription>Review Join Family applications</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Family applications management coming soon...</p>
-                </CardContent>
-              </Card>
+              <ServeApplicationsManager />
             </TabsContent>
 
             <TabsContent value="giving-records">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Record Giving</CardTitle>
-                  <CardDescription>Record cash offerings and other giving</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Giving records system coming soon...</p>
-                </CardContent>
-              </Card>
+              <GivingAnalysis />
             </TabsContent>
 
             <TabsContent value="requisitions">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Department Requisitions</CardTitle>
-                  <CardDescription>Review and approve department requisitions</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Requisitions management coming soon...</p>
-                </CardContent>
-              </Card>
+              <RequisitionManager userRole={userRole} />
             </TabsContent>
 
             <TabsContent value="budget-create">
@@ -508,6 +458,18 @@ const Dashboard = () => {
                   <p className="text-muted-foreground">Budget creation system coming soon...</p>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="counseling-book">
+              <PastorAvailability isPastor={false} />
+            </TabsContent>
+
+            <TabsContent value="apply-ministry">
+              <MinistriesManager />
+            </TabsContent>
+
+            <TabsContent value="apply-serve">
+              <ServeApplicationsManager />
             </TabsContent>
 
             <TabsContent value="newsletter">

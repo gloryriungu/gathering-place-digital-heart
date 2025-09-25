@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,106 +14,124 @@ import {
 } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useToast } from "@/hooks/use-toast";
+import { usePrerequisiteGuard } from "@/hooks/usePrerequisiteCheck";
+
+interface Ministry {
+  id: string;
+  name: string;
+  description: string;
+  requirements: string[];
+  meeting_schedule: string | null;
+  location: string | null;
+  leader_id: string | null;
+  is_active: boolean;
+  max_members: number | null;
+  current_members: number;
+}
 
 const Ministries = () => {
-  const ministries = [
-    {
-      id: "youth",
-      name: "Youth Ministry (Y-Church)",
-      icon: Users,
-      description: "Empowering the next generation to live boldly for Christ through engaging worship, relevant teaching, and meaningful relationships.",
-      ageGroup: "13-18 years",
-      schedule: "Sundays 10:00 AM & Fridays 7:00 PM",
-      location: "Youth Center",
-      leader: "Pastor Mike Johnson",
-      highlights: [
-        "Weekly youth services with contemporary worship",
-        "Small group Bible studies",
-        "Community service projects",
-        "Annual youth camp and missions trips",
-        "Mentorship programs",
-        "Life skills workshops"
-      ],
-      upcomingEvents: [
-        "Youth Night - January 15th",
-        "Community Service Day - January 22nd",
-        "Winter Retreat - February 5-7th"
-      ]
-    },
-    {
-      id: "kids",
-      name: "Kids Ministry",
-      icon: Baby,
-      description: "Creating a fun, safe environment where children learn about God's love through age-appropriate activities, games, and Bible stories.",
-      ageGroup: "2-12 years",
-      schedule: "Sundays 10:00 AM",
-      location: "Children's Wing",
-      leader: "Pastor Sarah Williams",
-      highlights: [
-        "Age-appropriate Bible lessons",
-        "Interactive worship and songs",
-        "Creative arts and crafts",
-        "Character building activities",
-        "Special holiday programs",
-        "Family ministry events"
-      ],
-      upcomingEvents: [
-        "Kids Carnival - January 20th",
-        "Parent's Night Out - January 27th",
-        "Easter Program Auditions - February 3rd"
-      ]
-    },
-    {
-      id: "deliverance",
-      name: "Deliverance Ministry",
-      icon: Shield,
-      description: "Providing spiritual freedom and healing through prayer, counseling, and biblical guidance for those seeking deliverance from spiritual bondage.",
-      ageGroup: "Adults",
-      schedule: "By appointment & Monthly sessions",
-      location: "Prayer Room",
-      leader: "Pastor David Thompson",
-      highlights: [
-        "One-on-one deliverance sessions",
-        "Group prayer and healing services",
-        "Spiritual warfare training",
-        "Inner healing ministry",
-        "Biblical counseling",
-        "Follow-up care and discipleship"
-      ],
-      upcomingEvents: [
-        "Deliverance Service - January 18th",
-        "Inner Healing Workshop - January 25th",
-        "Spiritual Warfare Seminar - February 8th"
-      ]
-    },
-    {
-      id: "intercession",
-      name: "Intercession Ministry",
-      icon: Heart,
-      description: "Standing in the gap through powerful, focused prayer for our church, community, and nation, believing in the transformative power of prayer.",
-      ageGroup: "All ages",
-      schedule: "Wednesdays 6:00 AM & Saturdays 6:00 PM",
-      location: "Prayer Chapel",
-      leader: "Elder Mary Anderson",
-      highlights: [
-        "Early morning prayer sessions",
-        "24/7 prayer chain",
-        "Prayer walking in the community",
-        "Special prayer events",
-        "Prayer partner program",
-        "Fasting and prayer retreats"
-      ],
-      upcomingEvents: [
-        "21 Days of Prayer - January 1-21st",
-        "Prayer Walk - January 28th",
-        "Night of Intercession - February 10th"
-      ]
-    }
-  ];
+  const { isAuthenticated } = useAuth();
+  const { toast } = useToast();
+  const { hasAccess, checkAccess } = usePrerequisiteGuard("ministries");
+  const [ministries, setMinistries] = useState<Ministry[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleJoinMinistry = (ministryId: string) => {
-    console.log("Joining ministry:", ministryId);
-    // This will be connected to Supabase later
+  useEffect(() => {
+    fetchMinistries();
+  }, []);
+
+  const fetchMinistries = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('ministries')
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) throw error;
+      setMinistries(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleJoinMinistry = async (ministryId: string) => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to join a ministry",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!checkAccess()) {
+      return;
+    }
+
+    try {
+      const user = await supabase.auth.getUser();
+      
+      // Check if already a member
+      const { data: existing, error: checkError } = await supabase
+        .from('ministry_members')
+        .select('id')
+        .eq('ministry_id', ministryId)
+        .eq('user_id', user.data.user?.id)
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      if (existing) {
+        toast({
+          title: "Already a Member",
+          description: "You are already a member of this ministry",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Join the ministry
+      const { error } = await supabase
+        .from('ministry_members')
+        .insert({
+          ministry_id: ministryId,
+          user_id: user.data.user?.id
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "You have successfully joined the ministry!"
+      });
+
+      // Refresh the ministries to update member counts
+      fetchMinistries();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getMinistryIcon = (name: string) => {
+    const lowercaseName = name.toLowerCase();
+    if (lowercaseName.includes('youth') || lowercaseName.includes('young')) return Users;
+    if (lowercaseName.includes('kids') || lowercaseName.includes('children')) return Baby;
+    if (lowercaseName.includes('deliverance') || lowercaseName.includes('security')) return Shield;
+    return Heart;
   };
 
   return (
@@ -137,96 +156,113 @@ const Ministries = () => {
         </div>
 
         {/* Ministries */}
-        <div className="space-y-8">
-          {ministries.map((ministry) => {
-            const IconComponent = ministry.icon;
-            
-            return (
-              <Card key={ministry.id} className="bg-white/95 backdrop-blur-sm overflow-hidden">
-                <CardHeader className="bg-gradient-to-r from-primary/10 to-purple-500/10">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="bg-primary/20 p-3 rounded-lg">
-                        <IconComponent className="h-8 w-8 text-primary" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-2xl">{ministry.name}</CardTitle>
-                        <CardDescription className="text-lg mt-1">
-                          {ministry.description}
-                        </CardDescription>
-                      </div>
-                    </div>
-                    <Button 
-                      onClick={() => handleJoinMinistry(ministry.id)}
-                      className="bg-primary hover:bg-primary/90 shrink-0"
-                    >
-                      JOIN MINISTRY
-                    </Button>
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="p-6">
-                  {/* Ministry Info */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-gray-500" />
-                      <span className="text-sm font-medium">Age Group:</span>
-                      <Badge variant="secondary">{ministry.ageGroup}</Badge>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-gray-500" />
-                      <span className="text-sm font-medium">Schedule:</span>
-                      <span className="text-sm text-gray-600">{ministry.schedule}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-gray-500" />
-                      <span className="text-sm font-medium">Location:</span>
-                      <span className="text-sm text-gray-600">{ministry.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-gray-500" />
-                      <span className="text-sm font-medium">Leader:</span>
-                      <span className="text-sm text-gray-600">{ministry.leader}</span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Highlights */}
-                    <div>
-                      <h4 className="font-semibold mb-3 flex items-center gap-2">
-                        <div className="w-2 h-2 bg-primary rounded-full"></div>
-                        Ministry Highlights
-                      </h4>
-                      <ul className="space-y-2">
-                        {ministry.highlights.map((highlight, index) => (
-                          <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
-                            <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 shrink-0"></div>
-                            {highlight}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Upcoming Events */}
-                    <div>
-                      <h4 className="font-semibold mb-3 flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-primary" />
-                        Upcoming Events
-                      </h4>
-                      <div className="space-y-2">
-                        {ministry.upcomingEvents.map((event, index) => (
-                          <div key={index} className="bg-gray-50 p-3 rounded-lg">
-                            <p className="text-sm font-medium text-gray-800">{event}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+              <p className="text-gray-300">Loading ministries...</p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {ministries.length === 0 ? (
+              <Card className="bg-white/95 backdrop-blur-sm">
+                <CardContent className="p-8 text-center">
+                  <p className="text-gray-600 mb-4">No active ministries found.</p>
+                  <p className="text-sm text-gray-500">Check back later for new ministry opportunities.</p>
                 </CardContent>
               </Card>
-            );
-          })}
-        </div>
+            ) : (
+              ministries.map((ministry) => {
+                const IconComponent = getMinistryIcon(ministry.name);
+                
+                return (
+                  <Card key={ministry.id} className="bg-white/95 backdrop-blur-sm overflow-hidden">
+                    <CardHeader className="bg-gradient-to-r from-primary/10 to-purple-500/10">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                          <div className="bg-primary/20 p-3 rounded-lg">
+                            <IconComponent className="h-8 w-8 text-primary" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-2xl">{ministry.name}</CardTitle>
+                            <CardDescription className="text-lg mt-1">
+                              {ministry.description}
+                            </CardDescription>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <Button 
+                            onClick={() => handleJoinMinistry(ministry.id)}
+                            className="bg-primary hover:bg-primary/90 shrink-0"
+                            disabled={ministry.max_members !== null && ministry.current_members >= ministry.max_members}
+                          >
+                            {ministry.max_members !== null && ministry.current_members >= ministry.max_members 
+                              ? 'FULL' 
+                              : 'JOIN MINISTRY'
+                            }
+                          </Button>
+                          <div className="text-sm text-gray-600 flex items-center gap-2">
+                            <Users className="h-4 w-4" />
+                            <span>
+                              {ministry.current_members}
+                              {ministry.max_members && ` / ${ministry.max_members}`} members
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    
+                    <CardContent className="p-6">
+                      {/* Ministry Info */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        {ministry.meeting_schedule && (
+                          <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-gray-500" />
+                            <span className="text-sm font-medium">Schedule:</span>
+                            <span className="text-sm text-gray-600">{ministry.meeting_schedule}</span>
+                          </div>
+                        )}
+                        {ministry.location && (
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-gray-500" />
+                            <span className="text-sm font-medium">Location:</span>
+                            <span className="text-sm text-gray-600">{ministry.location}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <Heart className="h-4 w-4 text-gray-500" />
+                          <span className="text-sm font-medium">Status:</span>
+                          <Badge variant={ministry.is_active ? "default" : "secondary"}>
+                            {ministry.is_active ? "Active" : "Inactive"}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      {/* Requirements */}
+                      {ministry.requirements && ministry.requirements.length > 0 && (
+                        <div>
+                          <h4 className="font-semibold mb-3 flex items-center gap-2">
+                            <div className="w-2 h-2 bg-primary rounded-full"></div>
+                            Requirements
+                          </h4>
+                          <ul className="space-y-2">
+                            {ministry.requirements.map((requirement, index) => (
+                              <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
+                                <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 shrink-0"></div>
+                                {requirement}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })
+            )}
+          </div>
+        )}
 
         {/* Call to Action */}
         <Card className="mt-12 bg-gradient-to-r from-primary/10 to-purple-500/10 border-primary/20">

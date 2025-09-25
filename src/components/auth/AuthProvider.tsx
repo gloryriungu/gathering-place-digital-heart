@@ -48,11 +48,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      // Prioritize roles: admin > it > media > marketing > registration > accounts > sunday_school > teacher > user
+      // Prioritize roles: founder > senior_pastor > admin > it > media > marketing > registration > accounts > sunday_school > teacher > pastor > user
       const roles = data.map(item => item.role);
       console.log('User roles found:', roles);
       
-      if (roles.includes('admin')) {
+      if (roles.includes('founder')) {
+        console.log('Setting role to founder');
+        setUserRole('founder');
+      } else if (roles.includes('senior_pastor')) {
+        console.log('Setting role to senior_pastor');
+        setUserRole('senior_pastor');
+      } else if (roles.includes('admin')) {
         console.log('Setting role to admin');
         setUserRole('admin');
       } else if (roles.includes('it')) {
@@ -76,6 +82,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else if (roles.includes('teacher')) {
         console.log('Setting role to teacher');
         setUserRole('teacher');
+      } else if (roles.includes('pastor')) {
+        console.log('Setting role to pastor');
+        setUserRole('pastor');
       } else {
         console.log('Setting role to user (default)');
         setUserRole('user');

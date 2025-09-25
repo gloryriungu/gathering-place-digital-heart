@@ -439,6 +439,86 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             </TabsContent>
+
+            {/* Accounts Role Tabs */}
+            <TabsContent value="giving-records">
+              <FinancialContributions />
+            </TabsContent>
+
+            <TabsContent value="giving-analysis">
+              <GivingAnalysis />
+            </TabsContent>
+
+            <TabsContent value="requisitions">
+              <RequisitionManager />
+            </TabsContent>
+
+            <TabsContent value="budget-review">
+              <BudgetProposals userRole={userRole} canReview={true} />
+            </TabsContent>
+
+            {/* Pastor Role Tabs */}
+            <TabsContent value="availability">
+              <PastorAvailability isPastor={true} />
+            </TabsContent>
+
+            <TabsContent value="counseling">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Counseling Sessions</CardTitle>
+                  <CardDescription>Manage your counseling appointments and notes</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Counseling session management coming soon...</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="ministries-view">
+              <MinistriesManager />
+            </TabsContent>
+
+            <TabsContent value="serve-view">
+              <ServeApplicationsManager />
+            </TabsContent>
+
+            {/* Senior Pastor & Founder Role Tabs */}
+            <TabsContent value="activity-logs">
+              <ActivityLogs />
+            </TabsContent>
+
+            <TabsContent value="system-overview">
+              <Card>
+                <CardHeader>
+                  <CardTitle>System Overview</CardTitle>
+                  <CardDescription>Complete system status and health monitoring</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <DashboardOverviewStats />
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                    <RecentActivityCard />
+                    <QuickActionsCard />
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="users">
+              <ITUserManagement />
+            </TabsContent>
+
+            <TabsContent value="family-applications">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Family Applications</CardTitle>
+                  <CardDescription>Review and approve family membership applications</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">Family application management coming soon...</p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
           </Tabs>
         </div>
       </div>

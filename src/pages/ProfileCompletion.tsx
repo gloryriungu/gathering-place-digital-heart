@@ -72,6 +72,8 @@ const ProfileCompletion = () => {
           phone: profileForm.phone,
           address: profileForm.address,
           county: profileForm.county,
+        }, {
+          onConflict: 'user_id'
         });
 
       if (error) {

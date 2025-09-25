@@ -31,6 +31,7 @@ import NoticeOfFilming from "./pages/NoticeOfFilming";
 import MediaDashboard from "./pages/MediaDashboard";
 import MarketingDashboard from "./pages/MarketingDashboard";
 import RegistrationDashboard from "./pages/RegistrationDashboard";
+import ProfileCompletion from "./pages/ProfileCompletion";
 import FAQ from "./pages/FAQ";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
           <Route path="/shop" element={<Shop />} />
           <Route path="/visit-us" element={<VisitUs />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/complete-profile" element={<ProfileCompletion />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/pastors" element={<PastorsDashboard />} />

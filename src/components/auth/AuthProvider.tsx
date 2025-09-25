@@ -248,34 +248,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = async (): Promise<{ error: any }> => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-          skipBrowserRedirect: false
-        }
-      });
-
-      if (error) {
+      // Create manual popup to completely bypass iframe restrictions
+      const redirectUrl = `${window.location.origin}/`;
+      const supabaseUrl = 'https://zkbeoqskfeyqtyjtpufj.supabase.co';
+      
+      const oauthUrl = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
+      
+      // Open popup window
+      const popup = window.open(
+        oauthUrl,
+        'google-auth',
+        'width=500,height=600,scrollbars=yes,resizable=yes'
+      );
+      
+      if (!popup) {
         toast({
-          title: "Google Sign In Error",
-          description: error.message,
-          variant: "destructive"
+          variant: "destructive",
+          title: "Popup Blocked",
+          description: "Please allow popups for this site to sign in with Google"
         });
+        return { error: new Error("Popup blocked") };
       }
-
-      return { error };
+      
+      // Listen for popup close or success
+      return new Promise((resolve) => {
+        const checkClosed = setInterval(() => {
+          if (popup.closed) {
+            clearInterval(checkClosed);
+            // Check if user was signed in after popup closed
+            setTimeout(() => {
+              supabase.auth.getSession().then(({ data: { session } }) => {
+                if (session) {
+                  resolve({ error: null });
+                } else {
+                  resolve({ error: new Error("Authentication cancelled") });
+                }
+              });
+            }, 1000);
+          }
+        }, 1000);
+      });
     } catch (error: any) {
+      const errorMessage = error instanceof Error ? error.message : 'Google sign-in failed';
       toast({
-        title: "Google Sign In Error",
-        description: "An unexpected error occurred",
-        variant: "destructive"
+        variant: "destructive",
+        title: "Google Sign-In Error",
+        description: errorMessage
       });
       return { error };
     }

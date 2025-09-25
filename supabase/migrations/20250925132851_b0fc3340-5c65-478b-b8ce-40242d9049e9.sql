@@ -1,0 +1,11 @@
+-- Insert sample ministries data (if not exists)
+INSERT INTO public.ministries (id, name, description, requirements, meeting_schedule, location, is_active, max_members, current_members) 
+SELECT * FROM (VALUES
+  (gen_random_uuid(), 'Youth Ministry (Y-Church)', 'Empowering the next generation to live boldly for Christ through engaging worship, relevant teaching, and meaningful relationships.', ARRAY['Age 13-18', 'Parental consent for minors', 'Regular attendance'], 'Sundays 10:00 AM & Fridays 7:00 PM', 'Youth Center', true, 50, 0),
+  (gen_random_uuid(), 'Kids Ministry', 'Creating a fun, safe environment where children learn about God''s love through age-appropriate activities, games, and Bible stories.', ARRAY['Age 2-12', 'Background check for volunteers', 'Heart for children'], 'Sundays 10:00 AM', 'Children''s Wing', true, 30, 0),
+  (gen_random_uuid(), 'Deliverance Ministry', 'Providing spiritual freedom and healing through prayer, counseling, and biblical guidance for those seeking deliverance from spiritual bondage.', ARRAY['Spiritual maturity', 'Confidentiality agreement', 'Training required'], 'By appointment & Monthly sessions', 'Prayer Room', true, 20, 0),
+  (gen_random_uuid(), 'Intercession Ministry', 'Standing in the gap through powerful, focused prayer for our church, community, and nation, believing in the transformative power of prayer.', ARRAY['Heart for prayer', 'Commitment to regular prayer', 'Spiritual maturity'], 'Wednesdays 6:00 AM & Saturdays 6:00 PM', 'Prayer Chapel', true, null, 0),
+  (gen_random_uuid(), 'Women''s Ministry', 'Empowering women to grow in their faith, build meaningful relationships, and discover their God-given purpose.', ARRAY['Women only', 'Regular attendance', 'Supportive spirit'], 'Second Saturday of each month', 'Fellowship Hall', true, null, 0),
+  (gen_random_uuid(), 'Men''s Ministry', 'Building godly men who lead with integrity, courage, and compassion in their families and communities.', ARRAY['Men only', 'Commitment to growth', 'Leadership mindset'], 'First Saturday of each month', 'Men''s Center', true, null, 0)
+) AS v(id, name, description, requirements, meeting_schedule, location, is_active, max_members, current_members)
+WHERE NOT EXISTS (SELECT 1 FROM public.ministries WHERE name = v.name);

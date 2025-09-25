@@ -42,6 +42,7 @@ import { JoinFamilyForm } from "@/components/forms/JoinFamilyForm";
 import { MinistriesManager } from "@/components/admin/MinistriesManager";
 import { ServeApplicationsManager } from "@/components/admin/ServeApplicationsManager";
 import { DepartmentInventory } from "@/components/inventory/DepartmentInventory";
+import { AllDepartmentsInventory } from "@/components/inventory/AllDepartmentsInventory";
 import { RequisitionManager } from "@/components/requisitions/RequisitionManager";
 import { GivingAnalysis } from "@/components/accounts/GivingAnalysis";
 import { PastorAvailability } from "@/components/pastor/PastorAvailability";
@@ -387,15 +388,7 @@ const Dashboard = () => {
 
             <TabsContent value="inventory">
               {userRole === 'admin' || userRole === 'founder' || userRole === 'senior_pastor' || userRole === 'accounts' ? (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>All Departments Inventory</CardTitle>
-                    <CardDescription>View inventory across all departments</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">Combined inventory view coming soon...</p>
-                  </CardContent>
-                </Card>
+                <AllDepartmentsInventory />
               ) : (
                 <DepartmentInventory 
                   departmentId={userRole} 

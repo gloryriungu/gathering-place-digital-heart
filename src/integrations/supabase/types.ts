@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_category: string
+          event_type: string
+          id: string
+          properties: Json
+          session_id: string | null
+          timestamp: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_category: string
+          event_type: string
+          id?: string
+          properties?: Json
+          session_id?: string | null
+          timestamp?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_category?: string
+          event_type?: string
+          id?: string
+          properties?: Json
+          session_id?: string | null
+          timestamp?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       attendance_records: {
         Row: {
           checked_in_at: string | null
@@ -48,6 +117,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      budget_proposals: {
+        Row: {
+          amount: number
+          created_at: string
+          department_id: string
+          description: string
+          id: string
+          justification: string
+          period_end: string
+          period_start: string
+          proposal_type: string
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string
+          submitted_by: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          department_id: string
+          description: string
+          id?: string
+          justification: string
+          period_end: string
+          period_start: string
+          proposal_type?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          submitted_by: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          department_id?: string
+          description?: string
+          id?: string
+          justification?: string
+          period_end?: string
+          period_start?: string
+          proposal_type?: string
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+          submitted_by?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       church_events: {
         Row: {
@@ -134,6 +260,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      counseling_sessions: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          member_id: string
+          member_notes: string | null
+          notes: string | null
+          pastor_id: string
+          session_date: string
+          session_type: string
+          start_time: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          member_id: string
+          member_notes?: string | null
+          notes?: string | null
+          pastor_id: string
+          session_date: string
+          session_type?: string
+          start_time: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          member_id?: string
+          member_notes?: string | null
+          notes?: string | null
+          pastor_id?: string
+          session_date?: string
+          session_type?: string
+          start_time?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       dashboard_stats: {
         Row: {
@@ -610,6 +781,45 @@ export type Database = {
         }
         Relationships: []
       }
+      pastor_availability: {
+        Row: {
+          created_at: string
+          day_of_week: string
+          end_time: string
+          id: string
+          is_active: boolean
+          max_sessions: number
+          pastor_id: string
+          session_duration: number
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: string
+          end_time: string
+          id?: string
+          is_active?: boolean
+          max_sessions?: number
+          pastor_id: string
+          session_duration?: number
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: string
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          max_sessions?: number
+          pastor_id?: string
+          session_duration?: number
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       pastor_roles: {
         Row: {
           created_at: string
@@ -711,6 +921,63 @@ export type Database = {
           status?: string
           title?: string
           type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      requisitions: {
+        Row: {
+          amount: number | null
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          department_id: string
+          description: string
+          id: string
+          priority: string
+          reason: string | null
+          request_type: string
+          requested_by: string
+          requested_date: string
+          required_by: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          department_id: string
+          description: string
+          id?: string
+          priority?: string
+          reason?: string | null
+          request_type: string
+          requested_by: string
+          requested_date?: string
+          required_by?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          department_id?: string
+          description?: string
+          id?: string
+          priority?: string
+          reason?: string | null
+          request_type?: string
+          requested_by?: string
+          requested_date?: string
+          required_by?: string | null
+          status?: string
+          title?: string
           updated_at?: string
         }
         Relationships: []

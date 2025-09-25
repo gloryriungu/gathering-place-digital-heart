@@ -159,6 +159,54 @@ export type Database = {
         }
         Relationships: []
       }
+      department_inventory: {
+        Row: {
+          category: string | null
+          condition: string | null
+          created_at: string | null
+          department_id: string
+          description: string | null
+          id: string
+          item_name: string
+          location: string | null
+          purchase_date: string | null
+          quantity_available: number | null
+          unit_value: number | null
+          updated_at: string | null
+          warranty_info: string | null
+        }
+        Insert: {
+          category?: string | null
+          condition?: string | null
+          created_at?: string | null
+          department_id: string
+          description?: string | null
+          id?: string
+          item_name: string
+          location?: string | null
+          purchase_date?: string | null
+          quantity_available?: number | null
+          unit_value?: number | null
+          updated_at?: string | null
+          warranty_info?: string | null
+        }
+        Update: {
+          category?: string | null
+          condition?: string | null
+          created_at?: string | null
+          department_id?: string
+          description?: string | null
+          id?: string
+          item_name?: string
+          location?: string | null
+          purchase_date?: string | null
+          quantity_available?: number | null
+          unit_value?: number | null
+          updated_at?: string | null
+          warranty_info?: string | null
+        }
+        Relationships: []
+      }
       faq_content: {
         Row: {
           answer: string
@@ -192,6 +240,114 @@ export type Database = {
           is_published?: boolean | null
           question?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      inventory_transactions: {
+        Row: {
+          created_at: string | null
+          event_date: string | null
+          event_name: string | null
+          handled_by: string
+          id: string
+          inventory_item_id: string
+          notes: string | null
+          quantity: number
+          transaction_type: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_date?: string | null
+          event_name?: string | null
+          handled_by: string
+          id?: string
+          inventory_item_id: string
+          notes?: string | null
+          quantity: number
+          transaction_type: string
+        }
+        Update: {
+          created_at?: string | null
+          event_date?: string | null
+          event_name?: string | null
+          handled_by?: string
+          id?: string
+          inventory_item_id?: string
+          notes?: string | null
+          quantity?: number
+          transaction_type?: string
+        }
+        Relationships: []
+      }
+      join_family_applications: {
+        Row: {
+          address: string | null
+          application_date: string | null
+          baptism_status: string
+          created_at: string | null
+          email: string
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          first_name: string
+          id: string
+          last_name: string
+          ministry_interests: string[] | null
+          notes: string | null
+          phone: string | null
+          previous_church: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          testimony: string | null
+          updated_at: string | null
+          user_id: string
+          volunteer_interests: string[] | null
+        }
+        Insert: {
+          address?: string | null
+          application_date?: string | null
+          baptism_status: string
+          created_at?: string | null
+          email: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          ministry_interests?: string[] | null
+          notes?: string | null
+          phone?: string | null
+          previous_church?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          testimony?: string | null
+          updated_at?: string | null
+          user_id: string
+          volunteer_interests?: string[] | null
+        }
+        Update: {
+          address?: string | null
+          application_date?: string | null
+          baptism_status?: string
+          created_at?: string | null
+          email?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          ministry_interests?: string[] | null
+          notes?: string | null
+          phone?: string | null
+          previous_church?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          testimony?: string | null
+          updated_at?: string | null
+          user_id?: string
+          volunteer_interests?: string[] | null
         }
         Relationships: []
       }
@@ -288,6 +444,78 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      ministries: {
+        Row: {
+          created_at: string | null
+          current_members: number | null
+          description: string
+          id: string
+          is_active: boolean | null
+          leader_id: string | null
+          location: string | null
+          max_members: number | null
+          meeting_schedule: string | null
+          name: string
+          requirements: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_members?: number | null
+          description: string
+          id?: string
+          is_active?: boolean | null
+          leader_id?: string | null
+          location?: string | null
+          max_members?: number | null
+          meeting_schedule?: string | null
+          name: string
+          requirements?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_members?: number | null
+          description?: string
+          id?: string
+          is_active?: boolean | null
+          leader_id?: string | null
+          location?: string | null
+          max_members?: number | null
+          meeting_schedule?: string | null
+          name?: string
+          requirements?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      ministry_members: {
+        Row: {
+          id: string
+          joined_date: string | null
+          ministry_id: string
+          role: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_date?: string | null
+          ministry_id: string
+          role?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_date?: string | null
+          ministry_id?: string
+          role?: string | null
+          status?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -501,6 +729,45 @@ export type Database = {
           metadata?: Json | null
           severity?: string
           source?: string
+        }
+        Relationships: []
+      }
+      serve_applications: {
+        Row: {
+          application_date: string | null
+          created_at: string | null
+          department_id: string
+          id: string
+          notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          application_date?: string | null
+          created_at?: string | null
+          department_id: string
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          application_date?: string | null
+          created_at?: string | null
+          department_id?: string
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }

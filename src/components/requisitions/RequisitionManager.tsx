@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, FileText, CheckCircle, XCircle, Clock } from "lucide-react";
+import { Plus, FileText, CheckCircle, XCircle, Clock, Download } from "lucide-react";
+import jsPDF from 'jspdf';
 
 interface Requisition {
   id: string;
@@ -159,6 +160,49 @@ export const RequisitionManager = ({ userRole, departmentId }: RequisitionManage
     }
   };
 
+  const exportToPDF = () => {
+    const pdf = new jsPDF();
+    const pageHeight = pdf.internal.pageSize.height;
+    let yPosition = 20;
+
+    // Add title
+    pdf.setFontSize(20);
+    pdf.text('Requisitions Report', 20, yPosition);
+    yPosition += 15;
+
+    // Add generated date
+    pdf.setFontSize(10);
+    pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, yPosition);
+    yPosition += 20;
+
+    // Add table headers
+    pdf.setFontSize(12);
+    pdf.text('Title', 20, yPosition);
+    pdf.text('Dept', 70, yPosition);
+    pdf.text('Type', 100, yPosition);
+    pdf.text('Amount', 130, yPosition);
+    pdf.text('Status', 160, yPosition);
+    yPosition += 10;
+
+    // Add requisitions data
+    pdf.setFontSize(10);
+    requisitions.forEach((req) => {
+      if (yPosition > pageHeight - 20) {
+        pdf.addPage();
+        yPosition = 20;
+      }
+
+      pdf.text(req.title.substring(0, 25), 20, yPosition);
+      pdf.text(req.department_id, 70, yPosition);
+      pdf.text(req.request_type, 100, yPosition);
+      pdf.text(req.amount ? `$${req.amount.toFixed(2)}` : '-', 130, yPosition);
+      pdf.text(req.status, 160, yPosition);
+      yPosition += 8;
+    });
+
+    pdf.save(`requisitions-${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
   if (loading) {
     return <div className="flex items-center justify-center p-8">Loading requisitions...</div>;
   }
@@ -180,14 +224,15 @@ export const RequisitionManager = ({ userRole, departmentId }: RequisitionManage
           </p>
         </div>
         
-        {canCreateRequisitions && (
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                New Requisition
-              </Button>
-            </DialogTrigger>
+        <div className="flex gap-2">
+          {canCreateRequisitions && (
+            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Requisition
+                </Button>
+              </DialogTrigger>
             <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Create New Requisition</DialogTitle>
@@ -275,7 +320,13 @@ export const RequisitionManager = ({ userRole, departmentId }: RequisitionManage
               </form>
             </DialogContent>
           </Dialog>
-        )}
+          )}
+          
+          <Button onClick={exportToPDF} variant="outline">
+            <Download className="h-4 w-4 mr-2" />
+            Export PDF
+          </Button>
+        </div>
       </div>
 
       {/* Requisitions Table */}

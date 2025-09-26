@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Package, Search, Filter, TrendingUp, TrendingDown } from "lucide-react";
+import { Package, Search, Filter, TrendingUp, TrendingDown, Download } from "lucide-react";
+import jsPDF from 'jspdf';
 
 interface InventoryItem {
   id: string;
@@ -103,6 +104,55 @@ export const AllDepartmentsInventory = () => {
 
   const lowStockItems = items.filter(item => item.quantity_available <= 5);
 
+  const exportToPDF = () => {
+    const pdf = new jsPDF();
+    const pageHeight = pdf.internal.pageSize.height;
+    let yPosition = 20;
+
+    // Add title
+    pdf.setFontSize(20);
+    pdf.text('Inventory Report', 20, yPosition);
+    yPosition += 15;
+
+    // Add generated date and stats
+    pdf.setFontSize(10);
+    pdf.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, yPosition);
+    yPosition += 8;
+    pdf.text(`Total Items: ${items.length}`, 20, yPosition);
+    yPosition += 8;
+    pdf.text(`Total Value: $${totalValue.toFixed(2)}`, 20, yPosition);
+    yPosition += 8;
+    pdf.text(`Low Stock Items: ${lowStockItems.length}`, 20, yPosition);
+    yPosition += 20;
+
+    // Add table headers
+    pdf.setFontSize(12);
+    pdf.text('Item Name', 20, yPosition);
+    pdf.text('Dept', 80, yPosition);
+    pdf.text('Qty', 110, yPosition);
+    pdf.text('Value', 130, yPosition);
+    pdf.text('Location', 160, yPosition);
+    yPosition += 10;
+
+    // Add inventory data
+    pdf.setFontSize(10);
+    filteredItems.forEach((item) => {
+      if (yPosition > pageHeight - 20) {
+        pdf.addPage();
+        yPosition = 20;
+      }
+
+      pdf.text(item.item_name.substring(0, 30), 20, yPosition);
+      pdf.text(item.department_id, 80, yPosition);
+      pdf.text(item.quantity_available.toString(), 110, yPosition);
+      pdf.text(item.unit_value ? `$${(item.unit_value * item.quantity_available).toFixed(2)}` : '-', 130, yPosition);
+      pdf.text(item.location?.substring(0, 20) || '-', 160, yPosition);
+      yPosition += 8;
+    });
+
+    pdf.save(`inventory-${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
   if (loading) {
     return <div className="flex items-center justify-center p-8">Loading inventory...</div>;
   }
@@ -117,6 +167,10 @@ export const AllDepartmentsInventory = () => {
             Overview of inventory across all departments
           </p>
         </div>
+        <Button onClick={exportToPDF} variant="outline">
+          <Download className="h-4 w-4 mr-2" />
+          Export PDF
+        </Button>
       </div>
 
       {/* Stats Cards */}

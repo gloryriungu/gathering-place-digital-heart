@@ -164,9 +164,25 @@ const Dashboard = () => {
         { value: "giving-records", label: "Record Giving", icon: DollarSign },
         { value: "giving-analysis", label: "Giving Analysis", icon: Activity },
         { value: "requisitions", label: "Requisitions", icon: FileText },
+        { value: "inventory", label: "Inventory", icon: Settings },
         { value: "budget-create", label: "Create Budget", icon: Settings },
-        { value: "inventory", label: "All Inventory", icon: Settings },
         { value: "contributions", label: "Contributions", icon: DollarSign },
+      ],
+      media: [
+        { value: "requisitions", label: "Requisitions", icon: FileText },
+        { value: "inventory", label: "Inventory", icon: Settings },
+      ],
+      marketing: [
+        { value: "requisitions", label: "Requisitions", icon: FileText },
+        { value: "inventory", label: "Inventory", icon: Settings },
+      ],
+      sound: [
+        { value: "requisitions", label: "Requisitions", icon: FileText },
+        { value: "inventory", label: "Inventory", icon: Settings },
+      ],
+      security: [
+        { value: "requisitions", label: "Requisitions", icon: FileText },
+        { value: "inventory", label: "Inventory", icon: Settings },
       ],
       sunday_school: [
         { value: "sunday-school", label: "Sunday School", icon: BookOpen },
@@ -182,9 +198,9 @@ const Dashboard = () => {
         { value: "ticketing", label: "Support Tickets", icon: Ticket },
         { value: "monitoring", label: "System Monitor", icon: Monitor },
         { value: "security", label: "Security", icon: Shield },
+        { value: "requisitions", label: "Requisitions", icon: FileText },
+        { value: "inventory", label: "All Inventory", icon: Settings },
       ],
-      media: [],
-      marketing: [],
       user: [
         { value: "join-family", label: "Join Family", icon: Heart },
         { value: "apply-ministry", label: "Apply to Ministry", icon: Users },
@@ -443,7 +459,7 @@ const Dashboard = () => {
             </TabsContent>
 
             <TabsContent value="requisitions">
-              <RequisitionManager />
+              <RequisitionManager userRole={userRole} departmentId={userRole} />
             </TabsContent>
 
             <TabsContent value="budget-review">
@@ -510,6 +526,11 @@ const Dashboard = () => {
                   <p className="text-muted-foreground">Family application management coming soon...</p>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Department Role Tabs - Available for all departments */}
+            <TabsContent value="requisitions">
+              <RequisitionManager userRole={userRole} departmentId={userRole === 'admin' || userRole === 'accounts' || userRole === 'it' || userRole === 'founder' || userRole === 'senior_pastor' ? undefined : userRole} />
             </TabsContent>
 
           </Tabs>

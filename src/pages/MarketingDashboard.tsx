@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { AuthGuard } from "@/components/shared/AuthGuard";
 import { MarketingDashboardHeader } from "@/components/marketing/MarketingDashboardHeader";
+import { DepartmentInventory } from "@/components/inventory/DepartmentInventory";
+import { RequisitionManager } from "@/components/requisitions/RequisitionManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, Users, Star, MessageSquare, Share2, HelpCircle, FileText, Mail } from "lucide-react";
+import { BarChart3, Users, Star, MessageSquare, Share2, HelpCircle, FileText, Mail, Settings } from "lucide-react";
 
 // Marketing management components
 import { AboutUsManager } from "@/components/marketing/AboutUsManager";
@@ -70,7 +72,7 @@ const MarketingDashboard = () => {
           <MarketingDashboardHeader />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-9">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="about">About Us</TabsTrigger>
               <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
@@ -78,6 +80,8 @@ const MarketingDashboard = () => {
               <TabsTrigger value="social">Social Media</TabsTrigger>
               <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
               <TabsTrigger value="faq">FAQ</TabsTrigger>
+              <TabsTrigger value="requisitions">Requisitions</TabsTrigger>
+              <TabsTrigger value="inventory">Inventory</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -134,6 +138,17 @@ const MarketingDashboard = () => {
 
             <TabsContent value="faq">
               <FAQManager />
+            </TabsContent>
+
+            <TabsContent value="requisitions">
+              <RequisitionManager userRole="marketing" departmentId="marketing" />
+            </TabsContent>
+
+            <TabsContent value="inventory">
+              <DepartmentInventory 
+                departmentId="marketing" 
+                departmentName="Marketing" 
+              />
             </TabsContent>
           </Tabs>
           </div>

@@ -8,10 +8,12 @@ import { ShopManager } from "@/components/media/ShopManager";
 import { HeroContentManager } from "@/components/media/HeroContentManager";
 import { AnnouncementsManager } from "@/components/media/AnnouncementsManager";
 import { WatchPageManager } from "@/components/media/WatchPageManager";
+import { DepartmentInventory } from "@/components/inventory/DepartmentInventory";
+import { RequisitionManager } from "@/components/requisitions/RequisitionManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Video, Calendar, ShoppingBag, Home, Megaphone, BarChart3, Play } from "lucide-react";
+import { Video, Calendar, ShoppingBag, Home, Megaphone, BarChart3, Play, FileText, Settings } from "lucide-react";
 
 const MediaDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -24,7 +26,7 @@ const MediaDashboard = () => {
           <MediaDashboardHeader />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-              <TabsList className="grid w-full grid-cols-7 bg-white shadow-lg rounded-xl p-1">
+              <TabsList className="grid w-full grid-cols-9 bg-white shadow-lg rounded-xl p-1">
                 <TabsTrigger value="overview" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Overview</TabsTrigger>
                 <TabsTrigger value="livestream" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Live Stream</TabsTrigger>
                 <TabsTrigger value="events" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Events</TabsTrigger>
@@ -32,6 +34,8 @@ const MediaDashboard = () => {
                 <TabsTrigger value="hero" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Homepage</TabsTrigger>
                 <TabsTrigger value="announcements" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Announcements</TabsTrigger>
                 <TabsTrigger value="watch" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Watch Page</TabsTrigger>
+                <TabsTrigger value="requisitions" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Requisitions</TabsTrigger>
+                <TabsTrigger value="inventory" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Inventory</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
@@ -193,6 +197,17 @@ const MediaDashboard = () => {
 
               <TabsContent value="watch">
                 <WatchPageManager />
+              </TabsContent>
+
+              <TabsContent value="requisitions">
+                <RequisitionManager userRole="media" departmentId="media" />
+              </TabsContent>
+
+              <TabsContent value="inventory">
+                <DepartmentInventory 
+                  departmentId="media" 
+                  departmentName="Media" 
+                />
               </TabsContent>
             </Tabs>
           </div>

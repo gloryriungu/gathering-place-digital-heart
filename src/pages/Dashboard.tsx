@@ -49,6 +49,7 @@ import { PastorAvailability } from "@/components/pastor/PastorAvailability";
 import { ActivityLogs } from "@/components/admin/ActivityLogs";
 import { AdvancedAnalytics } from "@/components/founder/AdvancedAnalytics";
 import { BudgetProposals } from "@/components/budget/BudgetProposals";
+import { DepartmentTabManager } from "@/components/admin/DepartmentTabManager";
 
 const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
@@ -198,6 +199,7 @@ const Dashboard = () => {
         { value: "ticketing", label: "Support Tickets", icon: Ticket },
         { value: "monitoring", label: "System Monitor", icon: Monitor },
         { value: "security", label: "Security", icon: Shield },
+        { value: "tab-management", label: "Tab Management", icon: Settings },
         { value: "requisitions", label: "Requisitions", icon: FileText },
         { value: "inventory", label: "All Inventory", icon: Settings },
       ],
@@ -341,6 +343,10 @@ const Dashboard = () => {
 
             <TabsContent value="security">
               <ITSecurity />
+            </TabsContent>
+
+            <TabsContent value="tab-management">
+              <DepartmentTabManager />
             </TabsContent>
 
             <TabsContent value="profile">

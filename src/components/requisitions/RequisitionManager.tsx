@@ -207,7 +207,7 @@ export const RequisitionManager = ({ userRole, departmentId }: RequisitionManage
     return <div className="flex items-center justify-center p-8">Loading requisitions...</div>;
   }
 
-  const canManageRequisitions = userRole === 'accounts' || userRole === 'admin' || userRole === 'it';
+  const canManageRequisitions = userRole === 'accounts' || userRole === 'founder';
   const canCreateRequisitions = departmentId || userRole === 'admin';
 
   return (

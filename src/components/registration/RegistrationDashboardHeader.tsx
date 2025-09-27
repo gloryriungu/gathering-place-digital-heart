@@ -71,77 +71,91 @@ export const RegistrationDashboardHeader = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Registration Dashboard</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage member attendance and registration
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground truncate">
+            <span className="hidden sm:inline">Registration Dashboard</span>
+            <span className="sm:hidden">Registration</span>
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
+            <span className="hidden sm:inline">Manage member attendance and registration</span>
+            <span className="sm:hidden">Members & Attendance</span>
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Badge variant="default" className="bg-yellow-100 text-yellow-800 border-yellow-300">
-            Registration Department
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <Badge variant="default" className="bg-yellow-100 text-yellow-800 border-yellow-300 text-xs sm:text-sm">
+            <span className="hidden sm:inline">Registration Department</span>
+            <span className="sm:hidden">Registration</span>
           </Badge>
-          <Button variant="outline" onClick={signOut}>
+          <Button variant="outline" onClick={signOut} size="sm">
             Sign Out
           </Button>
         </div>
       </div>
 
       {/* Quick Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Members</p>
-                <p className="text-2xl font-bold">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">Total Members</p>
+                <p className="text-lg sm:text-2xl font-bold">
                   {loading ? '...' : stats.totalMembers.toLocaleString()}
                 </p>
               </div>
-              <Users className="h-8 w-8 text-blue-500" />
+              <Users className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500 flex-shrink-0" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Today's Attendance</p>
-                <p className="text-2xl font-bold">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                  <span className="hidden sm:inline">Today's Attendance</span>
+                  <span className="sm:hidden">Today</span>
+                </p>
+                <p className="text-lg sm:text-2xl font-bold">
                   {loading ? '...' : stats.todayAttendance.toLocaleString()}
                 </p>
               </div>
-              <Calendar className="h-8 w-8 text-green-500" />
+              <Calendar className="h-6 w-6 sm:h-8 sm:w-8 text-green-500 flex-shrink-0" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">New Members (Week)</p>
-                <p className="text-2xl font-bold">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                  <span className="hidden sm:inline">New Members (Week)</span>
+                  <span className="sm:hidden">New</span>
+                </p>
+                <p className="text-lg sm:text-2xl font-bold">
                   {loading ? '...' : stats.thisWeekNewMembers}
                 </p>
               </div>
-              <UserPlus className="h-8 w-8 text-purple-500" />
+              <UserPlus className="h-6 w-6 sm:h-8 sm:w-8 text-purple-500 flex-shrink-0" />
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Attendance Rate</p>
-                <p className="text-2xl font-bold">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                  <span className="hidden sm:inline">Attendance Rate</span>
+                  <span className="sm:hidden">Rate</span>
+                </p>
+                <p className="text-lg sm:text-2xl font-bold">
                   {loading ? '...' : `${stats.attendanceRate}%`}
                 </p>
               </div>
-              <TrendingUp className="h-8 w-8 text-orange-500" />
+              <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8 text-orange-500 flex-shrink-0" />
             </div>
           </CardContent>
         </Card>

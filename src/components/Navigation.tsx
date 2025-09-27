@@ -75,12 +75,12 @@ export const Navigation = () => {
                   <ChevronDown className="h-4 w-4" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-black/95 backdrop-blur-md border-white/10 z-50">
+              <DropdownMenuContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg z-50">
                 {getInvolvedItems.map((item) => (
                   <DropdownMenuItem key={item.name} asChild>
                     <Link
                       to={item.href}
-                      className="text-white hover:text-gray-300 font-bold text-sm tracking-wide cursor-pointer"
+                      className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 font-bold text-sm tracking-wide cursor-pointer block px-4 py-2"
                     >
                       {item.name}
                     </Link>

@@ -50,7 +50,7 @@ const MediaDashboard = () => {
                   <select 
                     value={activeTab} 
                     onChange={(e) => setActiveTab(e.target.value)}
-                    className="w-full p-2 border rounded-md bg-white"
+                    className="w-full p-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   >
                     <option value="shop">Shop</option>
                     <option value="hero">Homepage</option>

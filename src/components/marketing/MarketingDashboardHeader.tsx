@@ -21,25 +21,31 @@ export const MarketingDashboardHeader = () => {
   return (
     <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-black">MARKETING DEPARTMENT</h1>
-            <p className="text-blue-100 mt-2">Content Management & Public Communications - TOT Int</p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black truncate">
+              <span className="hidden sm:inline">MARKETING DEPARTMENT</span>
+              <span className="sm:hidden">MARKETING DASHBOARD</span>
+            </h1>
+            <p className="text-blue-100 mt-1 text-sm sm:text-base truncate">
+              <span className="hidden sm:inline">Content Management & Public Communications - TOT Int</span>
+              <span className="sm:hidden">Communications</span>
+            </p>
           </div>
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-              <Bell className="h-5 w-5" />
+          <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 h-8 w-8 sm:h-10 sm:w-10">
+              <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-              <Settings className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 h-8 w-8 sm:h-10 sm:w-10">
+              <Settings className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-                  <User className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 h-8 w-8 sm:h-10 sm:w-10">
+                  <User className="h-4 w-4 sm:h-5 sm:w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 z-50" align="end" forceMount>
                 <DropdownMenuItem className="flex items-center">
                   <User className="mr-2 h-4 w-4" />
                   <div className="flex flex-col space-y-1">

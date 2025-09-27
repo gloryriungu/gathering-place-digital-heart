@@ -99,7 +99,7 @@ const MarketingDashboard = () => {
                 <select 
                   value={activeTab} 
                   onChange={(e) => setActiveTab(e.target.value)}
-                  className="w-full p-2 border rounded-md bg-white"
+                  className="w-full p-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="filming">Filming</option>
                   <option value="social">Social Media</option>

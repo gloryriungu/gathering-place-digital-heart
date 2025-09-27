@@ -15,7 +15,7 @@ export const RecentActivity = () => {
     {
       type: "donation",
       action: "Large donation received",
-      details: "$2,500 from Anonymous",
+      details: "KSh 325,000 from Anonymous",
       time: "4 hours ago",
       icon: DollarSign,
       color: "text-green-600"

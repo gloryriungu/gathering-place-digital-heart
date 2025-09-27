@@ -103,7 +103,7 @@ export const SundaySchoolDashboard = () => {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$45.50</div>
+            <div className="text-2xl font-bold">KSh 5,915</div>
             <p className="text-xs text-muted-foreground">This week</p>
           </CardContent>
         </Card>
@@ -289,13 +289,13 @@ export const SundaySchoolDashboard = () => {
                         className="w-20 text-right"
                         step="0.01"
                       />
-                      <span className="text-sm font-medium">$</span>
+                      <span className="text-sm font-medium">KSh</span>
                     </div>
                   </div>
                 ))}
                 <div className="flex justify-between items-center pt-4 border-t font-semibold">
                   <span>Total Offering:</span>
-                  <span>$45.50</span>
+                  <span>KSh 5,915</span>
                 </div>
                 <Button className="w-full">Submit to Accounts Department</Button>
               </div>

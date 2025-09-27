@@ -13,7 +13,7 @@ export const DashboardStats = () => {
     },
     {
       title: "Monthly Giving",
-      value: "$47,832",
+      value: "KSh 6,218,160",
       change: "+8.2% from last month",
       icon: DollarSign,
       color: "text-green-600"

@@ -26,17 +26,41 @@ const MediaDashboard = () => {
           <MediaDashboardHeader />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-              <TabsList className="grid w-full grid-cols-9 bg-white shadow-lg rounded-xl p-1">
-                <TabsTrigger value="overview" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Overview</TabsTrigger>
-                <TabsTrigger value="livestream" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Live Stream</TabsTrigger>
-                <TabsTrigger value="events" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Events</TabsTrigger>
-                <TabsTrigger value="shop" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Shop</TabsTrigger>
-                <TabsTrigger value="hero" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Homepage</TabsTrigger>
-                <TabsTrigger value="announcements" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Announcements</TabsTrigger>
-                <TabsTrigger value="watch" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Watch Page</TabsTrigger>
-                <TabsTrigger value="requisitions" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Requisitions</TabsTrigger>
-                <TabsTrigger value="inventory" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Inventory</TabsTrigger>
-              </TabsList>
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <TabsList className="grid w-full sm:w-auto grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 bg-white shadow-lg rounded-xl p-1">
+                  <TabsTrigger value="overview" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                    <span className="hidden sm:inline">Overview</span>
+                    <span className="sm:hidden">Home</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="livestream" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
+                    <span className="hidden sm:inline">Live Stream</span>
+                    <span className="sm:hidden">Live</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="events" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Events</TabsTrigger>
+                  <TabsTrigger value="shop" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white hidden sm:flex">Shop</TabsTrigger>
+                  <TabsTrigger value="hero" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white hidden sm:flex">Homepage</TabsTrigger>
+                  <TabsTrigger value="announcements" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white hidden lg:flex">Announcements</TabsTrigger>
+                  <TabsTrigger value="watch" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white hidden lg:flex">Watch Page</TabsTrigger>
+                  <TabsTrigger value="requisitions" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white hidden lg:flex">Requisitions</TabsTrigger>
+                  <TabsTrigger value="inventory" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white hidden lg:flex">Inventory</TabsTrigger>
+                </TabsList>
+                
+                {/* Mobile dropdown for hidden tabs */}
+                <div className="sm:hidden w-full">
+                  <select 
+                    value={activeTab} 
+                    onChange={(e) => setActiveTab(e.target.value)}
+                    className="w-full p-2 border rounded-md bg-white"
+                  >
+                    <option value="shop">Shop</option>
+                    <option value="hero">Homepage</option>
+                    <option value="announcements">Announcements</option>
+                    <option value="watch">Watch Page</option>
+                    <option value="requisitions">Requisitions</option>
+                    <option value="inventory">Inventory</option>
+                  </select>
+                </div>
+              </div>
 
               <TabsContent value="overview" className="space-y-6">
                 <div className="text-center mb-8">

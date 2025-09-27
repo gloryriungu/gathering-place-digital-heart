@@ -61,11 +61,11 @@ const Partners = () => {
   ];
 
   const suggestedAmounts = [
-    { label: "$25", value: "25" },
-    { label: "$50", value: "50" },
-    { label: "$100", value: "100" },
-    { label: "$250", value: "250" },
-    { label: "$500", value: "500" },
+    { label: "KSh 3,250", value: "3250" },
+    { label: "KSh 6,500", value: "6500" },
+    { label: "KSh 13,000", value: "13000" },
+    { label: "KSh 32,500", value: "32500" },
+    { label: "KSh 65,000", value: "65000" },
     { label: "Custom", value: "custom" },
   ];
 

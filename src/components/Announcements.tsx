@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,21 +17,12 @@ interface AnnouncementData {
   created_at: string;
 }
 
-export const Announcements = () => {
+export const Announcements = memo(() => {
   const [announcements, setAnnouncements] = useState<AnnouncementData[]>([]);
   const [loading, setLoading] = useState(true);
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
 
-  useEffect(() => {
-    fetchAnnouncements();
-    // Load dismissed announcements from localStorage
-    const dismissed = localStorage.getItem('dismissedAnnouncements');
-    if (dismissed) {
-      setDismissedIds(JSON.parse(dismissed));
-    }
-  }, []);
-
-  const fetchAnnouncements = async () => {
+  const fetchAnnouncements = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('media_content')
@@ -63,15 +54,24 @@ export const Announcements = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleDismiss = (announcementId: string) => {
+  useEffect(() => {
+    fetchAnnouncements();
+    // Load dismissed announcements from localStorage
+    const dismissed = localStorage.getItem('dismissedAnnouncements');
+    if (dismissed) {
+      setDismissedIds(JSON.parse(dismissed));
+    }
+  }, [fetchAnnouncements]);
+
+  const handleDismiss = useCallback((announcementId: string) => {
     const newDismissedIds = [...dismissedIds, announcementId];
     setDismissedIds(newDismissedIds);
     localStorage.setItem('dismissedAnnouncements', JSON.stringify(newDismissedIds));
-  };
+  }, [dismissedIds]);
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityColor = useCallback((priority: string) => {
     switch (priority) {
       case 'high':
         return 'bg-red-100 text-red-800 border-red-200';
@@ -82,7 +82,7 @@ export const Announcements = () => {
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
-  };
+  }, []);
 
   const visibleAnnouncements = announcements.filter(
     announcement => !dismissedIds.includes(announcement.id)
@@ -155,4 +155,6 @@ export const Announcements = () => {
       </div>
     </section>
   );
-};
+});
+
+Announcements.displayName = 'Announcements';

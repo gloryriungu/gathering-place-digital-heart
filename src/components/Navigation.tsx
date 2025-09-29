@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, ShoppingCart } from "lucide-react";
@@ -15,11 +15,15 @@ import {
 } from "@/components/ui/collapsible";
 import { useSocialMedia } from "@/hooks/useSocialMedia";
 
-export const Navigation = () => {
+export const Navigation = memo(() => {
   const [isOpen, setIsOpen] = useState(false);
   const [cartItems, setCartItems] = useState(0);
   const [isGetInvolvedOpen, setIsGetInvolvedOpen] = useState(false);
   const { socialLinks } = useSocialMedia();
+
+  const toggleMenu = useCallback(() => setIsOpen(!isOpen), [isOpen]);
+  const closeMenu = useCallback(() => setIsOpen(false), []);
+  const toggleGetInvolved = useCallback(() => setIsGetInvolvedOpen(!isGetInvolvedOpen), [isGetInvolvedOpen]);
 
   const navItems = [
     { name: "ABOUT", href: "/about" },
@@ -133,7 +137,7 @@ export const Navigation = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsOpen(!isOpen)}
+              onClick={toggleMenu}
               className="text-white"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -150,7 +154,7 @@ export const Navigation = () => {
                   key={item.name}
                   to={item.href}
                   className="block px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeMenu}
                 >
                   {item.name}
                 </Link>
@@ -159,13 +163,13 @@ export const Navigation = () => {
               <Link
                 to="/auth"
                 className="block px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
-                onClick={() => setIsOpen(false)}
+                onClick={closeMenu}
               >
                 SIGN IN
               </Link>
               
               {/* Mobile Get Involved Collapsible Section */}
-              <Collapsible open={isGetInvolvedOpen} onOpenChange={setIsGetInvolvedOpen}>
+              <Collapsible open={isGetInvolvedOpen} onOpenChange={toggleGetInvolved}>
                 <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide">
                   GET INVOLVED
                   <ChevronDown className={`h-5 w-5 transition-transform ${isGetInvolvedOpen ? 'rotate-180' : ''}`} />
@@ -176,7 +180,7 @@ export const Navigation = () => {
                       key={item.name}
                       to={item.href}
                       className="block py-2 px-3 text-white hover:text-gray-300 font-medium text-base tracking-wide"
-                      onClick={() => setIsOpen(false)}
+                      onClick={closeMenu}
                     >
                       {item.name}
                     </Link>
@@ -205,7 +209,7 @@ export const Navigation = () => {
 
               {/* Mobile Cart */}
               <div className="px-3 py-3">
-                <Link to="/shop" className="flex items-center text-white hover:text-gray-300 font-bold text-lg tracking-wide" onClick={() => setIsOpen(false)}>
+                <Link to="/shop" className="flex items-center text-white hover:text-gray-300 font-bold text-lg tracking-wide" onClick={closeMenu}>
                   <ShoppingCart className="h-6 w-6 mr-2" />
                   CART
                   {cartItems > 0 && (
@@ -218,7 +222,7 @@ export const Navigation = () => {
               
               <div className="pt-4 px-3">
                 <Button className="w-full bg-white text-black hover:bg-gray-100 font-bold" asChild>
-                  <Link to="/visit-us" onClick={() => setIsOpen(false)}>VISIT US</Link>
+                  <Link to="/visit-us" onClick={closeMenu}>VISIT US</Link>
                 </Button>
               </div>
             </div>
@@ -227,4 +231,6 @@ export const Navigation = () => {
       </div>
     </nav>
   );
-};
+});
+
+Navigation.displayName = 'Navigation';

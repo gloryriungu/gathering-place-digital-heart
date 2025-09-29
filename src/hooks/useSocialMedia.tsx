@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Facebook, Instagram, Youtube, Twitter, Music2, MessageCircle } from "lucide-react";
+import { useDebounce } from "./useDebounce";
 
 interface SocialMediaLink {
   platform: string;
@@ -13,11 +14,7 @@ export const useSocialMedia = () => {
   const [socialLinks, setSocialLinks] = useState<SocialMediaLink[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchSocialMedia();
-  }, []);
-
-  const fetchSocialMedia = async () => {
+  const fetchSocialMedia = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await supabase
@@ -57,7 +54,11 @@ export const useSocialMedia = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchSocialMedia();
+  }, [fetchSocialMedia]);
 
   return { socialLinks, loading, refreshSocialMedia: fetchSocialMedia };
 };

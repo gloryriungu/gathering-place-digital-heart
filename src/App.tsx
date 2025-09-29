@@ -5,36 +5,66 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
-import Index from "./pages/Index";
-import About from "./pages/About";
-import Watch from "./pages/Watch";
-import Events from "./pages/Events";
-import Give from "./pages/Give";
-import Shop from "./pages/Shop";
-import VisitUs from "./pages/VisitUs";
-import AdminDashboard from "./pages/AdminDashboard";
-import PastorsDashboard from "./pages/PastorsDashboard";
-import RequisitionsPage from "./pages/RequisitionsPage";
-import Auth from "./pages/Auth";
-import Dashboard from "./pages/Dashboard";
-import NotFound from "./pages/NotFound";
-import JoinTheFamily from "./pages/JoinTheFamily";
-import ServeWithUs from "./pages/ServeWithUs";
-import Ministries from "./pages/Ministries";
-import Partners from "./pages/Partners";
-import Baptism from "./pages/Baptism";
-import BabyDedication from "./pages/BabyDedication";
-import PropheticSchool from "./pages/PropheticSchool";
-import CounselingMentalHealth from "./pages/CounselingMentalHealth";
-import Newsletter from "./pages/Newsletter";
-import NoticeOfFilming from "./pages/NoticeOfFilming";
-import MediaDashboard from "./pages/MediaDashboard";
-import MarketingDashboard from "./pages/MarketingDashboard";
-import RegistrationDashboard from "./pages/RegistrationDashboard";
-import ProfileCompletion from "./pages/ProfileCompletion";
-import FAQ from "./pages/FAQ";
+import { Suspense, lazy } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const queryClient = new QueryClient();
+// Lazy load pages for better performance
+const Index = lazy(() => import("./pages/Index"));
+const About = lazy(() => import("./pages/About"));
+const Watch = lazy(() => import("./pages/Watch"));
+const Events = lazy(() => import("./pages/Events"));
+const Give = lazy(() => import("./pages/Give"));
+const Shop = lazy(() => import("./pages/Shop"));
+const VisitUs = lazy(() => import("./pages/VisitUs"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const PastorsDashboard = lazy(() => import("./pages/PastorsDashboard"));
+const RequisitionsPage = lazy(() => import("./pages/RequisitionsPage"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const JoinTheFamily = lazy(() => import("./pages/JoinTheFamily"));
+const ServeWithUs = lazy(() => import("./pages/ServeWithUs"));
+const Ministries = lazy(() => import("./pages/Ministries"));
+const Partners = lazy(() => import("./pages/Partners"));
+const Baptism = lazy(() => import("./pages/Baptism"));
+const BabyDedication = lazy(() => import("./pages/BabyDedication"));
+const PropheticSchool = lazy(() => import("./pages/PropheticSchool"));
+const CounselingMentalHealth = lazy(() => import("./pages/CounselingMentalHealth"));
+const Newsletter = lazy(() => import("./pages/Newsletter"));
+const NoticeOfFilming = lazy(() => import("./pages/NoticeOfFilming"));
+const MediaDashboard = lazy(() => import("./pages/MediaDashboard"));
+const MarketingDashboard = lazy(() => import("./pages/MarketingDashboard"));
+const RegistrationDashboard = lazy(() => import("./pages/RegistrationDashboard"));
+const ProfileCompletion = lazy(() => import("./pages/ProfileCompletion"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+
+// Optimized loading fallback
+const PageLoader = () => (
+  <div className="min-h-screen bg-background">
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <Skeleton className="h-8 w-64 mb-4" />
+      <Skeleton className="h-4 w-full mb-2" />
+      <Skeleton className="h-4 w-3/4 mb-8" />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {[...Array(6)].map((_, i) => (
+          <Skeleton key={i} className="h-48 w-full" />
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true,
+      retry: 2,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -43,38 +73,40 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/watch" element={<Watch />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/give" element={<Give />} />
-          <Route path="/shop" element={<Shop />} />
-          <Route path="/visit-us" element={<VisitUs />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/auth/complete-profile" element={<ProfileCompletion />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/pastors" element={<PastorsDashboard />} />
-          <Route path="/media-dashboard" element={<MediaDashboard />} />
-          <Route path="/marketing-dashboard" element={<MarketingDashboard />} />
-          <Route path="/registration-dashboard" element={<RegistrationDashboard />} />
-          <Route path="/requisitions" element={<RequisitionsPage />} />
-          
-          <Route path="/join-the-family" element={<JoinTheFamily />} />
-          <Route path="/serve-with-us" element={<ServeWithUs />} />
-          <Route path="/ministries" element={<Ministries />} />
-          <Route path="/partners" element={<Partners />} />
-          <Route path="/baptism" element={<Baptism />} />
-          <Route path="/baby-dedication" element={<BabyDedication />} />
-          <Route path="/prophetic-school" element={<PropheticSchool />} />
-          <Route path="/counseling-mental-health" element={<CounselingMentalHealth />} />
-          <Route path="/newsletter" element={<Newsletter />} />
-          <Route path="/notice-of-filming" element={<NoticeOfFilming />} />
-          <Route path="/faq" element={<FAQ />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/watch" element={<Watch />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/give" element={<Give />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/visit-us" element={<VisitUs />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/auth/complete-profile" element={<ProfileCompletion />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/pastors" element={<PastorsDashboard />} />
+              <Route path="/media-dashboard" element={<MediaDashboard />} />
+              <Route path="/marketing-dashboard" element={<MarketingDashboard />} />
+              <Route path="/registration-dashboard" element={<RegistrationDashboard />} />
+              <Route path="/requisitions" element={<RequisitionsPage />} />
+              
+              <Route path="/join-the-family" element={<JoinTheFamily />} />
+              <Route path="/serve-with-us" element={<ServeWithUs />} />
+              <Route path="/ministries" element={<Ministries />} />
+              <Route path="/partners" element={<Partners />} />
+              <Route path="/baptism" element={<Baptism />} />
+              <Route path="/baby-dedication" element={<BabyDedication />} />
+              <Route path="/prophetic-school" element={<PropheticSchool />} />
+              <Route path="/counseling-mental-health" element={<CounselingMentalHealth />} />
+              <Route path="/newsletter" element={<Newsletter />} />
+              <Route path="/notice-of-filming" element={<NoticeOfFilming />} />
+              <Route path="/faq" element={<FAQ />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
       </BrowserRouter>
     </TooltipProvider>
     </AuthProvider>

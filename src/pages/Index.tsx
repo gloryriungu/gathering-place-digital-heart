@@ -3,14 +3,48 @@ import { Hero } from "@/components/Hero";
 import { ServiceTimes } from "@/components/ServiceTimes";
 import { LatestSermon } from "@/components/LatestSermon";
 import { Announcements } from "@/components/Announcements";
-import { UpcomingEvents } from "@/components/UpcomingEvents";
-import { Testimonials } from "@/components/Testimonials";
-import { ConnectSection } from "@/components/ConnectSection";
-import { GivingSection } from "@/components/GivingSection";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { Suspense, lazy, memo } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const Index = () => {
+// Lazy load non-critical components
+const UpcomingEvents = lazy(() => 
+  import("@/components/UpcomingEvents").then(module => ({ 
+    default: module.UpcomingEvents 
+  }))
+);
+const Testimonials = lazy(() => 
+  import("@/components/Testimonials").then(module => ({ 
+    default: module.Testimonials 
+  }))
+);
+const ConnectSection = lazy(() => 
+  import("@/components/ConnectSection").then(module => ({ 
+    default: module.ConnectSection 
+  }))
+);
+const GivingSection = lazy(() => 
+  import("@/components/GivingSection").then(module => ({ 
+    default: module.GivingSection 
+  }))
+);
+
+const ComponentLoader = memo(() => (
+  <div className="py-20">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Skeleton className="h-8 w-64 mx-auto mb-4" />
+      <Skeleton className="h-4 w-96 mx-auto mb-8" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {[...Array(3)].map((_, i) => (
+          <Skeleton key={i} className="h-48 w-full" />
+        ))}
+      </div>
+    </div>
+  </div>
+));
+
+const Index = memo(() => {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -18,13 +52,28 @@ const Index = () => {
       <ServiceTimes />
       <LatestSermon />
       <Announcements />
-      <UpcomingEvents />
-      <Testimonials showOnlyFeatured={true} maxItems={3} />
-      <ConnectSection />
-      <GivingSection />
+      
+      <Suspense fallback={<ComponentLoader />}>
+        <UpcomingEvents />
+      </Suspense>
+      
+      <Suspense fallback={<ComponentLoader />}>
+        <Testimonials showOnlyFeatured={true} maxItems={3} />
+      </Suspense>
+      
+      <Suspense fallback={<ComponentLoader />}>
+        <ConnectSection />
+      </Suspense>
+      
+      <Suspense fallback={<ComponentLoader />}>
+        <GivingSection />
+      </Suspense>
+      
       <Footer />
     </div>
   );
-};
+});
+
+Index.displayName = 'Index';
 
 export default Index;

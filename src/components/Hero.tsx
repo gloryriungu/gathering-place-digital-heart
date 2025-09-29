@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,36 +21,12 @@ interface HeroContent {
   video_url?: string;
 }
 
-export const Hero = () => {
+export const Hero = memo(() => {
   const [heroContent, setHeroContent] = useState<HeroContent | null>(null);
   const [loading, setLoading] = useState(true);
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
-  useEffect(() => {
-    fetchHeroContent();
-    
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('hero-content-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'media_content',
-          filter: "content_type=eq.hero_content"
-        },
-        () => {
-          fetchHeroContent();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  const fetchHeroContent = async () => {
+  const fetchHeroContent = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('media_content')
@@ -71,7 +47,35 @@ export const Hero = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchHeroContent();
+    
+    // Set up real-time subscription with debouncing
+    let timeoutId: NodeJS.Timeout;
+    const channel = supabase
+      .channel('hero-content-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'media_content',
+          filter: "content_type=eq.hero_content"
+        },
+        () => {
+          clearTimeout(timeoutId);
+          timeoutId = setTimeout(fetchHeroContent, 300);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      clearTimeout(timeoutId);
+      supabase.removeChannel(channel);
+    };
+  }, [fetchHeroContent]);
 
   if (loading) {
     return (
@@ -106,14 +110,28 @@ export const Hero = () => {
   const backgroundImage = heroContent?.image_url || content.image_url || defaultContent.image_url;
 
   return <section className="relative min-h-screen bg-primary text-primary-foreground overflow-hidden">
-      {/* Background Video */}
-      <video className="absolute inset-0 w-full h-full object-cover" autoPlay loop muted playsInline>
-        <source src={backgroundVideo} type="video/mp4" />
-        {/* Fallback image if video fails to load */}
-        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
-        backgroundImage: `url('${backgroundImage}')`
-      }}></div>
-      </video>
+      {/* Background Image (immediate) */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-300"
+        style={{ backgroundImage: `url('${backgroundImage}')` }}
+      />
+      
+      {/* Background Video (lazy loaded) */}
+      {!loading && (
+        <video 
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
+          autoPlay 
+          loop 
+          muted 
+          playsInline
+          preload="metadata"
+          onLoadedData={() => setVideoLoaded(true)}
+          onError={() => setVideoLoaded(false)}
+        >
+          <source src={backgroundVideo} type="video/mp4" />
+        </video>
+      )}
+      
       <div className="absolute inset-0 bg-gradient-to-b from-primary/60 via-primary/40 to-primary/80"></div>
       
       {/* Content */}
@@ -159,4 +177,6 @@ export const Hero = () => {
         </div>
       </div>
     </section>;
-};
+});
+
+Hero.displayName = 'Hero';

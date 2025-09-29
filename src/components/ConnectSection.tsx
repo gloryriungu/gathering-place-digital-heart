@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Heart, HandHeart, MessageCircle, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export const ConnectSection = () => {
+const ConnectSection = () => {
   const connectOptions = [
     {
       icon: Users,
@@ -76,3 +76,5 @@ export const ConnectSection = () => {
     </section>
   );
 };
+
+export default ConnectSection;

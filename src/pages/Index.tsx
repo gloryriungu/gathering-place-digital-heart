@@ -9,26 +9,10 @@ import { Suspense, lazy, memo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy load non-critical components
-const UpcomingEvents = lazy(() => 
-  import("@/components/UpcomingEvents").then(module => ({ 
-    default: module.UpcomingEvents 
-  }))
-);
-const Testimonials = lazy(() => 
-  import("@/components/Testimonials").then(module => ({ 
-    default: module.Testimonials 
-  }))
-);
-const ConnectSection = lazy(() => 
-  import("@/components/ConnectSection").then(module => ({ 
-    default: module.ConnectSection 
-  }))
-);
-const GivingSection = lazy(() => 
-  import("@/components/GivingSection").then(module => ({ 
-    default: module.GivingSection 
-  }))
-);
+const UpcomingEvents = lazy(() => import("@/components/UpcomingEvents"));
+const Testimonials = lazy(() => import("@/components/Testimonials"));
+const ConnectSection = lazy(() => import("@/components/ConnectSection"));
+const GivingSection = lazy(() => import("@/components/GivingSection"));
 
 const ComponentLoader = memo(() => (
   <div className="py-20">

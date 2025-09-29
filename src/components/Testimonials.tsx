@@ -21,7 +21,7 @@ interface TestimonialsProps {
   showTitle?: boolean;
 }
 
-export const Testimonials = ({ 
+const Testimonials = ({ 
   showOnlyFeatured = false, 
   maxItems,
   showTitle = true 
@@ -188,3 +188,5 @@ export const Testimonials = ({
     </section>
   );
 };
+
+export default Testimonials;

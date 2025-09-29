@@ -18,7 +18,7 @@ interface EventContent {
   };
 }
 
-export const UpcomingEvents = () => {
+const UpcomingEvents = () => {
   const [events, setEvents] = useState<EventContent[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -198,3 +198,5 @@ export const UpcomingEvents = () => {
     </section>
   );
 };
+
+export default UpcomingEvents;

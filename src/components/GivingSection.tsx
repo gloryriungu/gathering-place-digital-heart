@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, DollarSign, Target, Users, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
-export const GivingSection = () => {
+const GivingSection = () => {
   const givingImpact = [
     {
       icon: Users,
@@ -88,3 +88,5 @@ export const GivingSection = () => {
     </section>
   );
 };
+
+export default GivingSection;

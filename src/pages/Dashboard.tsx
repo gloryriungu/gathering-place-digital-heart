@@ -248,12 +248,8 @@ const Dashboard = () => {
     };
     
     return (
-      <Badge 
-        variant={roleColors[userRole as keyof typeof roleColors] || "outline"} 
-        className="text-xs sm:text-sm px-2 py-1 whitespace-nowrap"
-      >
-        <span className="hidden sm:inline">{roleLabels[userRole as keyof typeof roleLabels] || "User"} Department</span>
-        <span className="sm:hidden">{roleLabels[userRole as keyof typeof roleLabels] || "User"}</span>
+      <Badge variant={roleColors[userRole as keyof typeof roleColors] || "outline"}>
+        {roleLabels[userRole as keyof typeof roleLabels] || "User"} Department
       </Badge>
     );
   };
@@ -263,48 +259,34 @@ const Dashboard = () => {
       <Navigation />
       <div className="pt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Mobile-Optimized Dashboard Header */}
-          <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate">Dashboard</h1>
-              <p className="text-muted-foreground mt-1 text-sm sm:text-base">
-                <span className="hidden sm:inline">Welcome back! Here's what's happening today.</span>
-                <span className="sm:hidden">Welcome back!</span>
-              </p>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+              <p className="text-muted-foreground mt-1">Welcome back! Here's what's happening today.</p>
             </div>
-            <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-4">
-              <div className="flex items-center gap-2 sm:gap-4">
-                {getUserRoleBadge()}
-                <Button variant="outline" size="sm" className="h-9 w-9 sm:h-10 sm:w-10 p-0">
-                  <Bell className="h-4 w-4" />
-                </Button>
-              </div>
-              <Button variant="outline" size="sm" onClick={signOut} className="text-xs sm:text-sm px-3 sm:px-4">
-                <span className="hidden sm:inline">Sign Out</span>
-                <span className="sm:hidden">Out</span>
+            <div className="flex items-center gap-4">
+              {getUserRoleBadge()}
+              <Button variant="outline" size="icon">
+                <Bell className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" onClick={signOut}>
+                Sign Out
               </Button>
             </div>
           </div>
 
           <Tabs defaultValue="overview" className="space-y-6">
-            {/* Mobile-Optimized Tab Navigation */}
-            <div className="overflow-x-auto pb-2">
-              <TabsList className="flex w-max min-w-full space-x-1 sm:space-x-2 p-1 bg-muted rounded-lg">
-                {getRoleBasedTabs().map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <TabsTrigger 
-                      key={tab.value} 
-                      value={tab.value} 
-                      className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-md whitespace-nowrap text-xs sm:text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-                    >
-                      <Icon className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-                      <span className="truncate max-w-[80px] sm:max-w-none">{tab.label}</span>
-                    </TabsTrigger>
-                  );
-                })}
-              </TabsList>
-            </div>
+            <TabsList className="grid grid-cols-4 lg:grid-cols-6 w-full">
+              {getRoleBasedTabs().map((tab) => {
+                const Icon = tab.icon;
+                return (
+                  <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-2">
+                    <Icon className="h-4 w-4" />
+                    <span className="hidden sm:inline">{tab.label}</span>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
               <DashboardOverviewStats />

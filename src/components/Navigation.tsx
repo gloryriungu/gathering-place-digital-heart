@@ -48,7 +48,7 @@ export const Navigation = memo(() => {
   ];
 
   return (
-    <nav className="fixed top-0 w-full z-[1000] bg-black backdrop-blur-md border-b border-white/10">
+    <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
@@ -79,12 +79,12 @@ export const Navigation = memo(() => {
                   <ChevronDown className="h-4 w-4" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-white border-gray-200 shadow-xl z-50 min-w-[280px] p-2">
+              <DropdownMenuContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg z-50">
                 {getInvolvedItems.map((item) => (
                   <DropdownMenuItem key={item.name} asChild>
                     <Link
                       to={item.href}
-                      className="text-gray-900 hover:bg-gray-100 font-medium text-sm cursor-pointer block px-3 py-3 rounded-md transition-colors"
+                      className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 font-bold text-sm tracking-wide cursor-pointer block px-4 py-2"
                     >
                       {item.name}
                     </Link>
@@ -147,106 +147,85 @@ export const Navigation = memo(() => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden fixed inset-0 top-20 bg-background z-[999] overflow-y-auto">
-              <div className="px-4 py-6 space-y-2">
-                {/* Main Navigation Items */}
-                <div className="space-y-1">
-                  {navItems.map((item) => (
+          <div className="md:hidden bg-black/95 backdrop-blur-md max-h-[calc(100vh-5rem)] overflow-y-auto">
+            <div className="px-2 pt-2 pb-6 space-y-4">
+              {navItems.map((item) => (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className="block px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
+                  onClick={closeMenu}
+                >
+                  {item.name}
+                </Link>
+              ))}
+              
+              <Link
+                to="/auth"
+                className="block px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
+                onClick={closeMenu}
+              >
+                SIGN IN
+              </Link>
+              
+              {/* Mobile Get Involved Collapsible Section */}
+              <Collapsible open={isGetInvolvedOpen} onOpenChange={toggleGetInvolved}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide">
+                  GET INVOLVED
+                  <ChevronDown className={`h-5 w-5 transition-transform ${isGetInvolvedOpen ? 'rotate-180' : ''}`} />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="ml-4 space-y-2">
+                  {getInvolvedItems.map((item) => (
                     <Link
                       key={item.name}
                       to={item.href}
-                      className="block px-4 py-4 text-foreground hover:bg-accent rounded-lg font-semibold text-base tracking-wide transition-colors"
+                      className="block py-2 px-3 text-white hover:text-gray-300 font-medium text-base tracking-wide"
                       onClick={closeMenu}
                     >
                       {item.name}
                     </Link>
                   ))}
-                </div>
+                </CollapsibleContent>
+              </Collapsible>
 
-                {/* Divider */}
-                <div className="border-t border-white/20 my-4"></div>
-                
-                {/* Get Involved Section */}
-                <div className="bg-white/5 rounded-lg p-2">
-                  <Collapsible open={isGetInvolvedOpen} onOpenChange={toggleGetInvolved}>
-                    <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-4 text-foreground hover:bg-accent rounded-lg font-semibold text-base tracking-wide transition-colors">
-                      <span>GET INVOLVED</span>
-                      <ChevronDown className={`h-5 w-5 transition-transform duration-200 ${isGetInvolvedOpen ? 'rotate-180' : ''}`} />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="space-y-1 mt-2">
-                      {getInvolvedItems.map((item) => (
-                        <Link
-                          key={item.name}
-                          to={item.href}
-                          className="block px-6 py-3 text-foreground hover:bg-accent rounded-lg font-medium text-sm transition-colors"
-                          onClick={closeMenu}
-                        >
-                          {item.name}
-                        </Link>
-                      ))}
-                    </CollapsibleContent>
-                  </Collapsible>
-                </div>
-
-                {/* Divider */}
-                <div className="border-t border-white/20 my-4"></div>
-
-                {/* Auth & Actions */}
-                <div className="space-y-2">
-                  <Link
-                    to="/auth"
-                    className="block px-4 py-4 text-foreground hover:bg-accent rounded-lg font-semibold text-base tracking-wide transition-colors"
-                    onClick={closeMenu}
-                  >
-                    SIGN IN
-                  </Link>
-                  
-                  <Link 
-                    to="/shop" 
-                    className="flex items-center justify-between px-4 py-4 text-foreground hover:bg-accent rounded-lg font-semibold text-base tracking-wide transition-colors" 
-                    onClick={closeMenu}
-                  >
-                    <div className="flex items-center">
-                      <ShoppingCart className="h-5 w-5 mr-3" />
-                      CART
-                    </div>
-                    {cartItems > 0 && (
-                      <span className="bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold">
-                        {cartItems}
-                      </span>
-                    )}
-                  </Link>
-                </div>
-
-                {/* Divider */}
-                <div className="border-t border-white/20 my-6"></div>
-
-                {/* Social Links */}
-                <div className="px-4">
-                  <div className="text-foreground font-semibold text-base tracking-wide mb-4">FOLLOW US</div>
-                  <div className="flex justify-center space-x-6">
-                    {socialLinks.map((social) => (
-                      <a
-                        key={social.platform}
-                        href={social.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-foreground hover:bg-accent transition-colors p-2 rounded-lg"
-                        aria-label={social.platform}
-                      >
-                        <social.icon className="h-6 w-6" />
-                      </a>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* CTA Button */}
-                <div className="px-4 pt-6 pb-8">
-                  <Button className="w-full bg-white text-black hover:bg-gray-100 font-bold py-4 text-base rounded-lg" asChild>
-                    <Link to="/visit-us" onClick={closeMenu}>VISIT US</Link>
-                  </Button>
+              {/* Mobile Social Links */}
+              <div className="px-3 py-3">
+                <div className="text-white font-bold text-lg tracking-wide mb-2">FOLLOW US</div>
+                <div className="flex space-x-4">
+                  {socialLinks.map((social) => (
+                    <a
+                      key={social.platform}
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white hover:text-gray-300 transition-colors"
+                      aria-label={social.platform}
+                    >
+                      <social.icon className="h-6 w-6" />
+                    </a>
+                  ))}
                 </div>
               </div>
+
+              {/* Mobile Cart */}
+              <div className="px-3 py-3">
+                <Link to="/shop" className="flex items-center text-white hover:text-gray-300 font-bold text-lg tracking-wide" onClick={closeMenu}>
+                  <ShoppingCart className="h-6 w-6 mr-2" />
+                  CART
+                  {cartItems > 0 && (
+                    <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {cartItems}
+                    </span>
+                  )}
+                </Link>
+              </div>
+              
+              <div className="pt-4 px-3">
+                <Button className="w-full bg-white text-black hover:bg-gray-100 font-bold" asChild>
+                  <Link to="/visit-us" onClick={closeMenu}>VISIT US</Link>
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </div>

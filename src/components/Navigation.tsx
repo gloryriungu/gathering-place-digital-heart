@@ -147,9 +147,9 @@ export const Navigation = memo(() => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden fixed inset-0 top-20 bg-black/95 backdrop-blur-lg z-[100] overflow-hidden">
-            <div className="h-full overflow-y-auto pb-safe">
-              <div className="px-4 py-6 space-y-2 min-h-full">
+          <div className="md:hidden fixed inset-0 top-20 bg-black/98 backdrop-blur-md z-40">
+            <div className="h-full overflow-y-auto">
+              <div className="px-4 py-6 space-y-2">
                 {/* Main Navigation Items */}
                 <div className="space-y-1">
                   {navItems.map((item) => (
@@ -168,26 +168,24 @@ export const Navigation = memo(() => {
                 <div className="border-t border-white/20 my-4"></div>
                 
                 {/* Get Involved Section */}
-                <div className="bg-white/5 rounded-lg p-2">
-                  <Collapsible open={isGetInvolvedOpen} onOpenChange={toggleGetInvolved}>
-                    <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-4 text-white hover:bg-white/10 rounded-lg font-semibold text-base tracking-wide transition-colors">
-                      <span>GET INVOLVED</span>
-                      <ChevronDown className={`h-5 w-5 transition-transform duration-200 ${isGetInvolvedOpen ? 'rotate-180' : ''}`} />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="space-y-1 mt-2">
-                      {getInvolvedItems.map((item) => (
-                        <Link
-                          key={item.name}
-                          to={item.href}
-                          className="flex items-center px-6 py-3 text-white/90 hover:text-white hover:bg-white/10 rounded-lg font-medium text-sm transition-colors"
-                          onClick={closeMenu}
-                        >
-                          {item.name}
-                        </Link>
-                      ))}
-                    </CollapsibleContent>
-                  </Collapsible>
-                </div>
+                <Collapsible open={isGetInvolvedOpen} onOpenChange={toggleGetInvolved}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-4 text-white hover:bg-white/10 rounded-lg font-semibold text-base tracking-wide transition-colors">
+                    <span>GET INVOLVED</span>
+                    <ChevronDown className={`h-5 w-5 transition-transform duration-200 ${isGetInvolvedOpen ? 'rotate-180' : ''}`} />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="space-y-1 mt-2">
+                    {getInvolvedItems.map((item) => (
+                      <Link
+                        key={item.name}
+                        to={item.href}
+                        className="flex items-center px-8 py-3 text-white/80 hover:text-white hover:bg-white/10 rounded-lg font-medium text-sm transition-colors"
+                        onClick={closeMenu}
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
+                  </CollapsibleContent>
+                </Collapsible>
 
                 {/* Divider */}
                 <div className="border-t border-white/20 my-4"></div>
@@ -242,7 +240,7 @@ export const Navigation = memo(() => {
                 </div>
                 
                 {/* CTA Button */}
-                <div className="px-4 pt-6 pb-8">
+                <div className="px-4 pt-6">
                   <Button className="w-full bg-white text-black hover:bg-gray-100 font-bold py-4 text-base rounded-lg" asChild>
                     <Link to="/visit-us" onClick={closeMenu}>VISIT US</Link>
                   </Button>

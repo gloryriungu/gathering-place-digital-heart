@@ -48,7 +48,7 @@ export const Navigation = memo(() => {
   ];
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
+    <nav className="fixed top-0 w-full z-[1000] bg-black backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
@@ -147,7 +147,7 @@ export const Navigation = memo(() => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden fixed inset-0 top-20 bg-black/95 backdrop-blur-lg z-[100] overflow-hidden">
+          <div className="md:hidden fixed inset-0 top-20 bg-black backdrop-blur-lg z-[999] overflow-hidden">
             <div className="h-full overflow-y-auto pb-safe">
               <div className="px-4 py-6 space-y-2 min-h-full">
                 {/* Main Navigation Items */}

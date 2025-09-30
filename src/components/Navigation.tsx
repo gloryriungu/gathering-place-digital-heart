@@ -147,16 +147,15 @@ export const Navigation = memo(() => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden fixed inset-0 top-20 bg-black backdrop-blur-lg z-[999] overflow-hidden">
-            <div className="h-full overflow-y-auto pb-safe">
-              <div className="px-4 py-6 space-y-2 min-h-full">
+          <div className="md:hidden fixed inset-0 top-20 bg-background z-[999] overflow-y-auto">
+              <div className="px-4 py-6 space-y-2">
                 {/* Main Navigation Items */}
                 <div className="space-y-1">
                   {navItems.map((item) => (
                     <Link
                       key={item.name}
                       to={item.href}
-                      className="flex items-center px-4 py-4 text-white hover:bg-white/10 rounded-lg font-semibold text-base tracking-wide transition-colors"
+                      className="block px-4 py-4 text-foreground hover:bg-accent rounded-lg font-semibold text-base tracking-wide transition-colors"
                       onClick={closeMenu}
                     >
                       {item.name}
@@ -170,7 +169,7 @@ export const Navigation = memo(() => {
                 {/* Get Involved Section */}
                 <div className="bg-white/5 rounded-lg p-2">
                   <Collapsible open={isGetInvolvedOpen} onOpenChange={toggleGetInvolved}>
-                    <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-4 text-white hover:bg-white/10 rounded-lg font-semibold text-base tracking-wide transition-colors">
+                    <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-4 text-foreground hover:bg-accent rounded-lg font-semibold text-base tracking-wide transition-colors">
                       <span>GET INVOLVED</span>
                       <ChevronDown className={`h-5 w-5 transition-transform duration-200 ${isGetInvolvedOpen ? 'rotate-180' : ''}`} />
                     </CollapsibleTrigger>
@@ -179,7 +178,7 @@ export const Navigation = memo(() => {
                         <Link
                           key={item.name}
                           to={item.href}
-                          className="flex items-center px-6 py-3 text-white/90 hover:text-white hover:bg-white/10 rounded-lg font-medium text-sm transition-colors"
+                          className="block px-6 py-3 text-foreground hover:bg-accent rounded-lg font-medium text-sm transition-colors"
                           onClick={closeMenu}
                         >
                           {item.name}
@@ -196,7 +195,7 @@ export const Navigation = memo(() => {
                 <div className="space-y-2">
                   <Link
                     to="/auth"
-                    className="flex items-center px-4 py-4 text-white hover:bg-white/10 rounded-lg font-semibold text-base tracking-wide transition-colors"
+                    className="block px-4 py-4 text-foreground hover:bg-accent rounded-lg font-semibold text-base tracking-wide transition-colors"
                     onClick={closeMenu}
                   >
                     SIGN IN
@@ -204,7 +203,7 @@ export const Navigation = memo(() => {
                   
                   <Link 
                     to="/shop" 
-                    className="flex items-center justify-between px-4 py-4 text-white hover:bg-white/10 rounded-lg font-semibold text-base tracking-wide transition-colors" 
+                    className="flex items-center justify-between px-4 py-4 text-foreground hover:bg-accent rounded-lg font-semibold text-base tracking-wide transition-colors" 
                     onClick={closeMenu}
                   >
                     <div className="flex items-center">
@@ -224,7 +223,7 @@ export const Navigation = memo(() => {
 
                 {/* Social Links */}
                 <div className="px-4">
-                  <div className="text-white font-semibold text-base tracking-wide mb-4">FOLLOW US</div>
+                  <div className="text-foreground font-semibold text-base tracking-wide mb-4">FOLLOW US</div>
                   <div className="flex justify-center space-x-6">
                     {socialLinks.map((social) => (
                       <a
@@ -232,7 +231,7 @@ export const Navigation = memo(() => {
                         href={social.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-white hover:text-gray-300 transition-colors p-2 hover:bg-white/10 rounded-lg"
+                        className="text-foreground hover:bg-accent transition-colors p-2 rounded-lg"
                         aria-label={social.platform}
                       >
                         <social.icon className="h-6 w-6" />
@@ -248,7 +247,6 @@ export const Navigation = memo(() => {
                   </Button>
                 </div>
               </div>
-            </div>
           </div>
         )}
       </div>

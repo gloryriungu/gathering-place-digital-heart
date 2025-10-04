@@ -5,6 +5,7 @@ import { LatestSermon } from "@/components/LatestSermon";
 import { Announcements } from "@/components/Announcements";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { AIAssistant } from "@/components/AIAssistant";
 import { Suspense, lazy, memo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -54,6 +55,16 @@ const Index = memo(() => {
       </Suspense>
       
       <Footer />
+      
+      {/* AI Assistant */}
+      <AIAssistant 
+        welcomeMessage="Welcome to TOT Int! How can I assist you today?"
+        // apiEndpoint="/api/chat" // Uncomment and configure your API endpoint
+        // onSendMessage={async (message) => { // Or use custom handler
+        //   const response = await fetch('/your-api', { method: 'POST', body: JSON.stringify({ message }) });
+        //   return (await response.json()).reply;
+        // }}
+      />
     </div>
   );
 });

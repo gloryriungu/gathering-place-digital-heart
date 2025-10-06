@@ -21,6 +21,8 @@ export const JoinFamilyForm = () => {
     email: user?.email || "",
     phone: "",
     address: "",
+    county: "",
+    occupation: "",
     emergencyContactName: "",
     emergencyContactPhone: "",
     baptismStatus: "",
@@ -79,6 +81,8 @@ export const JoinFamilyForm = () => {
           email: formData.email,
           phone: formData.phone,
           address: formData.address,
+          county: formData.county,
+          occupation: formData.occupation,
           emergency_contact_name: formData.emergencyContactName,
           emergency_contact_phone: formData.emergencyContactPhone,
           baptism_status: formData.baptismStatus,
@@ -102,6 +106,8 @@ export const JoinFamilyForm = () => {
         email: user?.email || "",
         phone: "",
         address: "",
+        county: "",
+        occupation: "",
         emergencyContactName: "",
         emergencyContactPhone: "",
         baptismStatus: "",
@@ -185,6 +191,27 @@ export const JoinFamilyForm = () => {
               value={formData.address}
               onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
             />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="county">County/Region</Label>
+              <Input
+                id="county"
+                value={formData.county}
+                onChange={(e) => setFormData(prev => ({ ...prev, county: e.target.value }))}
+                placeholder="e.g., Nairobi, Kiambu, Mombasa"
+              />
+            </div>
+            <div>
+              <Label htmlFor="occupation">Occupation/Profession</Label>
+              <Input
+                id="occupation"
+                value={formData.occupation}
+                onChange={(e) => setFormData(prev => ({ ...prev, occupation: e.target.value }))}
+                placeholder="e.g., Teacher, Engineer, Student"
+              />
+            </div>
           </div>
 
           {/* Emergency Contact */}

@@ -48,6 +48,7 @@ import { GivingAnalysis } from "@/components/accounts/GivingAnalysis";
 import { PastorAvailability } from "@/components/pastor/PastorAvailability";
 import { ActivityLogs } from "@/components/admin/ActivityLogs";
 import { AdvancedAnalytics } from "@/components/founder/AdvancedAnalytics";
+import { DemographicsAnalytics } from "@/components/founder/DemographicsAnalytics";
 import { BudgetProposals } from "@/components/budget/BudgetProposals";
 import { DepartmentTabManager } from "@/components/admin/DepartmentTabManager";
 
@@ -136,6 +137,7 @@ const Dashboard = () => {
       ],
       founder: [
         { value: "analytics", label: "Advanced Analytics", icon: Activity },
+        { value: "demographics", label: "Demographics", icon: Users },
         { value: "budget-requests", label: "Budget Requests", icon: DollarSign },
         { value: "inventory", label: "All Inventory", icon: Settings },
         { value: "system-overview", label: "System Overview", icon: Monitor },
@@ -143,6 +145,7 @@ const Dashboard = () => {
         { value: "users", label: "All Users", icon: Users },
       ],
       senior_pastor: [
+        { value: "demographics", label: "Demographics", icon: Users },
         { value: "giving-analysis", label: "Giving Analysis", icon: DollarSign },
         { value: "budget-review", label: "Budget Review", icon: FileText },
         { value: "inventory", label: "All Inventory", icon: Settings },
@@ -421,6 +424,10 @@ const Dashboard = () => {
 
             <TabsContent value="analytics">
               <AdvancedAnalytics />
+            </TabsContent>
+
+            <TabsContent value="demographics">
+              <DemographicsAnalytics />
             </TabsContent>
 
             <TabsContent value="budget-requests">

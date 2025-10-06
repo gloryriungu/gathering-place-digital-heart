@@ -463,6 +463,7 @@ export type Database = {
           address: string | null
           application_date: string | null
           baptism_status: string
+          county: string | null
           created_at: string | null
           email: string
           emergency_contact_name: string | null
@@ -472,6 +473,7 @@ export type Database = {
           last_name: string
           ministry_interests: string[] | null
           notes: string | null
+          occupation: string | null
           phone: string | null
           previous_church: string | null
           reviewed_at: string | null
@@ -486,6 +488,7 @@ export type Database = {
           address?: string | null
           application_date?: string | null
           baptism_status: string
+          county?: string | null
           created_at?: string | null
           email: string
           emergency_contact_name?: string | null
@@ -495,6 +498,7 @@ export type Database = {
           last_name: string
           ministry_interests?: string[] | null
           notes?: string | null
+          occupation?: string | null
           phone?: string | null
           previous_church?: string | null
           reviewed_at?: string | null
@@ -509,6 +513,7 @@ export type Database = {
           address?: string | null
           application_date?: string | null
           baptism_status?: string
+          county?: string | null
           created_at?: string | null
           email?: string
           emergency_contact_name?: string | null
@@ -518,6 +523,7 @@ export type Database = {
           last_name?: string
           ministry_interests?: string[] | null
           notes?: string | null
+          occupation?: string | null
           phone?: string | null
           previous_church?: string | null
           reviewed_at?: string | null
@@ -855,6 +861,7 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          occupation: string | null
           phone: string | null
           updated_at: string
           user_id: string
@@ -866,6 +873,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          occupation?: string | null
           phone?: string | null
           updated_at?: string
           user_id: string
@@ -877,6 +885,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          occupation?: string | null
           phone?: string | null
           updated_at?: string
           user_id?: string

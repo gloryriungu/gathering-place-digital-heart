@@ -4,6 +4,7 @@ import { DashboardStats } from "@/components/admin/DashboardStats";
 import { ContentManagementGrid } from "@/components/admin/ContentManagementGrid";
 import { DepartmentVisibilityPanel } from "@/components/admin/DepartmentVisibilityPanel";
 import { RecentActivity } from "@/components/admin/RecentActivity";
+import { DemographicsAnalytics } from "@/components/founder/DemographicsAnalytics";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
@@ -41,6 +42,11 @@ const PastorsDashboard = () => {
             <div className="space-y-8">
               <RecentActivity />
             </div>
+          </div>
+
+          {/* Demographics Analytics Section */}
+          <div className="mt-8">
+            <DemographicsAnalytics />
           </div>
         </div>
       </div>

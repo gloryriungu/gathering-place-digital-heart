@@ -1,11 +1,47 @@
-
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, Clock, MapPin, Users } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Events = () => {
-  const upcomingEvents = [
+  const [events, setEvents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchEvents();
+    
+    // Real-time updates
+    const channel = supabase
+      .channel('events-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'media_content' }, 
+        () => fetchEvents()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const fetchEvents = async () => {
+    const { data } = await supabase
+      .from('media_content')
+      .select('*')
+      .eq('content_type', 'event')
+      .eq('status', 'published')
+      .order('created_at', { ascending: false });
+    
+    if (data) setEvents(data);
+    setLoading(false);
+  };
+
+  const staticEvents = [
     {
       title: "Sunday Service",
       date: "Every Sunday",
@@ -101,7 +137,77 @@ const Events = () => {
             </div>
             
             <div className="grid gap-8">
-              {upcomingEvents.map((event, index) => (
+              {loading ? (
+                [...Array(3)].map((_, i) => (
+                  <Card key={i} className="p-6">
+                    <Skeleton className="h-8 w-64 mb-4" />
+                    <Skeleton className="h-4 w-full mb-2" />
+                    <Skeleton className="h-4 w-3/4" />
+                  </Card>
+                ))
+              ) : events.length > 0 ? (
+                events.map((event) => (
+                  <div key={event.id} className="bg-white border border-gray-200 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                      {event.image_url && (
+                        <img 
+                          src={event.image_url} 
+                          alt={event.title}
+                          className="w-full lg:w-48 h-32 object-cover rounded-lg"
+                        />
+                      )}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-3">
+                          <h3 className="text-2xl font-bold text-black">{event.title}</h3>
+                          {event.content_data.category && (
+                            <Badge>{event.content_data.category}</Badge>
+                          )}
+                          {event.content_data.enable_rsvp && (
+                            <Badge variant="secondary">
+                              <Users className="h-3 w-3 mr-1" />
+                              RSVP Open
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        <p className="text-gray-700 mb-4 max-w-2xl">{event.description}</p>
+                        
+                        <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-600">
+                          {event.content_data.date && (
+                            <div className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4" />
+                              <span>{event.content_data.date}</span>
+                            </div>
+                          )}
+                          {event.content_data.time && (
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-4 w-4" />
+                              <span>{event.content_data.time}</span>
+                            </div>
+                          )}
+                          {event.content_data.location && (
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4" />
+                              <span>{event.content_data.location}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col gap-2">
+                        {event.content_data.enable_rsvp ? (
+                          <Button asChild className="bg-black text-white hover:bg-gray-800">
+                            <Link to={`/events/${event.id}/register`}>Register Now</Link>
+                          </Button>
+                        ) : (
+                          <Button variant="outline">Learn More</Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                staticEvents.map((event, index) => (
                 <div key={index} className="bg-white border border-gray-200 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex-1">
@@ -137,7 +243,8 @@ const Events = () => {
                     </div>
                   </div>
                 </div>
-              ))}
+              ))
+              )}
             </div>
           </div>
         </section>

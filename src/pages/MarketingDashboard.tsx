@@ -15,6 +15,7 @@ import { NoticeFilmingManager } from "@/components/marketing/NoticeFilmingManage
 import { SocialMediaManager } from "@/components/marketing/SocialMediaManager";  
 import { TestimonialsManager } from "@/components/marketing/TestimonialsManager";
 import { FAQManager } from "@/components/marketing/FAQManager";
+import { EventRegistrationsManager } from "@/components/media/EventRegistrationsManager";
 
 const MarketingDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -165,6 +166,10 @@ const MarketingDashboard = () => {
 
             <TabsContent value="faq">
               <FAQManager />
+            </TabsContent>
+
+            <TabsContent value="registrations">
+              <EventRegistrationsManager />
             </TabsContent>
 
             <TabsContent value="requisitions">

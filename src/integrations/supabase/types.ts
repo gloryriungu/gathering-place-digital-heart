@@ -378,6 +378,71 @@ export type Database = {
         }
         Relationships: []
       }
+      event_registrations: {
+        Row: {
+          county: string | null
+          created_at: string
+          custom_fields: Json | null
+          email: string
+          event_id: string
+          first_name: string
+          id: string
+          last_name: string
+          number_of_attendees: number
+          phone: string | null
+          registered_by: string | null
+          registration_type: string
+          special_requirements: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          county?: string | null
+          created_at?: string
+          custom_fields?: Json | null
+          email: string
+          event_id: string
+          first_name: string
+          id?: string
+          last_name: string
+          number_of_attendees?: number
+          phone?: string | null
+          registered_by?: string | null
+          registration_type?: string
+          special_requirements?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          county?: string | null
+          created_at?: string
+          custom_fields?: Json | null
+          email?: string
+          event_id?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          number_of_attendees?: number
+          phone?: string | null
+          registered_by?: string | null
+          registration_type?: string
+          special_requirements?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_registrations_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "media_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       faq_content: {
         Row: {
           answer: string

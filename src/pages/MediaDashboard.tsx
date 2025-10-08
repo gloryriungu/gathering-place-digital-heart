@@ -8,6 +8,7 @@ import { ShopManager } from "@/components/media/ShopManager";
 import { HeroContentManager } from "@/components/media/HeroContentManager";
 import { AnnouncementsManager } from "@/components/media/AnnouncementsManager";
 import { WatchPageManager } from "@/components/media/WatchPageManager";
+import { EventRegistrationsManager } from "@/components/media/EventRegistrationsManager";
 import { DepartmentInventory } from "@/components/inventory/DepartmentInventory";
 import { RequisitionManager } from "@/components/requisitions/RequisitionManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -205,6 +206,10 @@ const MediaDashboard = () => {
 
               <TabsContent value="events">
                 <EventsManager />
+              </TabsContent>
+
+              <TabsContent value="registrations">
+                <EventRegistrationsManager />
               </TabsContent>
 
               <TabsContent value="shop">

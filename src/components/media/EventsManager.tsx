@@ -7,8 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Calendar, Plus, Edit, Trash2, Upload, Image } from "lucide-react";
+import { Calendar, Plus, Edit, Trash2, Upload, Image, Users } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EventRSVPFormBuilder } from "./EventRSVPFormBuilder";
 
 interface EventData {
   id: string;
@@ -19,6 +21,10 @@ interface EventData {
     time: string;
     location: string;
     category: string;
+    enable_rsvp?: boolean;
+    max_attendees?: number;
+    registration_deadline?: string;
+    custom_fields?: any[];
   };
   image_url?: string;
   status: string;
@@ -403,23 +409,66 @@ export const EventsManager = () => {
                       <p>📅 {event.content_data.date}</p>
                       {event.content_data.time && <p>🕐 {event.content_data.time}</p>}
                       {event.content_data.location && <p>📍 {event.content_data.location}</p>}
+                      {event.content_data.enable_rsvp && (
+                        <p className="flex items-center gap-1 text-primary">
+                          <Users className="h-3 w-3" /> RSVP Enabled
+                        </p>
+                      )}
                     </div>
-                    <div className="flex justify-end space-x-2 pt-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(event)}
-                      >
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(event.id)}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
+                    
+                    <Tabs defaultValue="details" className="pt-2">
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="details">Details</TabsTrigger>
+                        <TabsTrigger value="rsvp">RSVP</TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="details" className="space-y-2">
+                        <div className="flex justify-end space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(event)}
+                          >
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(event.id)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </TabsContent>
+                      <TabsContent value="rsvp">
+                        <EventRSVPFormBuilder
+                          eventId={event.id}
+                          initialConfig={{
+                            enable_rsvp: event.content_data.enable_rsvp || false,
+                            max_attendees: event.content_data.max_attendees || null,
+                            registration_deadline: event.content_data.registration_deadline || "",
+                            custom_fields: event.content_data.custom_fields || [],
+                          }}
+                          onSave={async (config) => {
+                            const { error } = await supabase
+                              .from('media_content')
+                              .update({
+                                content_data: {
+                                  ...event.content_data,
+                                  ...config,
+                                } as any,
+                              })
+                              .eq('id', event.id);
+
+                            if (error) {
+                              toast.error('Failed to update RSVP settings');
+                            } else {
+                              toast.success('RSVP settings updated successfully');
+                              fetchEvents();
+                            }
+                          }}
+                        />
+                      </TabsContent>
+                    </Tabs>
                   </CardContent>
                 </Card>
               ))}

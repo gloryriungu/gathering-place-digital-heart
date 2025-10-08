@@ -1,4 +1,3 @@
-
 import { useEffect, useState, memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Calendar, User, ArrowRight } from "lucide-react";
@@ -28,21 +27,21 @@ export const LatestSermon = memo(() => {
   const fetchLatestSermon = useCallback(async () => {
     try {
       const { data, error } = await supabase
-        .from('media_content')
-        .select('*')
-        .eq('content_type', 'live_stream')
-        .eq('status', 'published')
-        .order('created_at', { ascending: false })
+        .from("media_content")
+        .select("*")
+        .eq("content_type", "live_stream")
+        .eq("status", "published")
+        .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching sermon content:', error);
+        console.error("Error fetching sermon content:", error);
       } else {
         setSermonContent(data as SermonContent);
       }
     } catch (error) {
-      console.error('Error fetching sermon content:', error);
+      console.error("Error fetching sermon content:", error);
     } finally {
       setLoading(false);
     }
@@ -50,23 +49,23 @@ export const LatestSermon = memo(() => {
 
   useEffect(() => {
     fetchLatestSermon();
-    
+
     // Set up real-time subscription with debouncing
     let timeoutId: NodeJS.Timeout;
     const channel = supabase
-      .channel('sermon-content-changes')
+      .channel("sermon-content-changes")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: '*',
-          schema: 'public',
-          table: 'media_content',
-          filter: "content_type=eq.live_stream"
+          event: "*",
+          schema: "public",
+          table: "media_content",
+          filter: "content_type=eq.live_stream",
         },
         () => {
           clearTimeout(timeoutId);
           timeoutId = setTimeout(fetchLatestSermon, 300);
-        }
+        },
       )
       .subscribe();
 
@@ -112,17 +111,20 @@ export const LatestSermon = memo(() => {
   // Fallback content if no data exists
   const defaultContent = {
     title: "Champions of Faith: Living Above Limitations",
-    description: "In this powerful message, Pastor Timothy teaches us how to rise above every limitation through faith in God's promises and live as the champions we are called to be in Christ Jesus.",
+    description:
+      "In this powerful message, Pastor Timothy teaches us how to rise above every limitation through faith in God's promises and live as the champions we are called to be in Christ Jesus.",
     content_data: {
       pastor: "Pastor Timothy Kitui",
       date: "January 21, 2024",
       duration: "52:30",
-      video_thumbnail: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
-    }
+      video_thumbnail:
+        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+    },
   };
 
   const content = sermonContent || defaultContent;
-  const thumbnail = sermonContent?.image_url || content.content_data?.video_thumbnail || defaultContent.content_data.video_thumbnail;
+  const thumbnail =
+    sermonContent?.image_url || content.content_data?.video_thumbnail || defaultContent.content_data.video_thumbnail;
 
   return (
     <section className="py-20 bg-black text-white">
@@ -131,23 +133,22 @@ export const LatestSermon = memo(() => {
           {/* Content */}
           <div className="space-y-8">
             <div>
-              <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">
-                LATEST MESSAGE
-              </h2>
+              <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">LATEST MESSAGE</h2>
               <p className="text-xl text-gray-300 mb-8">
-                Be transformed by God's Word through our biblical, practical, and life-changing messages that equip you for victorious living.
+                Be transformed by God's Word through our biblical, practical, and life-changing messages that equip you
+                for victorious living.
               </p>
             </div>
 
             <div className="space-y-6">
-              <h3 className="text-2xl md:text-3xl font-bold leading-tight">
-                "{content.title}"
-              </h3>
-              
+              <h3 className="text-2xl md:text-3xl font-bold leading-tight">"{content.title}"</h3>
+
               <div className="flex flex-wrap gap-6 text-gray-300">
                 <div className="flex items-center">
                   <User className="h-5 w-5 mr-2" />
-                  <span className="font-medium">{content.content_data?.pastor || defaultContent.content_data.pastor}</span>
+                  <span className="font-medium">
+                    {content.content_data?.pastor || defaultContent.content_data.pastor}
+                  </span>
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-5 w-5 mr-2" />
@@ -155,9 +156,7 @@ export const LatestSermon = memo(() => {
                 </div>
               </div>
 
-              <p className="text-lg text-gray-300 leading-relaxed">
-                {content.description}
-              </p>
+              <p className="text-lg text-gray-300 leading-relaxed">{content.description}</p>
 
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button asChild size="lg" className="bg-white text-black hover:bg-gray-100 font-bold">
@@ -166,7 +165,7 @@ export const LatestSermon = memo(() => {
                     WATCH NOW
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-black font-bold">
+                <Button asChild size="lg" variant="outline" className="bg-white text-black hover:bg-gray-100 font-bold">
                   <Link to="/watch">
                     ALL MESSAGES
                     <ArrowRight className="h-5 w-5 ml-2" />
@@ -179,11 +178,7 @@ export const LatestSermon = memo(() => {
           {/* Video Preview */}
           <div className="relative">
             <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden group cursor-pointer">
-              <LazyImage
-                src={thumbnail}
-                alt={content.title}
-                className="w-full h-full object-cover"
-              />
+              <LazyImage src={thumbnail} alt={content.title} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -201,4 +196,4 @@ export const LatestSermon = memo(() => {
   );
 });
 
-LatestSermon.displayName = 'LatestSermon';
+LatestSermon.displayName = "LatestSermon";

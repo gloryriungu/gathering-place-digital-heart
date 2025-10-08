@@ -8,11 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useSocialMedia } from "@/hooks/useSocialMedia";
 
 export const Navigation = memo(() => {
@@ -69,8 +65,7 @@ export const Navigation = memo(() => {
                 {item.name}
               </Link>
             ))}
-            
-            
+
             {/* Get Involved Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -124,7 +119,7 @@ export const Navigation = memo(() => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="outline" className="text-white border-white hover:bg-white hover:text-black font-bold" asChild>
+            <Button variant="outline" className="bg-white text-black hover:bg-gray-100 font-bold" asChild>
               <Link to="/auth">SIGN IN</Link>
             </Button>
             <Button className="bg-white text-black hover:bg-gray-100 font-bold" asChild>
@@ -134,12 +129,7 @@ export const Navigation = memo(() => {
 
           {/* Mobile menu button */}
           <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleMenu}
-              className="text-white"
-            >
+            <Button variant="ghost" size="icon" onClick={toggleMenu} className="text-white">
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
@@ -159,7 +149,7 @@ export const Navigation = memo(() => {
                   {item.name}
                 </Link>
               ))}
-              
+
               <Link
                 to="/auth"
                 className="block px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
@@ -167,12 +157,12 @@ export const Navigation = memo(() => {
               >
                 SIGN IN
               </Link>
-              
+
               {/* Mobile Get Involved Collapsible Section */}
               <Collapsible open={isGetInvolvedOpen} onOpenChange={toggleGetInvolved}>
                 <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide">
                   GET INVOLVED
-                  <ChevronDown className={`h-5 w-5 transition-transform ${isGetInvolvedOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`h-5 w-5 transition-transform ${isGetInvolvedOpen ? "rotate-180" : ""}`} />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="ml-4 space-y-2">
                   {getInvolvedItems.map((item) => (
@@ -209,7 +199,11 @@ export const Navigation = memo(() => {
 
               {/* Mobile Cart */}
               <div className="px-3 py-3">
-                <Link to="/shop" className="flex items-center text-white hover:text-gray-300 font-bold text-lg tracking-wide" onClick={closeMenu}>
+                <Link
+                  to="/shop"
+                  className="flex items-center text-white hover:text-gray-300 font-bold text-lg tracking-wide"
+                  onClick={closeMenu}
+                >
                   <ShoppingCart className="h-6 w-6 mr-2" />
                   CART
                   {cartItems > 0 && (
@@ -219,10 +213,12 @@ export const Navigation = memo(() => {
                   )}
                 </Link>
               </div>
-              
+
               <div className="pt-4 px-3">
                 <Button className="w-full bg-white text-black hover:bg-gray-100 font-bold" asChild>
-                  <Link to="/visit-us" onClick={closeMenu}>VISIT US</Link>
+                  <Link to="/visit-us" onClick={closeMenu}>
+                    VISIT US
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -233,4 +229,4 @@ export const Navigation = memo(() => {
   );
 });
 
-Navigation.displayName = 'Navigation';
+Navigation.displayName = "Navigation";

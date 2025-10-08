@@ -29,7 +29,7 @@ export const HeroContentManager = () => {
     background_image: "",
     cta_primary: "JOIN US THIS SUNDAY",
     cta_secondary: "WATCH LIVE",
-    backgroundFile: null as File | null
+    backgroundFile: null as File | null,
   });
 
   useEffect(() => {
@@ -39,12 +39,12 @@ export const HeroContentManager = () => {
   const fetchHeroContent = async () => {
     try {
       const { data, error } = await supabase
-        .from('media_content')
-        .select('*')
-        .eq('content_type', 'hero_content')
+        .from("media_content")
+        .select("*")
+        .eq("content_type", "hero_content")
         .single();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error && error.code !== "PGRST116") {
         throw error;
       }
 
@@ -58,12 +58,12 @@ export const HeroContentManager = () => {
           background_image: contentData?.background_image || "",
           cta_primary: contentData?.cta_primary || "JOIN US THIS SUNDAY",
           cta_secondary: contentData?.cta_secondary || "WATCH LIVE",
-          backgroundFile: null
+          backgroundFile: null,
         });
       }
     } catch (error) {
-      console.error('Error fetching hero content:', error);
-      toast.error('Failed to load hero content');
+      console.error("Error fetching hero content:", error);
+      toast.error("Failed to load hero content");
     } finally {
       setLoading(false);
     }
@@ -72,24 +72,22 @@ export const HeroContentManager = () => {
   const handleFileUpload = async (file: File): Promise<string | null> => {
     try {
       setUploading(true);
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split(".").pop();
       const fileName = `hero-bg-${Date.now()}.${fileExt}`;
       const filePath = `backgrounds/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('hero-media')
-        .upload(filePath, file);
+      const { error: uploadError } = await supabase.storage.from("hero-media").upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('hero-media')
-        .getPublicUrl(filePath);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("hero-media").getPublicUrl(filePath);
 
       return publicUrl;
     } catch (error) {
-      console.error('Error uploading file:', error);
-      toast.error('Failed to upload file');
+      console.error("Error uploading file:", error);
+      toast.error("Failed to upload file");
       return null;
     } finally {
       setUploading(false);
@@ -101,12 +99,12 @@ export const HeroContentManager = () => {
     try {
       const user = await supabase.auth.getUser();
       if (!user.data.user) {
-        toast.error('You must be logged in to save changes');
+        toast.error("You must be logged in to save changes");
         return;
       }
 
       let backgroundUrl = formData.background_image;
-      
+
       if (formData.backgroundFile) {
         const uploadedUrl = await handleFileUpload(formData.backgroundFile);
         if (uploadedUrl) {
@@ -120,43 +118,41 @@ export const HeroContentManager = () => {
         background_video: formData.background_video,
         background_image: backgroundUrl,
         cta_primary: formData.cta_primary,
-        cta_secondary: formData.cta_secondary
+        cta_secondary: formData.cta_secondary,
       };
 
       if (heroContent) {
         // Update existing
         const { error } = await supabase
-          .from('media_content')
+          .from("media_content")
           .update({
-            title: 'Homepage Hero Content',
-            description: 'Main homepage hero section content',
+            title: "Homepage Hero Content",
+            description: "Main homepage hero section content",
             content_data: contentData,
-            status: 'published'
+            status: "published",
           })
-          .eq('id', heroContent.id);
+          .eq("id", heroContent.id);
 
         if (error) throw error;
       } else {
         // Create new
-        const { error } = await supabase
-          .from('media_content')
-          .insert({
-            content_type: 'hero_content',
-            title: 'Homepage Hero Content',
-            description: 'Main homepage hero section content',
-            content_data: contentData,
-            status: 'published',
-            created_by: user.data.user.id
-          });
+        const { error } = await supabase.from("media_content").insert({
+          content_type: "hero_content",
+          title: "Homepage Hero Content",
+          description: "Main homepage hero section content",
+          content_data: contentData,
+          status: "published",
+          created_by: user.data.user.id,
+        });
 
         if (error) throw error;
       }
 
-      toast.success('Hero content saved successfully');
+      toast.success("Hero content saved successfully");
       await fetchHeroContent();
     } catch (error) {
-      console.error('Error saving hero content:', error);
-      toast.error('Failed to save hero content');
+      console.error("Error saving hero content:", error);
+      toast.error("Failed to save hero content");
     } finally {
       setSaving(false);
     }
@@ -201,7 +197,7 @@ export const HeroContentManager = () => {
                 <Input
                   id="heading"
                   value={formData.heading}
-                  onChange={(e) => setFormData(prev => ({ ...prev, heading: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, heading: e.target.value }))}
                   placeholder="WELCOME TO TOT INTERNATIONAL"
                 />
               </div>
@@ -211,7 +207,7 @@ export const HeroContentManager = () => {
                 <Textarea
                   id="subheading"
                   value={formData.subheading}
-                  onChange={(e) => setFormData(prev => ({ ...prev, subheading: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, subheading: e.target.value }))}
                   placeholder="A ministry committed to raising champions for Christ..."
                   rows={3}
                 />
@@ -222,7 +218,7 @@ export const HeroContentManager = () => {
                 <Input
                   id="cta_primary"
                   value={formData.cta_primary}
-                  onChange={(e) => setFormData(prev => ({ ...prev, cta_primary: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, cta_primary: e.target.value }))}
                   placeholder="JOIN US THIS SUNDAY"
                 />
               </div>
@@ -232,7 +228,7 @@ export const HeroContentManager = () => {
                 <Input
                   id="cta_secondary"
                   value={formData.cta_secondary}
-                  onChange={(e) => setFormData(prev => ({ ...prev, cta_secondary: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, cta_secondary: e.target.value }))}
                   placeholder="WATCH LIVE"
                 />
               </div>
@@ -244,7 +240,7 @@ export const HeroContentManager = () => {
                 <Input
                   id="background_video"
                   value={formData.background_video}
-                  onChange={(e) => setFormData(prev => ({ ...prev, background_video: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, background_video: e.target.value }))}
                   placeholder="https://commondatastorage.googleapis.com/..."
                 />
               </div>
@@ -254,7 +250,7 @@ export const HeroContentManager = () => {
                 <Input
                   id="background_image"
                   value={formData.background_image}
-                  onChange={(e) => setFormData(prev => ({ ...prev, background_image: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, background_image: e.target.value }))}
                   placeholder="Fallback image URL"
                 />
               </div>
@@ -266,10 +262,12 @@ export const HeroContentManager = () => {
                     id="backgroundFile"
                     type="file"
                     accept="image/*,video/*"
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      backgroundFile: e.target.files?.[0] || null 
-                    }))}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        backgroundFile: e.target.files?.[0] || null,
+                      }))
+                    }
                   />
                   <p className="text-xs text-muted-foreground mt-1">
                     Supports images and videos. For best performance, use MP4 for videos.
@@ -282,16 +280,16 @@ export const HeroContentManager = () => {
                   <Label>Current Background Preview</Label>
                   <div className="mt-2 aspect-video bg-black rounded-lg overflow-hidden">
                     {formData.background_video ? (
-                      <video 
-                        src={formData.background_video} 
+                      <video
+                        src={formData.background_video}
                         className="w-full h-full object-cover"
                         muted
                         loop
                         autoPlay
                       />
                     ) : formData.background_image ? (
-                      <img 
-                        src={formData.background_image} 
+                      <img
+                        src={formData.background_image}
                         alt="Background preview"
                         className="w-full h-full object-cover"
                       />
@@ -317,7 +315,7 @@ export const HeroContentManager = () => {
                     <Button size="sm" className="bg-white text-black">
                       {formData.cta_primary || "JOIN US THIS SUNDAY"}
                     </Button>
-                    <Button size="sm" variant="outline" className="border-white text-white">
+                    <Button size="sm" variant="outline" className="bg-white text-black">
                       {formData.cta_secondary || "WATCH LIVE"}
                     </Button>
                   </div>
@@ -331,7 +329,11 @@ export const HeroContentManager = () => {
               Reset
             </Button>
             <Button onClick={handleSave} disabled={saving || uploading}>
-              {saving ? 'Saving...' : uploading ? 'Uploading...' : (
+              {saving ? (
+                "Saving..."
+              ) : uploading ? (
+                "Uploading..."
+              ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
                   Save Changes

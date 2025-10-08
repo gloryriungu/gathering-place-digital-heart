@@ -2,6 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock, MapPin, Video } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const ServiceTimes = () => {
   return (
@@ -50,8 +51,8 @@ export const ServiceTimes = () => {
                   <span className="text-gray-600">Bible Study - 7:00 PM</span>
                 </div>
               </div>
-              <Button className="w-full mt-6 bg-black text-white hover:bg-gray-800 font-bold py-3">
-                PLAN YOUR VISIT
+              <Button asChild className="w-full mt-6 bg-black text-white hover:bg-gray-800 font-bold py-3">
+                <Link to="/visit-us">PLAN YOUR VISIT</Link>
               </Button>
             </CardContent>
           </Card>
@@ -89,8 +90,8 @@ export const ServiceTimes = () => {
                   <span className="text-gray-600">Previous Messages</span>
                 </div>
               </div>
-              <Button className="w-full mt-6 bg-black text-white hover:bg-gray-800 font-bold py-3">
-                WATCH ONLINE
+              <Button asChild className="w-full mt-6 bg-black text-white hover:bg-gray-800 font-bold py-3">
+                <Link to="/watch">WATCH ONLINE</Link>
               </Button>
             </CardContent>
           </Card>

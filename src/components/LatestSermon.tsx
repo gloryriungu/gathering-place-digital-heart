@@ -5,6 +5,7 @@ import { Play, Calendar, User, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LazyImage } from "@/components/ui/lazy-image";
+import { Link } from "react-router-dom";
 
 interface SermonContent {
   id: string;
@@ -159,13 +160,17 @@ export const LatestSermon = memo(() => {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button size="lg" className="bg-white text-black hover:bg-gray-100 font-bold">
-                  <Play className="h-5 w-5 mr-2" />
-                  WATCH NOW
+                <Button asChild size="lg" className="bg-white text-black hover:bg-gray-100 font-bold">
+                  <Link to="/watch">
+                    <Play className="h-5 w-5 mr-2" />
+                    WATCH NOW
+                  </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-black font-bold">
-                  ALL MESSAGES
-                  <ArrowRight className="h-5 w-5 ml-2" />
+                <Button asChild size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white hover:text-black font-bold">
+                  <Link to="/watch">
+                    ALL MESSAGES
+                    <ArrowRight className="h-5 w-5 ml-2" />
+                  </Link>
                 </Button>
               </div>
             </div>

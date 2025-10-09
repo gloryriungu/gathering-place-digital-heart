@@ -313,6 +313,101 @@ export const EventRegistrationForm = ({
           />
         </div>
 
+        {/* Custom Fields */}
+        {customFields.length > 0 && (
+          <div className="space-y-4 pt-4 border-t">
+            <h4 className="font-semibold">Additional Information</h4>
+            {customFields.map((field: any) => (
+              <div key={field.id} className="space-y-2">
+                <Label htmlFor={field.id}>
+                  {field.label} {field.required && '*'}
+                </Label>
+                
+                {field.type === 'text' && (
+                  <Input
+                    id={field.id}
+                    value={formData.custom_fields[field.id] || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      custom_fields: { ...prev.custom_fields, [field.id]: e.target.value }
+                    }))}
+                    required={field.required}
+                  />
+                )}
+                
+                {field.type === 'textarea' && (
+                  <Textarea
+                    id={field.id}
+                    value={formData.custom_fields[field.id] || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      custom_fields: { ...prev.custom_fields, [field.id]: e.target.value }
+                    }))}
+                    required={field.required}
+                  />
+                )}
+                
+                {field.type === 'checkbox' && (
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id={field.id}
+                      checked={formData.custom_fields[field.id] || false}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        custom_fields: { ...prev.custom_fields, [field.id]: e.target.checked }
+                      }))}
+                      required={field.required}
+                      className="rounded"
+                    />
+                    <Label htmlFor={field.id} className="font-normal">{field.label}</Label>
+                  </div>
+                )}
+                
+                {field.type === 'select' && (
+                  <select
+                    id={field.id}
+                    value={formData.custom_fields[field.id] || ''}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      custom_fields: { ...prev.custom_fields, [field.id]: e.target.value }
+                    }))}
+                    required={field.required}
+                    className="w-full p-2 border rounded-md"
+                  >
+                    <option value="">Select an option</option>
+                    {field.options?.map((option: string) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                )}
+                
+                {field.type === 'radio' && (
+                  <div className="space-y-2">
+                    {field.options?.map((option: string) => (
+                      <div key={option} className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          id={`${field.id}-${option}`}
+                          name={field.id}
+                          value={option}
+                          checked={formData.custom_fields[field.id] === option}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            custom_fields: { ...prev.custom_fields, [field.id]: e.target.value }
+                          }))}
+                          required={field.required}
+                        />
+                        <Label htmlFor={`${field.id}-${option}`} className="font-normal">{option}</Label>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
         <Button type="submit" disabled={loading} className="w-full">
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Complete Registration

@@ -23,6 +23,7 @@ interface Registration {
   registration_type: string;
   status: string;
   created_at: string;
+  custom_fields?: Record<string, any>;
   media_content?: {
     title: string;
   };
@@ -83,7 +84,7 @@ export const EventRegistrationsManager = () => {
         variant: "destructive",
       });
     } else {
-      setRegistrations(data || []);
+      setRegistrations(data as any || []);
     }
     setLoading(false);
   };
@@ -260,6 +261,7 @@ export const EventRegistrationsManager = () => {
                   <TableHead>Attendees</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Registered</TableHead>
+                  <TableHead>Custom</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -295,8 +297,24 @@ export const EventRegistrationsManager = () => {
                           {reg.status}
                         </Badge>
                       </TableCell>
-                      <TableCell>
+                       <TableCell>
                         {format(new Date(reg.created_at), 'MMM dd, yyyy')}
+                      </TableCell>
+                      <TableCell>
+                        {reg.custom_fields && Object.keys(reg.custom_fields).length > 0 && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => {
+                              const customData = Object.entries(reg.custom_fields || {})
+                                .map(([key, value]) => `${key}: ${value}`)
+                                .join('\n');
+                              alert(`Custom Fields:\n\n${customData}`);
+                            }}
+                          >
+                            View Custom
+                          </Button>
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="flex gap-2">

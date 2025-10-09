@@ -11,6 +11,7 @@ import { Calendar, Plus, Edit, Trash2, Upload, Image, Users } from "lucide-react
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EventRSVPFormBuilder } from "./EventRSVPFormBuilder";
+import { EventRegistrationsViewer } from "./EventRegistrationsViewer";
 
 interface EventData {
   id: string;
@@ -417,9 +418,10 @@ export const EventsManager = () => {
                     </div>
                     
                     <Tabs defaultValue="details" className="pt-2">
-                      <TabsList className="grid w-full grid-cols-2">
+                      <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="details">Details</TabsTrigger>
                         <TabsTrigger value="rsvp">RSVP</TabsTrigger>
+                        <TabsTrigger value="registrations">Registrations</TabsTrigger>
                       </TabsList>
                       <TabsContent value="details" className="space-y-2">
                         <div className="flex justify-end space-x-2">
@@ -466,6 +468,14 @@ export const EventsManager = () => {
                               fetchEvents();
                             }
                           }}
+                        />
+                      </TabsContent>
+                      <TabsContent value="registrations">
+                        <EventRegistrationsViewer 
+                          eventId={event.id}
+                          eventTitle={event.title}
+                          registrationDeadline={event.content_data.registration_deadline}
+                          customFields={event.content_data.custom_fields || []}
                         />
                       </TabsContent>
                     </Tabs>

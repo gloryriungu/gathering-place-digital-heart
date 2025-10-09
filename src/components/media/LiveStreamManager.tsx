@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Video, Play, Square, Settings, ExternalLink, Calendar } from "lucide-react";
+import { getYouTubeEmbedUrl } from "@/utils/youtube";
 
 interface LiveStreamData {
   id: string;
@@ -307,15 +308,23 @@ export const LiveStreamManager = () => {
             <div className="border rounded-lg p-4">
               <h4 className="font-semibold mb-2">Stream Preview</h4>
               <div className="aspect-video bg-black rounded-lg flex items-center justify-center">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  src={`https://www.youtube.com/embed/${formData.youtube_url.split('v=')[1]?.split('&')[0]}`}
-                  title="Stream Preview"
-                  frameBorder="0"
-                  allowFullScreen
-                  className="rounded-lg"
-                />
+                {getYouTubeEmbedUrl(formData.youtube_url) ? (
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src={getYouTubeEmbedUrl(formData.youtube_url) || ''}
+                    title="Stream Preview"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="rounded-lg"
+                  />
+                ) : (
+                  <div className="text-white text-center">
+                    <Video className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>Invalid YouTube URL</p>
+                  </div>
+                )}
               </div>
             </div>
           )}

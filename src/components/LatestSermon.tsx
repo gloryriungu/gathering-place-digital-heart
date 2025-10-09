@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LazyImage } from "@/components/ui/lazy-image";
 import { Link } from "react-router-dom";
+import { getYouTubeEmbedUrl } from "@/utils/youtube";
 
 interface SermonContent {
   id: string;
@@ -125,6 +126,7 @@ export const LatestSermon = memo(() => {
   const content = sermonContent || defaultContent;
   const thumbnail =
     sermonContent?.image_url || content.content_data?.video_thumbnail || defaultContent.content_data.video_thumbnail;
+  const videoUrl = sermonContent?.video_url || (sermonContent?.content_data as any)?.youtube_url;
 
   return (
     <section className="py-20 bg-black text-white">
@@ -178,16 +180,31 @@ export const LatestSermon = memo(() => {
           {/* Video Preview */}
           <div className="relative">
             <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden group cursor-pointer">
-              <LazyImage src={thumbnail} alt={content.title} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <Play className="h-8 w-8 text-black ml-1" />
-                </div>
-              </div>
-              <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded text-sm font-bold">
-                {content.content_data?.duration || defaultContent.content_data.duration}
-              </div>
+              {videoUrl && getYouTubeEmbedUrl(videoUrl) ? (
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={getYouTubeEmbedUrl(videoUrl) || ''}
+                  title={content.title}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              ) : (
+                <>
+                  <LazyImage src={thumbnail} alt={content.title} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Play className="h-8 w-8 text-black ml-1" />
+                    </div>
+                  </div>
+                  <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded text-sm font-bold">
+                    {content.content_data?.duration || defaultContent.content_data.duration}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

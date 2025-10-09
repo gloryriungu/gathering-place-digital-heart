@@ -14,8 +14,12 @@ interface HeroContent {
     subheading?: string;
     cta1_text?: string;
     cta2_text?: string;
+    cta_primary?: string;
+    cta_secondary?: string;
     video_url?: string;
     image_url?: string;
+    background_video?: string;
+    background_image?: string;
   };
   image_url?: string;
   video_url?: string;
@@ -106,8 +110,8 @@ export const Hero = memo(() => {
   };
 
   const content = heroContent?.content_data || defaultContent;
-  const backgroundVideo = heroContent?.video_url || content.video_url || defaultContent.video_url;
-  const backgroundImage = heroContent?.image_url || content.image_url || defaultContent.image_url;
+  const backgroundVideo = (content as any).background_video || (content as any).video_url || defaultContent.video_url;
+  const backgroundImage = (content as any).background_image || (content as any).image_url || defaultContent.image_url;
 
   return <section className="relative min-h-screen bg-primary text-primary-foreground overflow-hidden">
       {/* Background Image (immediate) */}

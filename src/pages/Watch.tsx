@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Play, Calendar, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getYouTubeEmbedUrl } from "@/utils/youtube";
 
 interface WatchPageData {
   hero_title: string;
@@ -160,7 +161,20 @@ const Watch = () => {
               {watchData.sermons.map((sermon, index) => (
                 <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
                   <div className="aspect-video bg-black flex items-center justify-center">
-                    <Play className="h-12 w-12 text-white opacity-60" />
+                    {sermon.video_url && getYouTubeEmbedUrl(sermon.video_url) ? (
+                      <iframe
+                        width="100%"
+                        height="100%"
+                        src={getYouTubeEmbedUrl(sermon.video_url) || ''}
+                        title={sermon.title}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="w-full h-full"
+                      />
+                    ) : (
+                      <Play className="h-12 w-12 text-white opacity-60" />
+                    )}
                   </div>
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-black mb-2">{sermon.title}</h3>
@@ -169,10 +183,15 @@ const Watch = () => {
                       <span>{sermon.date}</span>
                       <span>{sermon.duration}</span>
                     </div>
-                    <Button className="w-full bg-black text-white hover:bg-gray-800">
-                      <Play className="mr-2 h-4 w-4" />
-                      Watch Now
-                    </Button>
+                    {sermon.video_url && (
+                      <Button 
+                        className="w-full bg-black text-white hover:bg-gray-800"
+                        onClick={() => window.open(sermon.video_url, '_blank')}
+                      >
+                        <Play className="mr-2 h-4 w-4" />
+                        Watch Now
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}

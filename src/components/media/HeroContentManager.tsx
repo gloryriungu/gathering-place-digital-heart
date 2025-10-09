@@ -283,10 +283,15 @@ export const HeroContentManager = () => {
                       <video
                         src={formData.background_video}
                         className="w-full h-full object-cover"
+                        controls
                         muted
                         loop
-                        autoPlay
-                      />
+                        playsInline
+                        preload="metadata"
+                      >
+                        <source src={formData.background_video} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
                     ) : formData.background_image ? (
                       <img
                         src={formData.background_image}

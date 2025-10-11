@@ -103,20 +103,27 @@ export const HeroContentManager = () => {
         return;
       }
 
-      let backgroundUrl = formData.background_image;
+      let videoUrl = formData.background_video;
+      let imageUrl = formData.background_image;
 
       if (formData.backgroundFile) {
         const uploadedUrl = await handleFileUpload(formData.backgroundFile);
         if (uploadedUrl) {
-          backgroundUrl = uploadedUrl;
+          // Check if the uploaded file is a video or image
+          const fileType = formData.backgroundFile.type;
+          if (fileType.startsWith('video/')) {
+            videoUrl = uploadedUrl;
+          } else if (fileType.startsWith('image/')) {
+            imageUrl = uploadedUrl;
+          }
         }
       }
 
       const contentData = {
         heading: formData.heading,
         subheading: formData.subheading,
-        background_video: formData.background_video,
-        background_image: backgroundUrl,
+        background_video: videoUrl,
+        background_image: imageUrl,
         cta_primary: formData.cta_primary,
         cta_secondary: formData.cta_secondary,
       };

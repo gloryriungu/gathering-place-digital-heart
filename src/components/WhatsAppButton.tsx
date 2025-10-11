@@ -4,7 +4,7 @@ import { memo } from "react";
 const WhatsAppButton = memo(() => {
   return (
     <a
-      href="https://wa.me/254701443446?text=Hello!%20I%20need%20assistance%20from%20TOT%20International"
+      href="https://wa.me/+254701443446"
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Contact us on WhatsApp"

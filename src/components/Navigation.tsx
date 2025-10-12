@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useSocialMedia } from "@/hooks/useSocialMedia";
+import logo from "@/assets/logo.png";
 
 export const Navigation = memo(() => {
   const [isOpen, setIsOpen] = useState(false);
@@ -49,8 +50,8 @@ export const Navigation = memo(() => {
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <div className="flex-shrink-0">
-            <Link to="/">
-              <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">TOT INT</h1>
+            <Link to="/" className="flex items-center">
+              <img src={logo} alt="TOT International" className="h-12 w-12 md:h-14 md:w-14 object-contain" />
             </Link>
           </div>
 

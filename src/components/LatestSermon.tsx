@@ -12,10 +12,13 @@ interface SermonContent {
   title: string;
   description: string;
   content_data: {
+    section_title?: string;
+    section_description?: string;
     pastor?: string;
     date?: string;
     duration?: string;
     video_thumbnail?: string;
+    youtube_url?: string;
   };
   image_url?: string;
   video_url?: string;
@@ -115,18 +118,23 @@ export const LatestSermon = memo(() => {
     description:
       "In this powerful message, Pastor Timothy teaches us how to rise above every limitation through faith in God's promises and live as the champions we are called to be in Christ Jesus.",
     content_data: {
+      section_title: "LATEST MESSAGE",
+      section_description: "Be transformed by God's Word through our biblical, practical, and life-changing messages that equip you for victorious living.",
       pastor: "Pastor Timothy Kitui",
       date: "January 21, 2024",
       duration: "52:30",
+      youtube_url: "",
       video_thumbnail:
         "https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
     },
   };
 
   const content = sermonContent || defaultContent;
+  const sectionTitle = content.content_data?.section_title || defaultContent.content_data.section_title;
+  const sectionDescription = content.content_data?.section_description || defaultContent.content_data.section_description;
   const thumbnail =
     sermonContent?.image_url || content.content_data?.video_thumbnail || defaultContent.content_data.video_thumbnail;
-  const videoUrl = sermonContent?.video_url || (sermonContent?.content_data as any)?.youtube_url;
+  const videoUrl = sermonContent?.video_url || content.content_data?.youtube_url;
 
   return (
     <section className="py-20 bg-black text-white">
@@ -135,10 +143,9 @@ export const LatestSermon = memo(() => {
           {/* Content */}
           <div className="space-y-8">
             <div>
-              <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">LATEST MESSAGE</h2>
+              <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">{sectionTitle}</h2>
               <p className="text-xl text-gray-300 mb-8">
-                Be transformed by God's Word through our biblical, practical, and life-changing messages that equip you
-                for victorious living.
+                {sectionDescription}
               </p>
             </div>
 

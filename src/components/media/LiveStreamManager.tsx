@@ -30,9 +30,13 @@ export const LiveStreamManager = () => {
   const [saving, setSaving] = useState(false);
 
   const [formData, setFormData] = useState({
+    section_title: "LATEST MESSAGE",
+    section_description: "Be transformed by God's Word through our biblical, practical, and life-changing messages that equip you for victorious living.",
     title: "",
     description: "",
     youtube_url: "",
+    pastor: "Pastor Timothy Kitui",
+    date: "",
     is_live: false,
     scheduled_time: "",
     duration: "120"
@@ -58,9 +62,13 @@ export const LiveStreamManager = () => {
         setLiveStream(data as any);
         const contentData = data.content_data as any;
         setFormData({
+          section_title: contentData?.section_title || "LATEST MESSAGE",
+          section_description: contentData?.section_description || "Be transformed by God's Word through our biblical, practical, and life-changing messages that equip you for victorious living.",
           title: data.title,
           description: data.description || "",
           youtube_url: contentData?.youtube_url || "",
+          pastor: contentData?.pastor || "Pastor Timothy Kitui",
+          date: contentData?.date || "",
           is_live: contentData?.is_live || false,
           scheduled_time: contentData?.scheduled_time || "",
           duration: contentData?.duration || "120"
@@ -84,7 +92,11 @@ export const LiveStreamManager = () => {
       }
 
       const contentData = {
+        section_title: formData.section_title,
+        section_description: formData.section_description,
         youtube_url: formData.youtube_url,
+        pastor: formData.pastor,
+        date: formData.date,
         is_live: formData.is_live,
         scheduled_time: formData.scheduled_time,
         duration: formData.duration
@@ -213,31 +225,78 @@ export const LiveStreamManager = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Section Header Fields */}
+          <div className="border-b pb-6">
+            <h3 className="font-semibold mb-4 text-lg">Section Header</h3>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="section_title">Section Title</Label>
+                <Input
+                  id="section_title"
+                  value={formData.section_title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, section_title: e.target.value }))}
+                  placeholder="LATEST MESSAGE"
+                />
+              </div>
+              <div>
+                <Label htmlFor="section_description">Section Description</Label>
+                <Textarea
+                  id="section_description"
+                  value={formData.section_description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, section_description: e.target.value }))}
+                  placeholder="Be transformed by God's Word..."
+                  rows={3}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Message Content */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <Label htmlFor="title">Stream Title</Label>
+                <Label htmlFor="title">Message Title</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Enter stream title"
+                  placeholder="Enter message title"
                 />
               </div>
 
               <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">Message Description</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Enter stream description"
+                  placeholder="Enter message description"
                   rows={3}
                 />
               </div>
 
               <div>
-                <Label htmlFor="youtube_url">YouTube Stream URL</Label>
+                <Label htmlFor="pastor">Pastor Name</Label>
+                <Input
+                  id="pastor"
+                  value={formData.pastor}
+                  onChange={(e) => setFormData(prev => ({ ...prev, pastor: e.target.value }))}
+                  placeholder="Pastor Timothy Kitui"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="date">Message Date</Label>
+                <Input
+                  id="date"
+                  value={formData.date}
+                  onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                  placeholder="January 21, 2024"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="youtube_url">YouTube Video URL</Label>
                 <div className="flex space-x-2">
                   <Input
                     id="youtube_url"

@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Save, FileText, AlertCircle } from "lucide-react";
+import { Save, FileText, AlertCircle, Plus, Trash2 } from "lucide-react";
 
 interface AboutContent {
   hero_title: string;
@@ -244,6 +244,150 @@ export const AboutUsManager = () => {
                 rows={3}
               />
             </div>
+          </CardContent>
+        </Card>
+
+        {/* What We Believe */}
+        <Card>
+          <CardHeader>
+            <CardTitle>What We Believe</CardTitle>
+            <CardDescription>Core beliefs and doctrinal statements</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {content.beliefs.map((belief, index) => (
+              <div key={index} className="border rounded-lg p-4 space-y-4">
+                <div className="flex justify-between items-start">
+                  <Label>Belief {index + 1}</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      const newBeliefs = content.beliefs.filter((_, i) => i !== index);
+                      setContent(prev => ({ ...prev, beliefs: newBeliefs }));
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+                <div>
+                  <Label htmlFor={`belief_title_${index}`}>Title</Label>
+                  <Input
+                    id={`belief_title_${index}`}
+                    value={belief.title}
+                    onChange={(e) => {
+                      const newBeliefs = [...content.beliefs];
+                      newBeliefs[index].title = e.target.value;
+                      setContent(prev => ({ ...prev, beliefs: newBeliefs }));
+                    }}
+                    placeholder="Belief title"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor={`belief_content_${index}`}>Content</Label>
+                  <Textarea
+                    id={`belief_content_${index}`}
+                    value={belief.content}
+                    onChange={(e) => {
+                      const newBeliefs = [...content.beliefs];
+                      newBeliefs[index].content = e.target.value;
+                      setContent(prev => ({ ...prev, beliefs: newBeliefs }));
+                    }}
+                    placeholder="Belief description"
+                    rows={3}
+                  />
+                </div>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              onClick={() => {
+                setContent(prev => ({
+                  ...prev,
+                  beliefs: [...prev.beliefs, { title: "", content: "" }]
+                }));
+              }}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Belief
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Our Leadership */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Our Leadership</CardTitle>
+            <CardDescription>Church leadership team members</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {content.leadership.map((leader, index) => (
+              <div key={index} className="border rounded-lg p-4 space-y-4">
+                <div className="flex justify-between items-start">
+                  <Label>Leader {index + 1}</Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      const newLeadership = content.leadership.filter((_, i) => i !== index);
+                      setContent(prev => ({ ...prev, leadership: newLeadership }));
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+                <div>
+                  <Label htmlFor={`leader_name_${index}`}>Name</Label>
+                  <Input
+                    id={`leader_name_${index}`}
+                    value={leader.name}
+                    onChange={(e) => {
+                      const newLeadership = [...content.leadership];
+                      newLeadership[index].name = e.target.value;
+                      setContent(prev => ({ ...prev, leadership: newLeadership }));
+                    }}
+                    placeholder="Leader name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor={`leader_position_${index}`}>Position</Label>
+                  <Input
+                    id={`leader_position_${index}`}
+                    value={leader.position}
+                    onChange={(e) => {
+                      const newLeadership = [...content.leadership];
+                      newLeadership[index].position = e.target.value;
+                      setContent(prev => ({ ...prev, leadership: newLeadership }));
+                    }}
+                    placeholder="Position title"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor={`leader_image_${index}`}>Image URL (optional)</Label>
+                  <Input
+                    id={`leader_image_${index}`}
+                    value={leader.image_url || ""}
+                    onChange={(e) => {
+                      const newLeadership = [...content.leadership];
+                      newLeadership[index].image_url = e.target.value;
+                      setContent(prev => ({ ...prev, leadership: newLeadership }));
+                    }}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              onClick={() => {
+                setContent(prev => ({
+                  ...prev,
+                  leadership: [...prev.leadership, { name: "", position: "", image_url: "" }]
+                }));
+              }}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Leader
+            </Button>
           </CardContent>
         </Card>
       </div>

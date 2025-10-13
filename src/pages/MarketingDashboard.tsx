@@ -4,9 +4,10 @@ import { AuthGuard } from "@/components/shared/AuthGuard";
 import { MarketingDashboardHeader } from "@/components/marketing/MarketingDashboardHeader";
 import { DepartmentInventory } from "@/components/inventory/DepartmentInventory";
 import { RequisitionManager } from "@/components/requisitions/RequisitionManager";
+import { UserProfile } from "@/components/dashboard/UserProfile";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, Users, Star, MessageSquare, Share2, HelpCircle, FileText, Mail, Settings } from "lucide-react";
+import { BarChart3, Users, Star, MessageSquare, Share2, HelpCircle, FileText, Mail, User } from "lucide-react";
 
 // Marketing management components
 import { AboutUsManager } from "@/components/marketing/AboutUsManager";
@@ -74,7 +75,7 @@ const MarketingDashboard = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <TabsList className="grid w-full sm:w-auto grid-cols-3 sm:grid-cols-5 lg:grid-cols-9">
+              <TabsList className="grid w-full sm:w-auto grid-cols-3 sm:grid-cols-5 lg:grid-cols-10">
                 <TabsTrigger value="overview">
                   <span className="hidden sm:inline">Overview</span>
                   <span className="sm:hidden">Home</span>
@@ -93,6 +94,7 @@ const MarketingDashboard = () => {
                 <TabsTrigger value="faq" className="hidden lg:flex">FAQ</TabsTrigger>
                 <TabsTrigger value="requisitions" className="hidden lg:flex">Requisitions</TabsTrigger>
                 <TabsTrigger value="inventory" className="hidden lg:flex">Inventory</TabsTrigger>
+                <TabsTrigger value="profile" className="hidden lg:flex">Profile</TabsTrigger>
               </TabsList>
               
               {/* Mobile dropdown for hidden tabs */}
@@ -108,6 +110,7 @@ const MarketingDashboard = () => {
                   <option value="faq">FAQ</option>
                   <option value="requisitions">Requisitions</option>
                   <option value="inventory">Inventory</option>
+                  <option value="profile">Profile</option>
                 </select>
               </div>
             </div>
@@ -181,6 +184,10 @@ const MarketingDashboard = () => {
                 departmentId="marketing" 
                 departmentName="Marketing" 
               />
+            </TabsContent>
+
+            <TabsContent value="profile">
+              <UserProfile />
             </TabsContent>
           </Tabs>
           </div>

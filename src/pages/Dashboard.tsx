@@ -51,6 +51,7 @@ import { AdvancedAnalytics } from "@/components/founder/AdvancedAnalytics";
 import { DemographicsAnalytics } from "@/components/founder/DemographicsAnalytics";
 import { BudgetProposals } from "@/components/budget/BudgetProposals";
 import { DepartmentTabManager } from "@/components/admin/DepartmentTabManager";
+import { UserProfile } from "@/components/dashboard/UserProfile";
 
 const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
@@ -353,15 +354,7 @@ const Dashboard = () => {
             </TabsContent>
 
             <TabsContent value="profile">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Profile Settings</CardTitle>
-                  <CardDescription>Manage your account information</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Profile management coming soon...</p>
-                </CardContent>
-              </Card>
+              <UserProfile />
             </TabsContent>
 
             <TabsContent value="give">

@@ -8,6 +8,7 @@ interface AboutContent {
   hero_subtitle: string;
   story_title: string;
   story_content: string;
+  story_image_url?: string;
   vision_text: string;
   mission_text: string;
   beliefs: Array<{ title: string; content: string }>;
@@ -20,6 +21,7 @@ const About = () => {
     hero_subtitle: "A ministry committed to raising champions for Christ through sound biblical teaching, authentic worship, and transformational encounters with God.",
     story_title: "Our Story",
     story_content: "TOT International was founded with a divine vision to raise champions for Christ who will transform nations through the power of God's Word...",
+    story_image_url: "",
     vision_text: "To raise champions for Christ who will transform nations through the power of God's Word and the demonstration of His love.",
     mission_text: "To provide sound biblical teaching, authentic worship, and transformational encounters with God that equip believers for victorious living and effective ministry.",
     beliefs: [
@@ -107,8 +109,18 @@ const About = () => {
                   {content.story_content}
                 </div>
               </div>
-              <div className="bg-gray-100 h-96 rounded-lg flex items-center justify-center">
-                <p className="text-gray-500">Church Ministry Photo</p>
+              <div className="h-96 rounded-lg overflow-hidden">
+                {content.story_image_url ? (
+                  <img 
+                    src={content.story_image_url} 
+                    alt="Church Ministry" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="bg-gray-100 h-full flex items-center justify-center">
+                    <p className="text-gray-500">Church Ministry Photo</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>

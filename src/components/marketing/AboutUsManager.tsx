@@ -7,13 +7,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Save, FileText, AlertCircle, Plus, Trash2 } from "lucide-react";
+import { Save, FileText, AlertCircle, Plus, Trash2, Upload } from "lucide-react";
 
 interface AboutContent {
   hero_title: string;
   hero_subtitle: string;
   story_title: string;
   story_content: string;
+  story_image_url?: string;
   vision_text: string;
   mission_text: string;
   beliefs: Array<{ title: string; content: string }>;
@@ -26,6 +27,7 @@ export const AboutUsManager = () => {
     hero_subtitle: "A ministry committed to raising champions for Christ through sound biblical teaching, authentic worship, and transformational encounters with God.",
     story_title: "Our Story",
     story_content: "TOT International was founded with a divine vision to raise champions for Christ who will transform nations through the power of God's Word...",
+    story_image_url: "",
     vision_text: "To raise champions for Christ who will transform nations through the power of God's Word and the demonstration of His love.",
     mission_text: "To provide sound biblical teaching, authentic worship, and transformational encounters with God that equip believers for victorious living and effective ministry.",
     beliefs: [
@@ -42,6 +44,7 @@ export const AboutUsManager = () => {
   
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -58,10 +61,8 @@ export const AboutUsManager = () => {
         .eq('is_published', true);
 
       if (data && data.length > 0) {
-        // Reconstruct content from database entries
         const contentMap: any = {};
         data.forEach(item => {
-          // Parse JSON fields back to arrays
           if (item.section_name === 'beliefs' || item.section_name === 'leadership') {
             try {
               contentMap[item.section_name] = JSON.parse(item.content);
@@ -91,15 +92,51 @@ export const AboutUsManager = () => {
     }
   };
 
+  const handleImageUpload = async (file: File, path: string): Promise<string | null> => {
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${path}-${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('about-us')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('about-us')
+        .getPublicUrl(filePath);
+
+      toast({
+        title: "Success",
+        description: "Image uploaded successfully",
+      });
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const saveContent = async () => {
     setSaving(true);
     try {
-      // Save each section as a separate record
       const sections = [
         { section_name: 'hero_title', content: content.hero_title, content_type: 'text' },
         { section_name: 'hero_subtitle', content: content.hero_subtitle, content_type: 'text' },
         { section_name: 'story_title', content: content.story_title, content_type: 'text' },
         { section_name: 'story_content', content: content.story_content, content_type: 'text' },
+        { section_name: 'story_image_url', content: content.story_image_url || '', content_type: 'text' },
         { section_name: 'vision_text', content: content.vision_text, content_type: 'text' },
         { section_name: 'mission_text', content: content.mission_text, content_type: 'text' },
         { section_name: 'beliefs', content: JSON.stringify(content.beliefs), content_type: 'json' },
@@ -156,7 +193,7 @@ export const AboutUsManager = () => {
             Update the church's story, beliefs, leadership, and mission information
           </p>
         </div>
-        <Button onClick={saveContent} disabled={saving}>
+        <Button onClick={saveContent} disabled={saving || uploading}>
           <Save className="h-4 w-4 mr-2" />
           {saving ? "Saving..." : "Save Changes"}
         </Button>
@@ -224,6 +261,39 @@ export const AboutUsManager = () => {
                 placeholder="Tell your church's story..."
                 rows={6}
               />
+            </div>
+            <div>
+              <Label htmlFor="story_image">Story Section Image</Label>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="story_image"
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const url = await handleImageUpload(file, 'story');
+                        if (url) {
+                          setContent(prev => ({ ...prev, story_image_url: url }));
+                        }
+                      }
+                    }}
+                    disabled={uploading}
+                    className="flex-1"
+                  />
+                  <Upload className="h-4 w-4 text-muted-foreground" />
+                </div>
+                {content.story_image_url && (
+                  <div className="relative w-full h-48 border rounded overflow-hidden">
+                    <img 
+                      src={content.story_image_url} 
+                      alt="Story section preview" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -373,17 +443,39 @@ export const AboutUsManager = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor={`leader_image_${index}`}>Image URL (optional)</Label>
-                  <Input
-                    id={`leader_image_${index}`}
-                    value={leader.image_url || ""}
-                    onChange={(e) => {
-                      const newLeadership = [...content.leadership];
-                      newLeadership[index].image_url = e.target.value;
-                      setContent(prev => ({ ...prev, leadership: newLeadership }));
-                    }}
-                    placeholder="https://example.com/image.jpg"
-                  />
+                  <Label htmlFor={`leader_image_${index}`}>Leader Photo</Label>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id={`leader_image_${index}`}
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const url = await handleImageUpload(file, `leader-${index}`);
+                            if (url) {
+                              const newLeadership = [...content.leadership];
+                              newLeadership[index].image_url = url;
+                              setContent(prev => ({ ...prev, leadership: newLeadership }));
+                            }
+                          }
+                        }}
+                        disabled={uploading}
+                        className="flex-1"
+                      />
+                      <Upload className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    {leader.image_url && (
+                      <div className="relative w-32 h-32 border rounded overflow-hidden">
+                        <img 
+                          src={leader.image_url} 
+                          alt={leader.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
+import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 import { DashboardHeader } from "@/components/admin/DashboardHeader";
 import { DashboardStats } from "@/components/admin/DashboardStats";
 import { QuickActions } from "@/components/admin/QuickActions";
@@ -12,6 +13,7 @@ import { LayoutDashboard, User } from "lucide-react";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  useInactivityLogout();
 
   return (
     <div className="min-h-screen bg-gray-50">

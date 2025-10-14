@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
+import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 import { PastorDashboardHeader } from "@/components/admin/PastorDashboardHeader";
 import { DashboardStats } from "@/components/admin/DashboardStats";
 import { ContentManagementGrid } from "@/components/admin/ContentManagementGrid";
@@ -15,6 +16,7 @@ import { Link } from "react-router-dom";
 
 const PastorsDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  useInactivityLogout();
 
   return (
     <div className="min-h-screen bg-gray-50">

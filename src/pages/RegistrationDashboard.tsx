@@ -1,5 +1,6 @@
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 import { AttendanceTracker } from "@/components/dashboard/AttendanceTracker";
 import { MemberManagement } from "@/components/registration/MemberManagement";
 import { RegistrationDashboardHeader } from "@/components/registration/RegistrationDashboardHeader";
@@ -13,6 +14,7 @@ import { useEffect } from "react";
 const RegistrationDashboard = () => {
   const { isAuthenticated, userRole, loading } = useAuth();
   const navigate = useNavigate();
+  useInactivityLogout();
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {

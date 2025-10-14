@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
+import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 import { AuthGuard } from "@/components/shared/AuthGuard";
 import { MarketingDashboardHeader } from "@/components/marketing/MarketingDashboardHeader";
 import { DepartmentInventory } from "@/components/inventory/DepartmentInventory";
@@ -20,6 +21,7 @@ import { EventRegistrationsManager } from "@/components/media/EventRegistrations
 
 const MarketingDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  useInactivityLogout();
 
   const managementSections = [
     {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { AuthGuard } from "@/components/shared/AuthGuard";
+import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 import { MediaDashboardHeader } from "@/components/media/MediaDashboardHeader";
 import { LiveStreamManager } from "@/components/media/LiveStreamManager";
 import { EventsManager } from "@/components/media/EventsManager";
@@ -19,6 +20,7 @@ import { Video, Calendar, ShoppingBag, Home, Megaphone, BarChart3, Play, FileTex
 
 const MediaDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  useInactivityLogout();
 
   return (
     <AuthGuard allowedRoles={["media", "it"]}>

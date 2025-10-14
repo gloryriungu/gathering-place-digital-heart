@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send } from "lucide-react";
+import { Bot, X, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -118,7 +118,7 @@ export const AIAssistant = ({
         )}
         size="icon"
       >
-        <MessageCircle className="h-6 w-6" />
+        <Bot className="h-6 w-6" />
       </Button>
 
       {/* Chat Interface */}
@@ -127,7 +127,7 @@ export const AIAssistant = ({
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border bg-primary text-primary-foreground rounded-t-lg">
             <div className="flex items-center gap-3">
-              <MessageCircle className="h-5 w-5" />
+              <Bot className="h-5 w-5" />
               <h3 className="font-semibold">AI Assistant</h3>
             </div>
             <Button

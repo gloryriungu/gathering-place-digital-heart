@@ -61,7 +61,18 @@ export const AboutUsManager = () => {
         // Reconstruct content from database entries
         const contentMap: any = {};
         data.forEach(item => {
-          contentMap[item.section_name] = item.content;
+          // Parse JSON fields back to arrays
+          if (item.section_name === 'beliefs' || item.section_name === 'leadership') {
+            try {
+              contentMap[item.section_name] = JSON.parse(item.content);
+            } catch {
+              contentMap[item.section_name] = item.section_name === 'beliefs' 
+                ? [{ title: "", content: "" }] 
+                : [{ name: "", position: "" }];
+            }
+          } else {
+            contentMap[item.section_name] = item.content;
+          }
         });
         
         if (Object.keys(contentMap).length > 0) {

@@ -66,7 +66,12 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 mt-12 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 text-sm mb-4 md:mb-0">© 2025 TOT International. All rights reserved.</p>
+            <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
+              <p className="text-gray-400 text-sm">© 2025 TOT International. All rights reserved.</p>
+              <p className="text-gray-500 text-xs mt-1">
+                Website by <span className="text-gray-400 hover:text-white transition-colors">NafArro Solutions</span>
+              </p>
+            </div>
             <div className="flex space-x-6 text-sm">
               <a href="#" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</a>
               <a href="#" className="text-gray-400 hover:text-white transition-colors">Terms of Service</a>

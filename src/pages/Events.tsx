@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -110,8 +111,44 @@ const Events = () => {
     }
   };
 
+  const eventsSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Church Events",
+    "itemListElement": events.length > 0 
+      ? events.slice(0, 5).map((event, index) => ({
+          "@type": "Event",
+          "position": index + 1,
+          "name": event.title,
+          "description": event.description,
+          "startDate": event.content_data.date,
+          "location": {
+            "@type": "Place",
+            "name": event.content_data.location || "TOT International"
+          }
+        }))
+      : staticEvents.slice(0, 5).map((event, index) => ({
+          "@type": "Event",
+          "position": index + 1,
+          "name": event.title,
+          "description": event.description,
+          "startDate": event.date,
+          "location": {
+            "@type": "Place",
+            "name": event.location
+          }
+        }))
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title="Church Events"
+        description="Connect, grow, and serve together through our life-changing events and ministry gatherings at TOT International."
+        canonical="/events"
+        keywords="church events, worship services, conferences, youth events, community outreach, ministry gatherings"
+        structuredData={eventsSchema}
+      />
       <Navigation />
       <div className="pt-20">
         {/* Hero Section */}

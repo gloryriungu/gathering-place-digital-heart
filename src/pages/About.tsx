@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
 
 interface AboutContent {
@@ -83,8 +84,27 @@ const About = () => {
     );
   }
 
+  const aboutSchema = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "name": "About TOT International",
+    "description": content.hero_subtitle,
+    "mainEntity": {
+      "@type": "Church",
+      "name": "TOT International",
+      "description": content.story_content.substring(0, 200)
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title="About Us"
+        description={content.hero_subtitle}
+        canonical="/about"
+        keywords="about TOT International, church mission, church vision, church beliefs, church leadership"
+        structuredData={aboutSchema}
+      />
       <Navigation />
       <div className="pt-20">
         {/* Hero Section */}

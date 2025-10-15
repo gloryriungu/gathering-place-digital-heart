@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Play, Calendar, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -89,8 +89,24 @@ const Watch = () => {
     }
   };
 
+  const videoSchema = {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": watchData.live_service_title,
+    "description": watchData.live_service_description,
+    "uploadDate": new Date().toISOString(),
+    "contentUrl": "https://totint.lovable.app/watch"
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title="Watch Online Services"
+        description="Experience the presence of God from anywhere. Join our live worship services and watch powerful sermons from TOT International."
+        canonical="/watch"
+        keywords="watch online, live streaming church, church sermons, worship service online, live worship"
+        structuredData={videoSchema}
+      />
       <Navigation />
       <div className="pt-20">
         {/* Hero Section */}

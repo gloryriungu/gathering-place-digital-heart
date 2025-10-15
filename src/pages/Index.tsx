@@ -1,4 +1,3 @@
-
 import { Hero } from "@/components/Hero";
 import { ServiceTimes } from "@/components/ServiceTimes";
 import { LatestSermon } from "@/components/LatestSermon";
@@ -6,6 +5,7 @@ import { Announcements } from "@/components/Announcements";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { AIAssistant } from "@/components/AIAssistant";
+import { SEO } from "@/components/SEO";
 import { Suspense, lazy, memo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -30,8 +30,33 @@ const ComponentLoader = memo(() => (
 ));
 
 const Index = memo(() => {
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Church",
+    "name": "TOT International",
+    "url": "https://totint.lovable.app",
+    "logo": "https://totint.lovable.app/favicon.png",
+    "description": "A church community focused on transforming lives through God's Word, building faith, and serving our community with love.",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "KE"
+    },
+    "sameAs": [
+      "https://facebook.com/totint",
+      "https://twitter.com/totint",
+      "https://instagram.com/totint"
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SEO 
+        title="Transforming Lives Through God's Word"
+        description="Join TOT Int - A church community focused on transforming lives through God's Word, building faith, and serving our community with love."
+        canonical="/"
+        keywords="church, worship, faith, community, TOT International, christian ministry, bible teaching"
+        structuredData={organizationSchema}
+      />
       <Navigation />
       <Hero />
       <ServiceTimes />

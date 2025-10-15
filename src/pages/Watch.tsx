@@ -95,7 +95,7 @@ const Watch = () => {
     "name": watchData.live_service_title,
     "description": watchData.live_service_description,
     "uploadDate": new Date().toISOString(),
-    "contentUrl": "https://totint.lovable.app/watch"
+    "contentUrl": "https://tot123.netlify.app/watch"
   };
 
   return (

@@ -6,8 +6,10 @@ import { MemberManagement } from "@/components/registration/MemberManagement";
 import { RegistrationDashboardHeader } from "@/components/registration/RegistrationDashboardHeader";
 import { ReportsOverview } from "@/components/dashboard/ReportsOverview";
 import { UserProfile } from "@/components/dashboard/UserProfile";
+import { ImportHistory } from "@/components/registration/ImportHistory";
+import { MemberLinkingManager } from "@/components/registration/MemberLinkingManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Calendar, FileText, User } from "lucide-react";
+import { Users, Calendar, FileText, User, Upload, Link2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
@@ -46,6 +48,8 @@ const RegistrationDashboard = () => {
   const tabs = [
     { value: "attendance", label: "Attendance Tracking", icon: Calendar },
     { value: "members", label: "Member Management", icon: Users },
+    { value: "import", label: "Import Members", icon: Upload },
+    { value: "linking", label: "Link Members", icon: Link2 },
     { value: "reports", label: "Reports", icon: FileText },
     { value: "profile", label: "Profile", icon: User },
   ];
@@ -58,13 +62,13 @@ const RegistrationDashboard = () => {
           <RegistrationDashboardHeader />
           
           <Tabs defaultValue="attendance" className="space-y-6">
-            <TabsList className="grid grid-cols-4 w-full max-w-2xl">
+            <TabsList className="grid grid-cols-6 w-full max-w-4xl">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-2">
                     <Icon className="h-4 w-4" />
-                    <span className="hidden sm:inline">{tab.label}</span>
+                    <span className="hidden lg:inline">{tab.label}</span>
                   </TabsTrigger>
                 );
               })}
@@ -76,6 +80,14 @@ const RegistrationDashboard = () => {
 
             <TabsContent value="members">
               <MemberManagement />
+            </TabsContent>
+
+            <TabsContent value="import">
+              <ImportHistory />
+            </TabsContent>
+
+            <TabsContent value="linking">
+              <MemberLinkingManager />
             </TabsContent>
 
             <TabsContent value="reports">

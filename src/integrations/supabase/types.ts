@@ -652,6 +652,125 @@ export type Database = {
         }
         Relationships: []
       }
+      member_import_batches: {
+        Row: {
+          created_at: string | null
+          duplicates: number | null
+          failed: number | null
+          file_name: string
+          id: string
+          imported_by: string
+          successful: number | null
+          total_records: number
+        }
+        Insert: {
+          created_at?: string | null
+          duplicates?: number | null
+          failed?: number | null
+          file_name: string
+          id?: string
+          imported_by: string
+          successful?: number | null
+          total_records: number
+        }
+        Update: {
+          created_at?: string | null
+          duplicates?: number | null
+          failed?: number | null
+          file_name?: string
+          id?: string
+          imported_by?: string
+          successful?: number | null
+          total_records?: number
+        }
+        Relationships: []
+      }
+      member_import_logs: {
+        Row: {
+          batch_id: string
+          created_at: string | null
+          data: Json
+          error_message: string | null
+          id: string
+          member_id: string | null
+          row_number: number
+          status: string
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string | null
+          data: Json
+          error_message?: string | null
+          id?: string
+          member_id?: string | null
+          row_number: number
+          status: string
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string | null
+          data?: Json
+          error_message?: string | null
+          id?: string
+          member_id?: string | null
+          row_number?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_import_logs_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "member_import_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_import_logs_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_link_suggestions: {
+        Row: {
+          confidence_score: number
+          created_at: string | null
+          id: string
+          match_reasons: Json
+          member_id: string
+          profile_user_id: string
+          status: string | null
+        }
+        Insert: {
+          confidence_score: number
+          created_at?: string | null
+          id?: string
+          match_reasons: Json
+          member_id: string
+          profile_user_id: string
+          status?: string | null
+        }
+        Update: {
+          confidence_score?: number
+          created_at?: string | null
+          id?: string
+          match_reasons?: Json
+          member_id?: string
+          profile_user_id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_link_suggestions_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       members: {
         Row: {
           address: string | null
@@ -660,9 +779,12 @@ export type Database = {
           email: string | null
           first_name: string
           id: string
+          import_batch_id: string | null
+          imported_at: string | null
           last_name: string
           member_number: string | null
           phone: string | null
+          source: string | null
           status: string | null
           updated_at: string | null
           user_id: string | null
@@ -674,9 +796,12 @@ export type Database = {
           email?: string | null
           first_name: string
           id?: string
+          import_batch_id?: string | null
+          imported_at?: string | null
           last_name: string
           member_number?: string | null
           phone?: string | null
+          source?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -688,9 +813,12 @@ export type Database = {
           email?: string | null
           first_name?: string
           id?: string
+          import_batch_id?: string | null
+          imported_at?: string | null
           last_name?: string
           member_number?: string | null
           phone?: string | null
+          source?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string | null

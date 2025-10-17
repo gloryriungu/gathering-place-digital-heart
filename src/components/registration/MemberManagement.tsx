@@ -8,10 +8,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Plus, Edit, Trash2, User, UserPlus, Users } from "lucide-react";
+import { Search, Plus, Edit, Trash2, User, UserPlus, Users, Upload, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
+import { MemberImportWizard } from "./MemberImportWizard";
+import { downloadCSVTemplate } from "@/utils/memberImport";
 
 interface Member {
   id: string;
@@ -55,6 +57,7 @@ export const MemberManagement = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("members");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
   const { toast } = useToast();
 
@@ -577,6 +580,12 @@ export const MemberManagement = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <MemberImportWizard
+        open={isImportOpen}
+        onOpenChange={setIsImportOpen}
+        onImportComplete={fetchData}
+      />
     </div>
   );
 };

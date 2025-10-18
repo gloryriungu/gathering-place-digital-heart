@@ -52,7 +52,6 @@ export async function fetchExistingData() {
     supabase
       .from('profiles')
       .select('user_id, first_name, last_name, phone')
-      .not('user_id', 'in', `(SELECT user_id FROM members WHERE user_id IS NOT NULL)`)
   ]);
   
   if (membersResult.error) throw membersResult.error;

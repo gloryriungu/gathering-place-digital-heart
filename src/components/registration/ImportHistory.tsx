@@ -3,15 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FileText, Download } from "lucide-react";
+import { FileText, Download, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { MemberImportWizard } from "./MemberImportWizard";
 
 export const ImportHistory = () => {
   const [batches, setBatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   useEffect(() => {
     fetchBatches();
@@ -51,14 +53,21 @@ export const ImportHistory = () => {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <FileText className="h-5 w-5" />
-          Import History
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Import History
+            </CardTitle>
+            <Button onClick={() => setIsImportOpen(true)}>
+              <Upload className="h-4 w-4 mr-2" />
+              Import Members
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
         {batches.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
             <FileText className="h-12 w-12 mx-auto mb-4 opacity-20" />
@@ -125,5 +134,15 @@ export const ImportHistory = () => {
         )}
       </CardContent>
     </Card>
+    
+    <MemberImportWizard
+      open={isImportOpen}
+      onOpenChange={setIsImportOpen}
+      onImportComplete={() => {
+        fetchBatches();
+        setIsImportOpen(false);
+      }}
+    />
+    </>
   );
 };

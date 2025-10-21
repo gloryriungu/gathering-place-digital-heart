@@ -261,12 +261,18 @@ export const MemberImportWizard = ({ open, onOpenChange, onImportComplete }: Mem
                 </AlertDescription>
               </Alert>
 
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-between items-center gap-2">
                 <Button variant="outline" onClick={() => setStep('upload')}>
                   Back
                 </Button>
-                <Button onClick={handleImport} disabled={stats.ready + stats.needsReview === 0}>
-                  Import {stats.ready + stats.needsReview} Members
+                <Button 
+                  onClick={handleImport} 
+                  disabled={stats.ready === 0}
+                  size="lg"
+                  className="gap-2"
+                >
+                  <CheckCircle2 className="h-5 w-5" />
+                  Import {stats.ready} Ready Records
                 </Button>
               </div>
             </div>

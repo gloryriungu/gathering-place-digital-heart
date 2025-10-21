@@ -103,41 +103,66 @@ export const AttendanceTracker = () => {
   const attendanceRate = totalCount > 0 ? Math.round((presentCount / totalCount) * 100) : 0;
 
   const toggleAttendance = async (memberId: string) => {
-    try {
-      const member = members.find(m => m.id === memberId);
-      if (!member) return;
+    const member = members.find(m => m.id === memberId);
+    if (!member) return;
 
-      if (member.isPresent && member.attendance_id) {
+    // Optimistic update - update UI immediately
+    const wasPresent = member.isPresent;
+    const previousAttendanceId = member.attendance_id;
+    
+    setMembers(prevMembers =>
+      prevMembers.map(m =>
+        m.id === memberId
+          ? { ...m, isPresent: !m.isPresent, attendance_id: m.isPresent ? undefined : 'temp' }
+          : m
+      )
+    );
+
+    try {
+      if (wasPresent && previousAttendanceId) {
         // Remove attendance record
         const { error } = await supabase
           .from('attendance_records')
           .delete()
-          .eq('id', member.attendance_id);
+          .eq('id', previousAttendanceId);
 
         if (error) throw error;
       } else {
         // Add attendance record
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('attendance_records')
           .insert({
             member_id: memberId,
             service_date: selectedDate,
             service_type: serviceType,
             checked_in_at: new Date().toISOString()
-          });
+          })
+          .select()
+          .single();
 
         if (error) throw error;
-      }
 
-      // Refresh the data
-      fetchMembersWithAttendance();
-      
-      toast({
-        title: "Success",
-        description: member.isPresent ? "Member marked absent" : "Member marked present",
-      });
+        // Update with real attendance ID
+        if (data) {
+          setMembers(prevMembers =>
+            prevMembers.map(m =>
+              m.id === memberId ? { ...m, attendance_id: data.id } : m
+            )
+          );
+        }
+      }
     } catch (error) {
       console.error('Error toggling attendance:', error);
+      
+      // Revert optimistic update on error
+      setMembers(prevMembers =>
+        prevMembers.map(m =>
+          m.id === memberId
+            ? { ...m, isPresent: wasPresent, attendance_id: previousAttendanceId }
+            : m
+        )
+      );
+      
       toast({
         title: "Error", 
         description: "Failed to update attendance",

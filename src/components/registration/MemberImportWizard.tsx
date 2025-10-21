@@ -178,7 +178,7 @@ export const MemberImportWizard = ({ open, onOpenChange, onImportComplete }: Mem
           )}
 
           {step === 'preview' && (
-            <div className="space-y-4 flex flex-col h-full">
+            <div className="space-y-4">
               <div className="grid grid-cols-4 gap-4">
                 <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg">
                   <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.ready}</div>
@@ -198,7 +198,7 @@ export const MemberImportWizard = ({ open, onOpenChange, onImportComplete }: Mem
                 </div>
               </div>
 
-              <ScrollArea className="flex-1 border rounded-lg">
+              <ScrollArea className="h-[300px] border rounded-lg">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -261,7 +261,7 @@ export const MemberImportWizard = ({ open, onOpenChange, onImportComplete }: Mem
                 </AlertDescription>
               </Alert>
 
-              <div className="flex justify-between items-center gap-2">
+              <div className="flex justify-between items-center gap-2 pt-2">
                 <Button variant="outline" onClick={() => setStep('upload')}>
                   Back
                 </Button>

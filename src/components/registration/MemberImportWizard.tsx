@@ -114,7 +114,7 @@ export const MemberImportWizard = ({ open, onOpenChange, onImportComplete }: Mem
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Import Members</DialogTitle>
           <DialogDescription>
@@ -122,7 +122,7 @@ export const MemberImportWizard = ({ open, onOpenChange, onImportComplete }: Mem
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-y-auto min-h-0">
           {step === 'upload' && (
             <div className="space-y-6">
               <Alert>
@@ -178,90 +178,92 @@ export const MemberImportWizard = ({ open, onOpenChange, onImportComplete }: Mem
           )}
 
           {step === 'preview' && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-4 gap-4">
-                <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.ready}</div>
-                  <div className="text-sm text-green-700 dark:text-green-300">Ready to Import</div>
+            <>
+              <div className="space-y-4 px-1">
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">{stats.ready}</div>
+                    <div className="text-sm text-green-700 dark:text-green-300">Ready to Import</div>
+                  </div>
+                  <div className="bg-yellow-50 dark:bg-yellow-950 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.needsReview}</div>
+                    <div className="text-sm text-yellow-700 dark:text-yellow-300">Needs Review</div>
+                  </div>
+                  <div className="bg-orange-50 dark:bg-orange-950 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.duplicates}</div>
+                    <div className="text-sm text-orange-700 dark:text-orange-300">Duplicates (Skip)</div>
+                  </div>
+                  <div className="bg-red-50 dark:bg-red-950 p-4 rounded-lg">
+                    <div className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.failed}</div>
+                    <div className="text-sm text-red-700 dark:text-red-300">Validation Errors</div>
+                  </div>
                 </div>
-                <div className="bg-yellow-50 dark:bg-yellow-950 p-4 rounded-lg">
-                  <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">{stats.needsReview}</div>
-                  <div className="text-sm text-yellow-700 dark:text-yellow-300">Needs Review</div>
-                </div>
-                <div className="bg-orange-50 dark:bg-orange-950 p-4 rounded-lg">
-                  <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{stats.duplicates}</div>
-                  <div className="text-sm text-orange-700 dark:text-orange-300">Duplicates (Skip)</div>
-                </div>
-                <div className="bg-red-50 dark:bg-red-950 p-4 rounded-lg">
-                  <div className="text-2xl font-bold text-red-600 dark:text-red-400">{stats.failed}</div>
-                  <div className="text-sm text-red-700 dark:text-red-300">Validation Errors</div>
-                </div>
+
+                <ScrollArea className="h-[250px] border rounded-lg">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Row</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Phone</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Notes</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {processedRecords.map((record, index) => (
+                        <TableRow key={index}>
+                          <TableCell>{record.rowNumber}</TableCell>
+                          <TableCell>
+                            {record.data.first_name} {record.data.last_name}
+                          </TableCell>
+                          <TableCell>{record.data.phone}</TableCell>
+                          <TableCell>
+                            {record.status === 'duplicate' && (
+                              <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                                <XCircle className="h-3 w-3 mr-1" />
+                                Duplicate
+                              </Badge>
+                            )}
+                            {record.status === 'failed' && (
+                              <Badge variant="destructive">
+                                <AlertTriangle className="h-3 w-3 mr-1" />
+                                Error
+                              </Badge>
+                            )}
+                            {record.status === 'pending' && record.duplicateMatches && record.duplicateMatches.length > 0 && (
+                              <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                                <AlertTriangle className="h-3 w-3 mr-1" />
+                                Review
+                              </Badge>
+                            )}
+                            {record.status === 'pending' && (!record.duplicateMatches || record.duplicateMatches.length === 0) && (
+                              <Badge variant="secondary" className="bg-green-100 text-green-800">
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                Ready
+                              </Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {record.errorMessage || 
+                             (record.duplicateMatches && record.duplicateMatches.length > 0 
+                               ? `${record.duplicateMatches[0].confidence}% match: ${record.duplicateMatches[0].matchReasons[0]}`
+                               : 'No issues')}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+
+                <Alert>
+                  <AlertDescription>
+                    Duplicates will be automatically skipped. Records with potential matches will be imported as new members.
+                  </AlertDescription>
+                </Alert>
               </div>
 
-              <ScrollArea className="h-[300px] border rounded-lg">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Row</TableHead>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Phone</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Notes</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {processedRecords.map((record, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{record.rowNumber}</TableCell>
-                        <TableCell>
-                          {record.data.first_name} {record.data.last_name}
-                        </TableCell>
-                        <TableCell>{record.data.phone}</TableCell>
-                        <TableCell>
-                          {record.status === 'duplicate' && (
-                            <Badge variant="secondary" className="bg-orange-100 text-orange-800">
-                              <XCircle className="h-3 w-3 mr-1" />
-                              Duplicate
-                            </Badge>
-                          )}
-                          {record.status === 'failed' && (
-                            <Badge variant="destructive">
-                              <AlertTriangle className="h-3 w-3 mr-1" />
-                              Error
-                            </Badge>
-                          )}
-                          {record.status === 'pending' && record.duplicateMatches && record.duplicateMatches.length > 0 && (
-                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                              <AlertTriangle className="h-3 w-3 mr-1" />
-                              Review
-                            </Badge>
-                          )}
-                          {record.status === 'pending' && (!record.duplicateMatches || record.duplicateMatches.length === 0) && (
-                            <Badge variant="secondary" className="bg-green-100 text-green-800">
-                              <CheckCircle2 className="h-3 w-3 mr-1" />
-                              Ready
-                            </Badge>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {record.errorMessage || 
-                           (record.duplicateMatches && record.duplicateMatches.length > 0 
-                             ? `${record.duplicateMatches[0].confidence}% match: ${record.duplicateMatches[0].matchReasons[0]}`
-                             : 'No issues')}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </ScrollArea>
-
-              <Alert>
-                <AlertDescription>
-                  Duplicates will be automatically skipped. Records with potential matches will be imported as new members.
-                </AlertDescription>
-              </Alert>
-
-              <div className="flex justify-between items-center gap-2 pt-2">
+              <div className="flex justify-between items-center gap-2 pt-4 px-1 border-t mt-4">
                 <Button variant="outline" onClick={() => setStep('upload')}>
                   Back
                 </Button>
@@ -275,7 +277,7 @@ export const MemberImportWizard = ({ open, onOpenChange, onImportComplete }: Mem
                   Import {stats.ready} Ready Records
                 </Button>
               </div>
-            </div>
+            </>
           )}
 
           {step === 'importing' && (

@@ -153,14 +153,21 @@ export const UserProfile = () => {
     if (!qrElement) return;
 
     try {
+      // Wait a bit to ensure QR code is fully rendered
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       const canvas = await html2canvas(qrElement, {
         backgroundColor: '#ffffff',
-        scale: 2,
+        scale: 3,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        removeContainer: true,
       });
       
       const link = document.createElement('a');
       link.download = `qr-code-${memberNumber || 'member'}.png`;
-      link.href = canvas.toDataURL();
+      link.href = canvas.toDataURL('image/png', 1.0);
       link.click();
       
       toast.success("QR code downloaded successfully!");

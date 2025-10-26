@@ -8,10 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { User, Key, CreditCard, Mail, Phone, MapPin, Briefcase, QrCode, Download, Printer } from "lucide-react";
+import { User, Key, CreditCard, Mail, Phone, MapPin, Briefcase, QrCode, Download, Printer, FileText } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import QRCode from "react-qr-code";
 import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 export const UserProfile = () => {
   const { user } = useAuth();
@@ -149,22 +150,50 @@ export const UserProfile = () => {
   };
 
   const downloadQRCode = async () => {
-    const qrElement = document.getElementById('qr-code-container');
-    if (!qrElement) return;
+    if (!qrCodeData) return;
 
     try {
-      // Wait a bit to ensure QR code is fully rendered
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Create a temporary canvas to render the QR code
+      const canvas = document.createElement('canvas');
+      const size = 512;
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
       
-      const canvas = await html2canvas(qrElement, {
-        backgroundColor: '#ffffff',
-        scale: 3,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        removeContainer: true,
+      if (!ctx) {
+        throw new Error('Could not get canvas context');
+      }
+
+      // Get the SVG element
+      const svgElement = document.querySelector('#qr-code-container svg');
+      if (!svgElement) {
+        throw new Error('QR code SVG not found');
+      }
+
+      // Convert SVG to data URL
+      const svgData = new XMLSerializer().serializeToString(svgElement);
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+
+      // Load SVG as image
+      const img = new Image();
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = url;
       });
+
+      // Draw white background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, size, size);
       
+      // Draw the QR code
+      ctx.drawImage(img, 0, 0, size, size);
+
+      // Clean up
+      URL.revokeObjectURL(url);
+
+      // Download
       const link = document.createElement('a');
       link.download = `qr-code-${memberNumber || 'member'}.png`;
       link.href = canvas.toDataURL('image/png', 1.0);
@@ -173,7 +202,80 @@ export const UserProfile = () => {
       toast.success("QR code downloaded successfully!");
     } catch (error) {
       console.error('Error downloading QR code:', error);
-      toast.error("Failed to download QR code");
+      toast.error("Failed to download QR code. Please try PDF download instead.");
+    }
+  };
+
+  const downloadQRCodePDF = async () => {
+    if (!qrCodeData) return;
+
+    try {
+      // Get the SVG element
+      const svgElement = document.querySelector('#qr-code-container svg');
+      if (!svgElement) {
+        throw new Error('QR code SVG not found');
+      }
+
+      // Convert SVG to data URL
+      const svgData = new XMLSerializer().serializeToString(svgElement);
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+
+      // Load SVG as image
+      const img = new Image();
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = url;
+      });
+
+      // Create PDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const qrSize = 80;
+      const x = (pageWidth - qrSize) / 2;
+      
+      // Add QR code
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 512, 512);
+        ctx.drawImage(img, 0, 0, 512, 512);
+        
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', x, 30, qrSize, qrSize);
+      }
+
+      // Add text
+      pdf.setFontSize(20);
+      pdf.text(`${profile.first_name} ${profile.last_name}`, pageWidth / 2, 120, { align: 'center' });
+      
+      if (memberNumber) {
+        pdf.setFontSize(16);
+        pdf.text(memberNumber, pageWidth / 2, 130, { align: 'center' });
+      }
+      
+      pdf.setFontSize(12);
+      pdf.text('Church Member', pageWidth / 2, 140, { align: 'center' });
+
+      // Clean up
+      URL.revokeObjectURL(url);
+
+      // Save PDF
+      pdf.save(`qr-code-${memberNumber || 'member'}.pdf`);
+      
+      toast.success("QR code PDF downloaded successfully!");
+    } catch (error) {
+      console.error('Error downloading QR code PDF:', error);
+      toast.error("Failed to download QR code PDF");
     }
   };
 
@@ -390,14 +492,18 @@ export const UserProfile = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <Button onClick={downloadQRCode} className="flex-1 flex items-center justify-center gap-2">
                       <Download className="h-4 w-4" />
-                      Download QR Code
+                      Download PNG
+                    </Button>
+                    <Button onClick={downloadQRCodePDF} variant="outline" className="flex-1 flex items-center justify-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Download PDF
                     </Button>
                     <Button onClick={printQRCode} variant="outline" className="flex-1 flex items-center justify-center gap-2">
                       <Printer className="h-4 w-4" />
-                      Print QR Code
+                      Print
                     </Button>
                   </div>
 

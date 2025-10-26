@@ -6,10 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Download, Users, Calendar, Check } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Search, Download, Users, Calendar, Check, QrCode, List } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
+import { AttendanceQRScanner } from "./AttendanceQRScanner";
 
 interface Member {
   id: string;
@@ -267,6 +269,46 @@ export const AttendanceTracker = () => {
         </Button>
       </div>
 
+      {/* Service Configuration */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Service Details</CardTitle>
+          <CardDescription>Configure the service for attendance tracking</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="date">Service Date</Label>
+              <Input
+                id="date"
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Service Type</Label>
+              <Select value={serviceType} onValueChange={setServiceType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sunday_service">Sunday Service</SelectItem>
+                  <SelectItem value="wednesday_service">Wednesday Service</SelectItem>
+                  <SelectItem value="friday_service">Friday Service</SelectItem>
+                  <SelectItem value="special_event">Special Event</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-end">
+              <Button onClick={markAllPresent} variant="outline" className="w-full">
+                Mark All Present
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-6">
@@ -317,46 +359,28 @@ export const AttendanceTracker = () => {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Service Details</CardTitle>
-          <CardDescription>Configure the service for attendance tracking</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="date">Service Date</Label>
-              <Input
-                id="date"
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Service Type</Label>
-              <Select value={serviceType} onValueChange={setServiceType}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="sunday_service">Sunday Service</SelectItem>
-                  <SelectItem value="wednesday_service">Wednesday Service</SelectItem>
-                  <SelectItem value="friday_service">Friday Service</SelectItem>
-                  <SelectItem value="special_event">Special Event</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-end">
-              <Button onClick={markAllPresent} variant="outline" className="w-full">
-                Mark All Present
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Attendance Tracking Modes */}
+      <Tabs defaultValue="qr-scanner" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="qr-scanner" className="flex items-center gap-2">
+            <QrCode className="h-4 w-4" />
+            QR Scanner
+          </TabsTrigger>
+          <TabsTrigger value="manual" className="flex items-center gap-2">
+            <List className="h-4 w-4" />
+            Manual Entry
+          </TabsTrigger>
+        </TabsList>
 
-      <Card>
+        <TabsContent value="qr-scanner">
+          <AttendanceQRScanner 
+            selectedDate={selectedDate}
+            serviceType={serviceType}
+          />
+        </TabsContent>
+
+        <TabsContent value="manual">
+          <Card>
         <CardHeader>
           <CardTitle>Member Attendance</CardTitle>
           <CardDescription>Check off members as they arrive</CardDescription>
@@ -422,6 +446,8 @@ export const AttendanceTracker = () => {
           )}
         </CardContent>
       </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

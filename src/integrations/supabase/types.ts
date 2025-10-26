@@ -1056,6 +1056,7 @@ export type Database = {
           last_name: string | null
           occupation: string | null
           phone: string | null
+          qr_code_data: string | null
           updated_at: string
           user_id: string
         }
@@ -1068,6 +1069,7 @@ export type Database = {
           last_name?: string | null
           occupation?: string | null
           phone?: string | null
+          qr_code_data?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1080,6 +1082,7 @@ export type Database = {
           last_name?: string | null
           occupation?: string | null
           phone?: string | null
+          qr_code_data?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1550,16 +1553,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      generate_member_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      generate_ticket_number: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_member_number: { Args: never; Returns: string }
+      generate_ticket_number: { Args: never; Returns: string }
       get_dashboard_stats: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           monthly_contributions: number
           total_members: number

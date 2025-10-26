@@ -9,7 +9,7 @@ import { UserProfile } from "@/components/dashboard/UserProfile";
 import { ImportHistory } from "@/components/registration/ImportHistory";
 import { MemberLinkingManager } from "@/components/registration/MemberLinkingManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Calendar, FileText, User, Upload, Link2 } from "lucide-react";
+import { Users, Calendar, FileText, User, Upload, Link2, QrCode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 
@@ -46,6 +46,7 @@ const RegistrationDashboard = () => {
   }
 
   const tabs = [
+    { value: "qr-scanner", label: "QR Scanner", icon: QrCode },
     { value: "attendance", label: "Attendance Tracking", icon: Calendar },
     { value: "members", label: "Member Management", icon: Users },
     { value: "import", label: "Import Members", icon: Upload },
@@ -61,8 +62,8 @@ const RegistrationDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <RegistrationDashboardHeader />
           
-          <Tabs defaultValue="attendance" className="space-y-6">
-            <TabsList className="grid grid-cols-6 w-full max-w-4xl">
+          <Tabs defaultValue="qr-scanner" className="space-y-6">
+            <TabsList className="grid grid-cols-7 w-full max-w-5xl">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
@@ -73,6 +74,10 @@ const RegistrationDashboard = () => {
                 );
               })}
             </TabsList>
+
+            <TabsContent value="qr-scanner">
+              <AttendanceTracker />
+            </TabsContent>
 
             <TabsContent value="attendance">
               <AttendanceTracker />

@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Eye, EyeOff, LogIn, UserPlus, MapPin, Phone, User } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useToast } from "@/hooks/use-toast";
 
 // Kenya counties list
 const kenyaCounties = [
@@ -24,6 +25,7 @@ const kenyaCounties = [
 const Auth = () => {
   const { signIn, signUp, signInWithGoogle, isAuthenticated, needsProfileCompletion } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
@@ -89,6 +91,20 @@ const Auth = () => {
     e.preventDefault();
     
     if (signUpForm.password !== signUpForm.confirmPassword) {
+      toast({
+        title: "Password Mismatch",
+        description: "Passwords do not match. Please try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (signUpForm.password.length < 6) {
+      toast({
+        title: "Weak Password",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive"
+      });
       return;
     }
 

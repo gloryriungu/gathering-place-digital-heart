@@ -314,27 +314,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { error } = await supabase.auth.signOut();
       
-      if (error) {
+      // Clear local state regardless of server response
+      setUser(null);
+      setSession(null);
+      setUserRole(null);
+      setNeedsProfileCompletion(false);
+      
+      // Only show error if it's not a "session not found" error
+      if (error && !error.message.toLowerCase().includes('session')) {
         toast({
           title: "Sign Out Error",
           description: error.message,
           variant: "destructive"
         });
       } else {
-        setUser(null);
-        setSession(null);
-        setUserRole(null);
-        setNeedsProfileCompletion(false);
         toast({
           title: "Signed Out",
           description: "You have been signed out successfully.",
         });
       }
     } catch (error: any) {
+      // Still clear local state even on unexpected errors
+      setUser(null);
+      setSession(null);
+      setUserRole(null);
+      setNeedsProfileCompletion(false);
+      
       toast({
-        title: "Sign Out Error",
-        description: "An unexpected error occurred",
-        variant: "destructive"
+        title: "Signed Out",
+        description: "You have been signed out successfully.",
       });
     }
   };

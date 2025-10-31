@@ -203,6 +203,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           variant: "destructive"
         });
       } else {
+        // Send welcome email
+        try {
+          await supabase.functions.invoke('send-email', {
+            body: {
+              to: email,
+              subject: 'Welcome to Our Church Community!',
+              htmlBody: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <h1 style="color: #333;">Welcome to Our Church Community!</h1>
+                  <p>Dear ${userData.first_name || 'Friend'},</p>
+                  <p>Thank you for signing up! We're thrilled to have you join our community.</p>
+                  <p>Your account has been created successfully. Please check your email to verify your account and complete the registration process.</p>
+                  <p>If you have any questions or need assistance, please don't hesitate to reach out to us.</p>
+                  <p>God bless you!</p>
+                  <br>
+                  <p style="color: #666; font-size: 14px;">This is an automated message. Please do not reply to this email.</p>
+                </div>
+              `
+            }
+          });
+        } catch (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+        }
+        
         toast({
           title: "Account Created",
           description: "Please check your email to verify your account, then log in.",

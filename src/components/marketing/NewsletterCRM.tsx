@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Mail, Users, Search, Plus, Download, Send, UserCheck, UserX } from "lucide-react";
@@ -32,6 +34,10 @@ export const NewsletterCRM = () => {
     inactive: 0,
     thisMonth: 0
   });
+  const [campaignDialogOpen, setCampaignDialogOpen] = useState(false);
+  const [campaignSubject, setCampaignSubject] = useState("");
+  const [campaignBody, setCampaignBody] = useState("");
+  const [sendingCampaign, setSendingCampaign] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -141,6 +147,70 @@ export const NewsletterCRM = () => {
     doc.save(`newsletter_subscribers_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
+  const sendCampaign = async () => {
+    if (!campaignSubject.trim() || !campaignBody.trim()) {
+      toast({
+        title: "Validation Error",
+        description: "Please provide both subject and body for the campaign",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const activeSubscribers = subscribers.filter(s => s.is_active);
+    
+    if (activeSubscribers.length === 0) {
+      toast({
+        title: "No Subscribers",
+        description: "There are no active subscribers to send the campaign to",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSendingCampaign(true);
+    
+    try {
+      // Send bulk email via edge function
+      const { data, error } = await supabase.functions.invoke('send-email', {
+        body: {
+          to: activeSubscribers.map(s => s.email),
+          subject: campaignSubject,
+          htmlBody: campaignBody,
+        },
+      });
+
+      if (error) throw error;
+
+      // Update last_email_sent for all active subscribers
+      const subscriberIds = activeSubscribers.map(s => s.id);
+      await supabase
+        .from('newsletter_subscribers')
+        .update({ last_email_sent: new Date().toISOString() })
+        .in('id', subscriberIds);
+
+      toast({
+        title: "Campaign Sent!",
+        description: `Successfully sent to ${activeSubscribers.length} subscribers`,
+      });
+
+      // Reset form and close dialog
+      setCampaignSubject("");
+      setCampaignBody("");
+      setCampaignDialogOpen(false);
+      await fetchSubscribers();
+    } catch (error) {
+      console.error('Error sending campaign:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send campaign. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingCampaign(false);
+    }
+  };
+
   const filteredSubscribers = subscribers.filter(subscriber =>
     subscriber.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (subscriber.first_name && subscriber.first_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -172,25 +242,62 @@ export const NewsletterCRM = () => {
             <Download className="h-4 w-4 mr-2" />
             Export PDF
           </Button>
-          <Dialog>
+          <Dialog open={campaignDialogOpen} onOpenChange={setCampaignDialogOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Send className="h-4 w-4 mr-2" />
                 Send Campaign
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Send Newsletter Campaign</DialogTitle>
                 <DialogDescription>
-                  Feature coming soon - integrate with your email service provider
+                  Send an email campaign to all {stats.active} active subscribers using Postmark
                 </DialogDescription>
               </DialogHeader>
-              <Alert>
-                <AlertDescription>
-                  This feature will integrate with services like Mailchimp, ConvertKit, or Resend to send newsletters to your subscribers.
-                </AlertDescription>
-              </Alert>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="subject">Subject</Label>
+                  <Input
+                    id="subject"
+                    placeholder="Enter email subject..."
+                    value={campaignSubject}
+                    onChange={(e) => setCampaignSubject(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="body">Email Body (HTML supported)</Label>
+                  <Textarea
+                    id="body"
+                    placeholder="Enter your email content... You can use HTML tags for formatting."
+                    value={campaignBody}
+                    onChange={(e) => setCampaignBody(e.target.value)}
+                    rows={10}
+                    className="font-mono text-sm"
+                  />
+                </div>
+                <Alert>
+                  <AlertDescription>
+                    This will send an email to all {stats.active} active subscribers. The sender will be 1040458@cuea.edu via Postmark.
+                  </AlertDescription>
+                </Alert>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setCampaignDialogOpen(false)}
+                  disabled={sendingCampaign}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={sendCampaign}
+                  disabled={sendingCampaign || !campaignSubject.trim() || !campaignBody.trim()}
+                >
+                  {sendingCampaign ? "Sending..." : `Send to ${stats.active} Subscribers`}
+                </Button>
+              </div>
             </DialogContent>
           </Dialog>
         </div>

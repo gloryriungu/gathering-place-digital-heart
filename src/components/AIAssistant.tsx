@@ -1,14 +1,17 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, X, Send } from "lucide-react";
+import { Bot, X, Send, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  category?: "qa" | "assessment" | "content";
+  downloadUrl?: string;
 }
 
 interface AIAssistantProps {
@@ -58,6 +61,8 @@ export const AIAssistant = ({
 
     try {
       let responseText = "";
+      let category: "qa" | "assessment" | "content" | undefined;
+      let downloadUrl: string | undefined;
 
       if (onSendMessage) {
         // Use custom handler if provided
@@ -69,11 +74,17 @@ export const AIAssistant = ({
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ message: inputMessage }),
+          body: JSON.stringify({ query: inputMessage }),
         });
 
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status}`);
+        }
+
         const data = await response.json();
-        responseText = data.response || data.message || "I received your message!";
+        responseText = data.result || "I received your message!";
+        category = data.category;
+        downloadUrl = data.download_url;
       } else {
         // Default mock response
         responseText = "Thank you for your message! Please configure the AI integration to get intelligent responses.";
@@ -83,6 +94,8 @@ export const AIAssistant = ({
         role: "assistant",
         content: responseText,
         timestamp: new Date(),
+        category,
+        downloadUrl,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -147,10 +160,15 @@ export const AIAssistant = ({
                 <div
                   key={index}
                   className={cn(
-                    "flex",
-                    message.role === "user" ? "justify-end" : "justify-start"
+                    "flex flex-col gap-1",
+                    message.role === "user" ? "items-end" : "items-start"
                   )}
                 >
+                  {message.role === "assistant" && message.category && (
+                    <Badge variant="secondary" className="text-xs">
+                      {message.category.toUpperCase()}
+                    </Badge>
+                  )}
                   <div
                     className={cn(
                       "max-w-[80%] rounded-lg p-3",
@@ -160,6 +178,18 @@ export const AIAssistant = ({
                     )}
                   >
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    {message.downloadUrl && (
+                      <a
+                        href={`https://web-production-61663.up.railway.app${message.downloadUrl}`}
+                        download
+                        className="inline-flex items-center gap-2 mt-2 px-3 py-2 bg-primary/10 hover:bg-primary/20 rounded-md text-sm transition-colors"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download Document
+                      </a>
+                    )}
                     <span className="text-xs opacity-70 mt-1 block">
                       {message.timestamp.toLocaleTimeString([], {
                         hour: "2-digit",

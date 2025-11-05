@@ -83,12 +83,8 @@ const Index = memo(() => {
       
       {/* AI Assistant */}
       <AIAssistant 
-        welcomeMessage="Welcome to TOT Int! How can I assist you today?"
-        // apiEndpoint="/api/chat" // Uncomment and configure your API endpoint
-        // onSendMessage={async (message) => { // Or use custom handler
-        //   const response = await fetch('/your-api', { method: 'POST', body: JSON.stringify({ message }) });
-        //   return (await response.json()).reply;
-        // }}
+        welcomeMessage="Welcome to TOT Int! I can help you with questions, generate assessments, and create content. What would you like to know?"
+        apiEndpoint="https://web-production-61663.up.railway.app/process/"
       />
     </div>
   );

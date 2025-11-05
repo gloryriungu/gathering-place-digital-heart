@@ -101,9 +101,18 @@ export const AIAssistant = ({
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error("Error sending message:", error);
+      
+      let errorContent = "Sorry, I encountered an error. Please try again.";
+      
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        errorContent = "Unable to connect to the AI service. This may be a network or CORS issue. The chatbot will work when deployed to Netlify.";
+      } else if (error instanceof Error) {
+        errorContent = `Error: ${error.message}. Please try again or contact support if the issue persists.`;
+      }
+      
       const errorMessage: Message = {
         role: "assistant",
-        content: "Sorry, I encountered an error. Please try again.",
+        content: errorContent,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);

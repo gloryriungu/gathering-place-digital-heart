@@ -1,10 +1,15 @@
 import { useState, useRef, useEffect } from "react";
-import { Bot, X, Send, Download } from "lucide-react";
+import { Bot, X, Send, Download, Wifi, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
+import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import { chatStorage } from "@/utils/chatStorage";
+import { useToast } from "@/hooks/use-toast";
 
 interface Message {
   role: "user" | "assistant";
@@ -28,6 +33,9 @@ export const AIAssistant = ({
   onSendMessage,
   welcomeMessage = "Hi! How can I help you today?",
 }: AIAssistantProps) => {
+  const { user } = useAuth();
+  const isOnline = useNetworkStatus();
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -38,16 +46,126 @@ export const AIAssistant = ({
   ]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const hasLoadedMessages = useRef(false);
 
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
 
+  // Load messages from Supabase or localStorage on mount
+  useEffect(() => {
+    if (!user || hasLoadedMessages.current) return;
+
+    const loadMessages = async () => {
+      try {
+        if (isOnline) {
+          // Load from Supabase when online
+          const { data, error } = await supabase
+            .from('chat_history' as any)
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: true });
+
+          if (error) throw error;
+
+          if (data && data.length > 0) {
+            const loadedMessages: Message[] = data.map((msg: any) => ({
+              role: msg.role as "user" | "assistant",
+              content: msg.content,
+              timestamp: new Date(msg.created_at),
+              category: msg.category as "qa" | "assessment" | "content" | undefined,
+              downloadUrl: msg.download_url || undefined,
+            }));
+
+            setMessages(prev => [...prev, ...loadedMessages]);
+            
+            // Update localStorage
+            const storedMessages = loadedMessages.map(msg => ({
+              role: msg.role,
+              content: msg.content,
+              timestamp: msg.timestamp.toISOString(),
+              category: msg.category,
+              downloadUrl: msg.downloadUrl,
+              synced: true,
+            }));
+            chatStorage.saveMessages(user.id, storedMessages);
+          }
+        } else {
+          // Load from localStorage when offline
+          const storedMessages = chatStorage.getMessages(user.id);
+          if (storedMessages.length > 0) {
+            const loadedMessages: Message[] = storedMessages.map(msg => ({
+              role: msg.role,
+              content: msg.content,
+              timestamp: new Date(msg.timestamp),
+              category: msg.category,
+              downloadUrl: msg.downloadUrl,
+            }));
+            setMessages(prev => [...prev, ...loadedMessages]);
+          }
+        }
+        hasLoadedMessages.current = true;
+      } catch (error) {
+        console.error('Error loading messages:', error);
+        toast({
+          variant: "destructive",
+          title: "Error loading chat history",
+          description: "Failed to load previous messages",
+        });
+      }
+    };
+
+    loadMessages();
+  }, [user, isOnline, toast]);
+
+  // Sync unsynced messages when coming back online
+  useEffect(() => {
+    if (!user || !isOnline || isSyncing) return;
+
+    const syncMessages = async () => {
+      const unsyncedMessages = chatStorage.getUnsyncedMessages(user.id);
+      if (unsyncedMessages.length === 0) return;
+
+      setIsSyncing(true);
+      try {
+        const messagesToSync = unsyncedMessages.map(msg => ({
+          user_id: user.id,
+          role: msg.role,
+          content: msg.content,
+          category: msg.category || null,
+          download_url: msg.downloadUrl || null,
+          created_at: msg.timestamp,
+        }));
+
+        const { error } = await supabase
+          .from('chat_history' as any)
+          .insert(messagesToSync);
+
+        if (error) throw error;
+
+        chatStorage.markMessagesSynced(user.id);
+        
+        toast({
+          title: "Chat synced",
+          description: "Your offline messages have been synced to the cloud",
+        });
+      } catch (error) {
+        console.error('Error syncing messages:', error);
+      } finally {
+        setIsSyncing(false);
+      }
+    };
+
+    syncMessages();
+  }, [user, isOnline, isSyncing, toast]);
+
   const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim() || !user) return;
 
     const userMessage: Message = {
       role: "user",
@@ -58,6 +176,15 @@ export const AIAssistant = ({
     setMessages((prev) => [...prev, userMessage]);
     setInputMessage("");
     setIsLoading(true);
+
+    // Save to localStorage immediately
+    const storedUserMessage = {
+      role: userMessage.role,
+      content: userMessage.content,
+      timestamp: userMessage.timestamp.toISOString(),
+      synced: false,
+    };
+    chatStorage.addMessage(user.id, storedUserMessage);
 
     try {
       let responseText = "";
@@ -99,6 +226,44 @@ export const AIAssistant = ({
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+
+      // Save both messages to localStorage
+      const storedAssistantMessage = {
+        role: assistantMessage.role,
+        content: assistantMessage.content,
+        timestamp: assistantMessage.timestamp.toISOString(),
+        category: assistantMessage.category,
+        downloadUrl: assistantMessage.downloadUrl,
+        synced: false,
+      };
+      chatStorage.addMessage(user.id, storedAssistantMessage);
+
+      // Save to Supabase if online
+      if (isOnline) {
+        try {
+          await supabase.from('chat_history' as any).insert([
+            {
+              user_id: user.id,
+              role: userMessage.role,
+              content: userMessage.content,
+              category: null,
+              download_url: null,
+            },
+            {
+              user_id: user.id,
+              role: assistantMessage.role,
+              content: assistantMessage.content,
+              category: assistantMessage.category || null,
+              download_url: assistantMessage.downloadUrl || null,
+            },
+          ]);
+
+          // Mark as synced
+          chatStorage.markMessagesSynced(user.id);
+        } catch (error) {
+          console.error('Error saving to Supabase:', error);
+        }
+      }
     } catch (error) {
       console.error("Error sending message:", error);
       
@@ -116,6 +281,15 @@ export const AIAssistant = ({
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
+
+      // Save error message to localStorage
+      const storedErrorMessage = {
+        role: errorMessage.role,
+        content: errorMessage.content,
+        timestamp: errorMessage.timestamp.toISOString(),
+        synced: false,
+      };
+      chatStorage.addMessage(user.id, storedErrorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -127,6 +301,11 @@ export const AIAssistant = ({
       handleSendMessage();
     }
   };
+
+  // Don't render if user is not authenticated
+  if (!user) {
+    return null;
+  }
 
   return (
     <>
@@ -151,6 +330,14 @@ export const AIAssistant = ({
             <div className="flex items-center gap-3">
               <Bot className="h-5 w-5" />
               <h3 className="font-semibold">AI Assistant</h3>
+              {isOnline ? (
+                <Wifi className="h-4 w-4 text-green-400" />
+              ) : (
+                <WifiOff className="h-4 w-4 text-yellow-400" />
+              )}
+              {isSyncing && (
+                <span className="text-xs">Syncing...</span>
+              )}
             </div>
             <Button
               variant="ghost"

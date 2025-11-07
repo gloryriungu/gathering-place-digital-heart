@@ -1,3 +1,53 @@
+/**
+ * EVENT REGISTRATION PAGE - RSVP & SIGN UP FOR EVENTS
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Type safety for event and registration data
+ * - React: Dynamic form rendering based on event configuration
+ * - React Router: useParams for event ID, useNavigate for navigation
+ * 
+ * FUNCTIONALITY:
+ * Dynamic event registration page that displays specific event details and registration form:
+ * 
+ * EVENT DETAILS DISPLAYED:
+ * - Event title and description
+ * - Event image (if available)
+ * - Date, time, and location information
+ * - Current attendance count vs. max capacity
+ * - Registration deadline
+ * - RSVP status badge
+ * 
+ * REGISTRATION FORM:
+ * - Powered by EventRegistrationForm component
+ * - Supports custom fields defined by event organizers
+ * - Tracks current attendee count in real-time
+ * - Prevents registration if event is full
+ * - Enforces registration deadline
+ * - Collects attendee information
+ * 
+ * DATA FETCHING:
+ * - Fetches event details from Supabase 'media_content' table
+ * - Filters for published events only (status = 'published')
+ * - Counts confirmed registrations for capacity management
+ * - Real-time attendee count updates
+ * 
+ * USER EXPERIENCE:
+ * - Loading skeleton while fetching event data
+ * - "Back to Events" button for easy navigation
+ * - Graceful handling of invalid event IDs (redirects to events page)
+ * - Clear messaging if registration is closed or unavailable
+ * - Responsive design for all devices
+ * 
+ * ACCESS CONTROL:
+ * - Only displays events with RSVP enabled (enable_rsvp = true)
+ * - Shows appropriate message if registration is not available
+ * - Validates event exists before showing registration form
+ * 
+ * INTEGRATION:
+ * - Integrates with media dashboard for event creation
+ * - Stores registrations in 'event_registrations' table
+ * - Supports custom field configuration per event
+ */
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";

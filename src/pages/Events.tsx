@@ -1,3 +1,63 @@
+/**
+ * EVENTS PAGE - CHURCH EVENTS LISTING & REGISTRATION
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Type-safe event data structures
+ * - React: Dynamic event listing with real-time updates
+ * - React Hooks: useState and useEffect for data management
+ * 
+ * FUNCTIONALITY:
+ * Comprehensive events page displaying all upcoming church activities and gatherings:
+ * 
+ * EVENT DATA SOURCES:
+ * 1. Dynamic Events (from Supabase):
+ *    - Fetched from 'media_content' table where content_type = 'event'
+ *    - Only shows published events (status = 'published')
+ *    - Real-time updates via Supabase subscriptions
+ *    - Sorted by creation date (newest first)
+ * 
+ * 2. Static/Default Events (fallback):
+ *    - Sunday Service (recurring weekly)
+ *    - Champions Conference 2024
+ *    - TOT Youth Explosion
+ *    - Prayer & Fasting Week
+ *    - Marriage Enrichment Retreat
+ *    - Community Outreach
+ * 
+ * EVENT INFORMATION DISPLAYED:
+ * - Event title and category badge
+ * - Detailed description
+ * - Date and time
+ * - Location/venue
+ * - Event image (if available)
+ * - RSVP status badge (if registration enabled)
+ * - Register Now / Learn More buttons
+ * 
+ * FEATURES:
+ * - Color-coded category badges (Weekly, Conference, Youth, Prayer, Marriage, Outreach)
+ * - Click to register for events with RSVP enabled
+ * - Links to detailed event registration pages
+ * - Responsive grid layout for all screen sizes
+ * - Loading skeletons while fetching data
+ * 
+ * MINISTRY AREAS SECTION:
+ * - Worship Services
+ * - Conferences
+ * - Life Groups
+ * - Community Outreach
+ * - Provides overview of different event types
+ * 
+ * SEO OPTIMIZATION:
+ * - Structured data (Schema.org) for event listings
+ * - Canonical URLs and meta descriptions
+ * - Keywords for search optimization
+ * - Individual event schemas for better search visibility
+ * 
+ * REAL-TIME UPDATES:
+ * - Subscribes to database changes
+ * - Auto-refreshes when events are added/updated/deleted
+ * - Ensures users always see current event information
+ */
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";

@@ -1,3 +1,66 @@
+/**
+ * JOIN THE FAMILY - NEW MEMBER REGISTRATION FORM
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Complex form state management with type safety
+ * - React: Dynamic form with conditional sections
+ * - React Hooks: useState for form data management
+ * 
+ * FUNCTIONALITY:
+ * Comprehensive new member onboarding form collecting detailed information:
+ * 
+ * PERSONAL INFORMATION SECTION:
+ * - Basic details: First name, last name, email, phone
+ * - Address: Street address, city, state, zip code
+ * - Demographics: Birth date, marital status, occupation
+ * 
+ * GETTING TO KNOW YOU SECTION:
+ * - How did you hear about the church? (dropdown with options)
+ * - Previous church background (text area)
+ * - Salvation status (Yes/No/Unsure)
+ * - Baptism status (Yes/No/Interested)
+ * - Areas of interest (multiple checkboxes):
+ *   - Youth Ministry, Kids Ministry, Worship Team
+ *   - Community Service, Bible Study, Prayer Group
+ *   - Missions, Administration
+ * - Personal testimony (optional text area)
+ * - Prayer requests (optional)
+ * 
+ * CHILDREN INFORMATION SECTION:
+ * - Optional expandable section for families with children
+ * - Add multiple children with individual details:
+ *   - Child's first and last name
+ *   - Birth date (auto-calculates Sunday School age group)
+ *   - Medical conditions, allergies, special needs
+ *   - Emergency contact (name, phone, relationship)
+ *   - Baby dedication status and interest
+ * 
+ * SUNDAY SCHOOL AGE GROUPS (Auto-assigned):
+ * - Toppers: Ages 4-5
+ * - Diamond: Ages 6-10
+ * - Onyx: Ages 11-12
+ * - House of Jesse: Ages 13-17
+ * 
+ * FEATURES:
+ * - Dynamic child addition/removal
+ * - Automatic age group calculation
+ * - Form validation (required fields marked with *)
+ * - Expandable children section
+ * - Individual emergency contacts per child
+ * - Baby dedication interest tracking
+ * 
+ * DATA STRUCTURE:
+ * - Complex nested state for children array
+ * - Dynamic form updates as user types
+ * - Will be integrated with Supabase for data persistence
+ * 
+ * PURPOSE:
+ * - Streamline new member onboarding
+ * - Collect comprehensive member information
+ * - Identify serving interests and spiritual status
+ * - Facilitate family ministry and Sunday School enrollment
+ * - Build community connections from day one
+ */
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

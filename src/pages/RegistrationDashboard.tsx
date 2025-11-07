@@ -1,3 +1,33 @@
+/**
+ * REGISTRATION DASHBOARD - MEMBER & ATTENDANCE MANAGEMENT
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Provides strong typing for registration and member data structures
+ * - React: Component-based UI framework for the dashboard interface
+ * - React Hooks: useState, useEffect, useNavigate for state and navigation management
+ * 
+ * FUNCTIONALITY:
+ * Centralized dashboard for church registration staff to manage all member-related operations:
+ * - QR Scanner: Quick attendance check-in using QR codes for contactless registration
+ * - Attendance Tracking: Record and monitor service attendance across different services
+ * - Member Management: Add, edit, view, and organize member information
+ * - Import Members: Bulk upload members from CSV/Excel files
+ * - Link Members: Connect duplicate profiles and family relationships
+ * - Reports: Generate attendance and membership reports
+ * - Profile: View and update personal user profile
+ * 
+ * ACCESS CONTROL:
+ * - Restricted to users with 'registration' or 'it' roles
+ * - Auto-redirects unauthorized users to appropriate dashboards
+ * - Implements session timeout via useInactivityLogout hook
+ * - Checks authentication status before rendering content
+ * 
+ * DATA MANAGEMENT:
+ * - Integrates with Supabase for real-time data synchronization
+ * - Handles member import history and validation
+ * - Supports family linking and relationship management
+ * - Generates comprehensive attendance and membership reports
+ */
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";

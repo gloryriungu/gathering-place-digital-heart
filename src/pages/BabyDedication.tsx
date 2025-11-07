@@ -1,3 +1,51 @@
+/**
+ * BABY DEDICATION PREPARATION COURSE
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Type-safe interfaces for course content and questions
+ * - React: Component-based framework for interactive learning experience
+ * - React Hooks: useState and useEffect for state management
+ * 
+ * FUNCTIONALITY:
+ * Three-stage online preparation course for parents wanting to dedicate their baby:
+ * 
+ * STAGE 1 - READING MODULE:
+ * Three educational topics parents must complete:
+ * - Understanding Baby Dedication: Explains the ceremony's meaning and biblical basis
+ * - Parental Responsibilities: Details commitments parents make during dedication
+ * - The Dedication Ceremony: What to expect and church community's role
+ * Each topic includes estimated reading time and must be marked complete
+ * 
+ * STAGE 2 - ASSESSMENT TEST:
+ * - 5 multiple-choice questions testing understanding of dedication principles
+ * - Passing score: 75%
+ * - Provides explanations for each answer
+ * - Must pass to complete course
+ * - Can retake if failed
+ * 
+ * STAGE 3 - COMPLETION:
+ * - Certificate of completion
+ * - Next steps for scheduling ceremony
+ * - Contact information for pastoral team
+ * - Download certificate option
+ * 
+ * COURSE CONTENT:
+ * - Biblical foundations (Proverbs 22:6, Psalm 127:3)
+ * - Practical parenting commitments
+ * - Church community support structure
+ * - Ceremony logistics and preparation
+ * 
+ * ACCESS CONTROL:
+ * - Protected by AuthGuard component
+ * - Requires user to be logged in
+ * - Progress tracking per user
+ * 
+ * PROGRESS TRACKING:
+ * - Visual progress tracker shows current stage
+ * - Three stages: Reading, Test, Complete
+ * - Marks each topic as completed
+ * - Tracks test score and pass/fail status
+ */
 import { useState, useEffect } from "react";
 import { AuthGuard } from "@/components/shared/AuthGuard";
 import { ProgressTracker, defaultSteps } from "@/components/shared/ProgressTracker";

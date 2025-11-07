@@ -1,3 +1,24 @@
+/**
+ * 404 ERROR PAGE - PAGE NOT FOUND
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Provides type safety for React components
+ * - React: Component-based library for building the UI
+ * - React Router: For handling routing and location detection
+ * 
+ * FUNCTIONALITY:
+ * This page is displayed when users navigate to a URL that doesn't exist in the application.
+ * Key features:
+ * - Displays friendly 404 error message to users
+ * - Logs the attempted route to console for debugging purposes
+ * - Provides a link back to the home page for easy navigation
+ * - Improves user experience by preventing dead-ends in navigation
+ * 
+ * ERROR TRACKING:
+ * - Uses useEffect to log the invalid route path to console
+ * - Helps developers identify broken links or navigation issues
+ * - Captures the attempted URL using React Router's useLocation hook
+ */
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 

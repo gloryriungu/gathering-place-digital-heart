@@ -1,3 +1,57 @@
+/**
+ * COUNSELING & MENTAL HEALTH SERVICES PAGE
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Type-safe React components
+ * - React: Component-based UI framework
+ * - Lucide React: Icon library for visual elements
+ * 
+ * FUNCTIONALITY:
+ * Information page about the church's counseling and mental health support services:
+ * 
+ * SERVICES OFFERED:
+ * 1. Individual Counseling:
+ *    - One-on-one sessions for anxiety, depression, grief
+ *    - Licensed professional counselors
+ *    - Biblical counseling approach
+ *    - Confidential environment
+ *    - Sliding scale fees available
+ * 
+ * 2. Marriage & Family Counseling:
+ *    - Pre-marital counseling
+ *    - Marriage enrichment programs
+ *    - Family therapy sessions
+ *    - Parenting support groups
+ * 
+ * 3. Support Groups:
+ *    - Grief recovery groups
+ *    - Addiction recovery support
+ *    - Single parents network
+ *    - Mental health awareness
+ * 
+ * CONTACT INFORMATION:
+ * - Phone: (555) 123-4567
+ * - Email: counseling@tentoftestimony.org
+ * - Physical address for in-person appointments
+ * 
+ * OFFICE HOURS:
+ * - Monday-Thursday: 9:00 AM - 7:00 PM
+ * - Friday: 9:00 AM - 5:00 PM
+ * - Saturday: 10:00 AM - 4:00 PM
+ * - Sunday: By appointment only
+ * - 24/7 emergency crisis hotline available
+ * 
+ * KEY FEATURES:
+ * - Hero section with overview of whole-person care philosophy
+ * - Service cards with detailed descriptions
+ * - Appointment scheduling call-to-action buttons
+ * - Comprehensive office hours display
+ * - Emergency support information
+ * 
+ * PURPOSE:
+ * Promotes mental health services and reduces stigma around counseling by integrating
+ * professional mental health care with biblical principles and spiritual support.
+ */
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";

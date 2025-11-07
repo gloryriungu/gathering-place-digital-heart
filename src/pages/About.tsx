@@ -1,3 +1,37 @@
+/**
+ * ABOUT US PAGE - CHURCH INFORMATION & LEADERSHIP
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Defines interfaces for structured content data
+ * - React: Component-based framework for building the page
+ * - React Hooks: useState and useEffect for state and data fetching
+ * 
+ * FUNCTIONALITY:
+ * Comprehensive "About Us" page that presents the church's identity and leadership:
+ * - Hero Section: Displays main title and subtitle about the church's mission
+ * - Our Story: Narrative about the church's founding and history with optional image
+ * - Our Beliefs: Core theological beliefs and doctrinal positions (displays 3 key beliefs)
+ * - Leadership Team: Profiles of pastors and church leaders with photos and positions
+ * - Vision & Mission: Church's vision and mission statements prominently displayed
+ * 
+ * DATA MANAGEMENT:
+ * - Fetches dynamic content from Supabase 'page_content' table
+ * - Falls back to default static content if database fetch fails
+ * - Parses JSON fields for beliefs and leadership arrays
+ * - Only displays published content (is_published = true)
+ * - Shows loading spinner while content is being fetched
+ * 
+ * SEO OPTIMIZATION:
+ * - Includes SEO component with structured data for AboutPage schema
+ * - Canonical URL and meta descriptions
+ * - Keywords for search engine optimization
+ * - Schema.org markup for better search engine understanding
+ * 
+ * CONTENT STRUCTURE:
+ * - All text content is editable through the admin dashboard
+ * - Supports image uploads for story section and leadership profiles
+ * - Flexible beliefs and leadership arrays can be extended
+ */
 import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";

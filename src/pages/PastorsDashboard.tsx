@@ -1,3 +1,31 @@
+/**
+ * PASTOR'S DASHBOARD - MINISTRY LEADERSHIP PORTAL
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Ensures type safety across the pastor dashboard features
+ * - React: Component-based framework for building the interactive dashboard UI
+ * - React Hooks: useState for managing active tab state
+ * 
+ * FUNCTIONALITY:
+ * Comprehensive dashboard designed specifically for pastoral staff to manage church operations:
+ * - Overview tab: Displays key ministry statistics and metrics
+ * - Content Management: Manage website content, sermons, and media
+ * - Department Visibility: Control which departments are visible to different users
+ * - Requisitions System: Review and approve department purchase requests
+ * - Demographics Analytics: View member demographics and growth patterns
+ * - Recent Activity: Monitor recent changes and updates across the system
+ * - Profile: View and update personal pastor profile information
+ * 
+ * ACCESS CONTROL:
+ * - Protected by useInactivityLogout hook for automatic session timeout
+ * - Only accessible to users with 'pastor' or 'senior_pastor' roles
+ * - Provides high-level oversight of church management functions
+ * 
+ * NAVIGATION:
+ * - Uses tabbed interface for easy navigation between different management areas
+ * - Responsive design adapts to different screen sizes
+ * - Integrates with main site navigation component
+ */
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";

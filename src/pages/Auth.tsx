@@ -1,3 +1,49 @@
+/**
+ * AUTHENTICATION PAGE - LOGIN & SIGN UP
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Strong typing for form data and authentication responses
+ * - React: Component-based framework for the authentication UI
+ * - React Hooks: useState and useEffect for form state and authentication flow
+ * 
+ * FUNCTIONALITY:
+ * Unified authentication page handling both sign in and sign up processes:
+ * 
+ * SIGN IN TAB:
+ * - Email and password login
+ * - Password visibility toggle
+ * - Google OAuth integration for social login
+ * - Automatic redirect to dashboard after successful login
+ * - Error handling with user-friendly messages
+ * 
+ * SIGN UP TAB:
+ * - Comprehensive user registration form including:
+ *   - Personal information (first name, last name, email, phone)
+ *   - Location data (address, county selector for Kenya)
+ *   - Password with confirmation and validation
+ * - Password strength requirements (minimum 6 characters)
+ * - Password match validation
+ * - Creates user profile automatically upon registration
+ * - Switches to login tab after successful registration
+ * 
+ * KENYA-SPECIFIC FEATURES:
+ * - Dropdown list of all 47 Kenyan counties for accurate location data
+ * - Helps with church demographics and regional planning
+ * 
+ * SECURITY FEATURES:
+ * - Password visibility toggle for better UX
+ * - Form validation before submission
+ * - Loading states to prevent multiple submissions
+ * - Secure password handling via Supabase Auth
+ * - Session management and token handling
+ * 
+ * USER EXPERIENCE:
+ * - Tabbed interface for easy switching between login and signup
+ * - Responsive design works on all devices
+ * - Clear error messages with toast notifications
+ * - Redirects authenticated users automatically
+ * - Handles profile completion flow for incomplete profiles
+ */
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";

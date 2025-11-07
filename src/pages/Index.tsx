@@ -1,3 +1,34 @@
+/**
+ * TOT INTERNATIONAL - MAIN LANDING PAGE
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Provides static typing for better code quality and developer experience
+ * - React: Component-based JavaScript library for building user interfaces
+ * - TSX: TypeScript + JSX syntax for writing React components with type safety
+ * 
+ * FUNCTIONALITY:
+ * This is the main landing/home page component that serves as the entry point for website visitors.
+ * It displays comprehensive information about TOT International church including:
+ * - Hero section with welcoming message and primary calls-to-action
+ * - Service times and schedule information
+ * - Latest sermon/message from the church
+ * - Current announcements and news
+ * - Upcoming events calendar
+ * - Member testimonials
+ * - Ways to connect with the church community
+ * - Giving/donation section
+ * - AI chatbot assistant for visitor support
+ * 
+ * PERFORMANCE OPTIMIZATION:
+ * - Uses React.lazy() and Suspense for code-splitting and lazy loading of non-critical components
+ * - This improves initial page load time by only loading essential components first
+ * - Implements ComponentLoader as fallback UI while lazy components are being fetched
+ * 
+ * SEO FEATURES:
+ * - Includes structured data (Schema.org) for church organization
+ * - Meta tags for search engine optimization
+ * - Semantic HTML for better crawlability
+ */
 import { Hero } from "@/components/Hero";
 import { ServiceTimes } from "@/components/ServiceTimes";
 import { LatestSermon } from "@/components/LatestSermon";

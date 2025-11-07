@@ -1,3 +1,58 @@
+/**
+ * MAIN USER DASHBOARD - ROLE-BASED PORTAL
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Strong typing for complex role-based logic
+ * - React: Component framework for dynamic dashboard
+ * - React Hooks: useState, useEffect, useNavigate for state and routing
+ * 
+ * FUNCTIONALITY:
+ * Central hub that adapts based on user role, providing role-specific features and access:
+ * 
+ * USER ROLES SUPPORTED:
+ * - admin: Full system access with all modules
+ * - founder: Advanced analytics, demographics, budget review, all inventory
+ * - senior_pastor: Demographics, giving analysis, budget review, activity logs
+ * - pastor: Availability management, counseling, ministry oversight
+ * - registration: Family applications, attendance tracking, reports
+ * - accounts: Giving records, financial analysis, requisitions, budgets
+ * - media: Requisitions and inventory for media department
+ * - marketing: Requisitions and inventory for marketing department
+ * - sunday_school: Sunday school management and reports
+ * - teacher: Individual class management
+ * - it: User management, system logs, ticketing, monitoring, security, tab management
+ * - user: Basic member features (give, events, applications, profile)
+ * 
+ * CORE FEATURES (ALL USERS):
+ * - Overview: Dashboard stats and quick actions
+ * - Give: Donation interface
+ * - Profile: User profile management
+ * - Newsletter: Newsletter subscription
+ * 
+ * NAVIGATION & SECURITY:
+ * - Role-based tab visibility (getRoleBasedTabs function)
+ * - Automatic redirection based on role (media → media dashboard, etc.)
+ * - Session timeout protection via useInactivityLogout
+ * - Authentication check before rendering
+ * - Role badge display showing current permissions
+ * 
+ * DATA INTEGRATION:
+ * - Real-time Supabase integration for all features
+ * - Attendance tracking and QR scanning
+ * - Financial contributions management
+ * - Event registration and RSVP
+ * - Inventory management per department
+ * - Requisition workflow
+ * - Advanced analytics and demographics
+ * 
+ * UI/UX FEATURES:
+ * - Tabbed interface with icons for easy navigation
+ * - Responsive grid layout adapts to screen size
+ * - Loading states while checking authentication
+ * - Sign out button easily accessible
+ * - Notification bell for alerts
+ * - Color-coded role badges for visual identification
+ */
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";

@@ -1,3 +1,65 @@
+/**
+ * FREQUENTLY ASKED QUESTIONS (FAQ) PAGE
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Type-safe FAQ data structures
+ * - React: Dynamic FAQ display with accordion interface
+ * - React Hooks: useState and useEffect for data fetching
+ * 
+ * FUNCTIONALITY:
+ * Comprehensive FAQ page answering common visitor questions about the church:
+ * 
+ * FAQ CATEGORIES:
+ * 1. Visiting & Services:
+ *    - Service times and schedule
+ *    - Dress code (come as you are)
+ *    - Parking availability
+ *    - Childcare during services
+ * 
+ * 2. Membership & Getting Involved:
+ *    - How to become a member ('Join the Family' class)
+ *    - Volunteer opportunities
+ *    - Small groups and Bible studies
+ * 
+ * 3. Giving & Finances:
+ *    - How to give (offering, online, mail, app)
+ *    - Tax-deductible giving and statements
+ *    - What giving supports
+ * 
+ * 4. Special Services & Events:
+ *    - Wedding ceremonies (6-month advance booking)
+ *    - Baptism services (monthly with classes)
+ *    - Baby dedication services (quarterly)
+ * 
+ * 5. Online Services & Technology:
+ *    - Online livestreaming availability
+ *    - Church mobile app features
+ *    - Prayer request submission
+ * 
+ * DATA MANAGEMENT:
+ * - Fetches FAQs from Supabase 'faq_content' table
+ * - Groups questions by category
+ * - Orders by display_order for controlled presentation
+ * - Only shows published FAQs (is_published = true)
+ * - Falls back to default content if database fetch fails
+ * 
+ * UI COMPONENTS:
+ * - Search bar for finding specific questions (UI only - functionality can be added)
+ * - Accordion interface for collapsible Q&A
+ * - Category-based organization for easy navigation
+ * - Loading spinner while fetching data
+ * 
+ * CONTACT SECTION:
+ * - Phone: (555) 123-4567 with office hours
+ * - Email: info@tentoftestimony.org
+ * - Physical address with "Get Directions" button
+ * - Office hours: Mon-Fri 9-5, Sat 10-2
+ * 
+ * PURPOSE:
+ * Reduces support burden by proactively answering common questions
+ * Helps new visitors understand church culture and expectations
+ * Provides clear pathways for deeper engagement (membership, serving, etc.)
+ */
 import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";

@@ -1,3 +1,40 @@
+/**
+ * ADMIN DASHBOARD - SYSTEM ADMINISTRATION CONTROL PANEL
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Ensures type safety for admin operations
+ * - React: Component-based framework for dashboard UI
+ * - React Hooks: useState for tab management
+ * 
+ * FUNCTIONALITY:
+ * Main administrative control panel for church administrators with full system access:
+ * - Overview Tab: High-level system statistics and quick actions
+ * - Dashboard Stats: Key metrics across all church operations
+ * - Quick Actions: Common administrative tasks with one-click access
+ * - Modules Grid: Access to all system modules and features
+ * - Recent Activity: Monitor system-wide changes and user actions
+ * - AI Insights: Automated insights and recommendations based on data patterns
+ * - Profile: Admin user profile management
+ * 
+ * ACCESS CONTROL:
+ * - Highest level administrative access in the system
+ * - Protected by inactivity logout for security
+ * - Only accessible to users with 'admin' role
+ * - Can manage all aspects of the church management system
+ * 
+ * ADMINISTRATIVE CAPABILITIES:
+ * - Full access to all church management modules
+ * - User role and permission management
+ * - System-wide configuration and settings
+ * - Content management across all sections
+ * - Reports and analytics for all departments
+ * - Audit trails and activity monitoring
+ * 
+ * NAVIGATION:
+ * - Two-tab interface: Overview and Profile
+ * - Simple, clean design for quick access to admin functions
+ * - Responsive layout works on all devices
+ */
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";

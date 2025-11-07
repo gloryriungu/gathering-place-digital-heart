@@ -1,3 +1,50 @@
+/**
+ * BAPTISM PREPARATION COURSE
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Type-safe data structures for course materials
+ * - React: Interactive learning components
+ * - React Hooks: useState and useEffect for progress tracking
+ * 
+ * FUNCTIONALITY:
+ * Comprehensive three-stage preparation course for water baptism candidates:
+ * 
+ * STAGE 1 - READING MODULE:
+ * Three foundational topics about baptism:
+ * - What is Baptism?: Definition, meaning, and symbolism (5 min read)
+ * - Biblical Foundation: Scripture basis including Jesus' example and Great Commission (7 min read)
+ * - Preparing for Baptism: Practical preparation, what to expect, and life after baptism (6 min read)
+ * 
+ * STAGE 2 - COMPREHENSION TEST:
+ * - 5 multiple-choice questions covering baptism theology and practice
+ * - Higher passing score: 80% (vs 75% for baby dedication)
+ * - Questions cover Greek meaning, Romans 6:4, requirements, Great Commission, and purpose
+ * - Detailed explanations provided for each answer
+ * - Can be retaken if failed
+ * 
+ * STAGE 3 - COMPLETION CERTIFICATE:
+ * - Certificate of baptism preparation completion
+ * - Options to download certificate and schedule baptism ceremony
+ * - Shows final score percentage
+ * - Next steps for baptism service
+ * 
+ * BIBLICAL CONTENT:
+ * - Romans 6:4: Baptism symbolizes burial and resurrection with Christ
+ * - Matthew 3:13: Jesus' baptism example
+ * - Matthew 28:19: Great Commission command
+ * - Acts 2:38: Early church practice
+ * 
+ * KEY TEACHINGS:
+ * - Baptism by full immersion (baptizo = immerse)
+ * - Public declaration of personal faith
+ * - Following Jesus' command and example
+ * - Not about perfection but faith declaration
+ * 
+ * ACCESS & SECURITY:
+ * - Protected by AuthGuard (requires login)
+ * - Checks localStorage for authentication
+ * - Individual progress tracking
+ */
 import { useState, useEffect } from "react";
 import { AuthGuard } from "@/components/shared/AuthGuard";
 import { ProgressTracker, defaultSteps } from "@/components/shared/ProgressTracker";

@@ -1,4 +1,64 @@
 
+/**
+ * GIVING PAGE - DONATIONS & FINANCIAL PARTNERSHIP
+ * 
+ * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
+ * - TypeScript: Type-safe component structure
+ * - React: Static informational page with giving options
+ * - Lucide React: Icons for visual elements
+ * 
+ * FUNCTIONALITY:
+ * Comprehensive giving page encouraging financial partnership with the church:
+ * 
+ * GIVING OPTIONS:
+ * 1. Tithes & Offerings:
+ *    - General giving to support ongoing ministry
+ *    - Honors God with first fruits
+ * 
+ * 2. Building Fund:
+ *    - Facility expansion projects
+ *    - Accommodate more people
+ *    - Reach more souls
+ * 
+ * 3. Missions Support:
+ *    - Church planting initiatives
+ *    - Missions across East Africa and beyond
+ *    - International ministry partnerships
+ * 
+ * 4. Community Outreach:
+ *    - Community programs
+ *    - Feeding initiatives
+ *    - Charitable works and social services
+ * 
+ * THEOLOGICAL FOUNDATION:
+ * - "Why We Give" section explains biblical purpose
+ * - Three core reasons:
+ *   1. Honor God - worship through giving
+ *   2. Build God's Kingdom - transform lives
+ *   3. Reach Nations - Gospel expansion
+ * - Featured scripture: Luke 6:38 (give and it will be given to you)
+ * 
+ * GIVING METHODS:
+ * - M-Pesa (Kenya mobile money)
+ * - Bank transfer (direct deposits)
+ * - Online platform (secure web giving)
+ * - In-person cash offerings during services
+ * 
+ * KEY FEATURES:
+ * - Hero section with prominent "Give Online Now" button
+ * - Visual cards for each giving option
+ * - Scripture quotation for biblical foundation
+ * - Multiple payment method options
+ * - Contact finance team button
+ * - View financial reports for transparency
+ * 
+ * PURPOSE:
+ * - Educate members about biblical giving
+ * - Provide multiple convenient giving options
+ * - Explain how contributions are used
+ * - Encourage generous stewardship
+ * - Build trust through transparency
+ */
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";

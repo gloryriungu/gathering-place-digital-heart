@@ -411,6 +411,128 @@ export type Database = {
         }
         Relationships: []
       }
+      email_analytics: {
+        Row: {
+          bounced_at: string | null
+          campaign_id: string | null
+          click_count: number | null
+          clicked_at: string | null
+          email: string
+          id: string
+          open_count: number | null
+          opened_at: string | null
+          sent_at: string | null
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          bounced_at?: string | null
+          campaign_id?: string | null
+          click_count?: number | null
+          clicked_at?: string | null
+          email: string
+          id?: string
+          open_count?: number | null
+          opened_at?: string | null
+          sent_at?: string | null
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          bounced_at?: string | null
+          campaign_id?: string | null
+          click_count?: number | null
+          clicked_at?: string | null
+          email?: string
+          id?: string
+          open_count?: number | null
+          opened_at?: string | null
+          sent_at?: string | null
+          unsubscribed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_analytics_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "email_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_bounces: {
+        Row: {
+          bounce_reason: string | null
+          bounce_type: string
+          created_at: string | null
+          email: string
+          id: string
+          message_id: string | null
+          occurred_at: string | null
+        }
+        Insert: {
+          bounce_reason?: string | null
+          bounce_type: string
+          created_at?: string | null
+          email: string
+          id?: string
+          message_id?: string | null
+          occurred_at?: string | null
+        }
+        Update: {
+          bounce_reason?: string | null
+          bounce_type?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          message_id?: string | null
+          occurred_at?: string | null
+        }
+        Relationships: []
+      }
+      email_campaigns: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          html_content: string
+          id: string
+          name: string
+          scheduled_at: string | null
+          segment_filters: Json | null
+          sent_at: string | null
+          status: string | null
+          subject: string
+          text_content: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          html_content: string
+          id?: string
+          name: string
+          scheduled_at?: string | null
+          segment_filters?: Json | null
+          sent_at?: string | null
+          status?: string | null
+          subject: string
+          text_content?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          html_content?: string
+          id?: string
+          name?: string
+          scheduled_at?: string | null
+          segment_filters?: Json | null
+          sent_at?: string | null
+          status?: string | null
+          subject?: string
+          text_content?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       event_registrations: {
         Row: {
           county: string | null
@@ -940,41 +1062,59 @@ export type Database = {
       }
       newsletter_subscribers: {
         Row: {
+          bounce_count: number | null
           created_at: string
           email: string
           first_name: string | null
           id: string
           is_active: boolean | null
+          last_bounce_at: string | null
           last_email_sent: string | null
           last_name: string | null
+          metadata: Json | null
+          source: string | null
+          status: string | null
           subscription_date: string
           subscription_preferences: Json | null
+          tags: string[] | null
           unsubscribe_token: string | null
           updated_at: string
         }
         Insert: {
+          bounce_count?: number | null
           created_at?: string
           email: string
           first_name?: string | null
           id?: string
           is_active?: boolean | null
+          last_bounce_at?: string | null
           last_email_sent?: string | null
           last_name?: string | null
+          metadata?: Json | null
+          source?: string | null
+          status?: string | null
           subscription_date?: string
           subscription_preferences?: Json | null
+          tags?: string[] | null
           unsubscribe_token?: string | null
           updated_at?: string
         }
         Update: {
+          bounce_count?: number | null
           created_at?: string
           email?: string
           first_name?: string | null
           id?: string
           is_active?: boolean | null
+          last_bounce_at?: string | null
           last_email_sent?: string | null
           last_name?: string | null
+          metadata?: Json | null
+          source?: string | null
+          status?: string | null
           subscription_date?: string
           subscription_preferences?: Json | null
+          tags?: string[] | null
           unsubscribe_token?: string | null
           updated_at?: string
         }
@@ -1420,6 +1560,33 @@ export type Database = {
         }
         Relationships: []
       }
+      suppression_list: {
+        Row: {
+          added_at: string | null
+          added_by: string | null
+          email: string
+          id: string
+          notes: string | null
+          reason: string
+        }
+        Insert: {
+          added_at?: string | null
+          added_by?: string | null
+          email: string
+          id?: string
+          notes?: string | null
+          reason: string
+        }
+        Update: {
+          added_at?: string | null
+          added_by?: string | null
+          email?: string
+          id?: string
+          notes?: string | null
+          reason?: string
+        }
+        Relationships: []
+      }
       system_logs: {
         Row: {
           action: string
@@ -1588,6 +1755,18 @@ export type Database = {
     Functions: {
       generate_member_number: { Args: never; Returns: string }
       generate_ticket_number: { Args: never; Returns: string }
+      get_campaign_stats: {
+        Args: { campaign_uuid: string }
+        Returns: {
+          click_rate: number
+          open_rate: number
+          total_bounced: number
+          total_clicked: number
+          total_opened: number
+          total_sent: number
+          total_unsubscribed: number
+        }[]
+      }
       get_dashboard_stats: {
         Args: never
         Returns: {
@@ -1612,6 +1791,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_email_suppressed: {
+        Args: { email_to_check: string }
         Returns: boolean
       }
     }

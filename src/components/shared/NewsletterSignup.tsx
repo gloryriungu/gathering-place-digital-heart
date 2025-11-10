@@ -24,61 +24,77 @@ export const NewsletterSignup = ({ showCard = true, className = "" }: Newsletter
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim()) return;
-
     setLoading(true);
+
     try {
-      // Check if already subscribed
-      const { data: existing } = await supabase
+      // Check if email already exists
+      const { data: existing, error: checkError } = await supabase
         .from('newsletter_subscribers')
         .select('id, is_active')
-        .eq('email', email)
-        .single();
+        .eq('email', email.toLowerCase())
+        .maybeSingle();
+
+      if (checkError) throw checkError;
 
       if (existing) {
         if (existing.is_active) {
           toast({
             title: "Already Subscribed",
-            description: "You're already subscribed to our newsletter!",
+            description: "This email is already on our newsletter list.",
           });
+          setLoading(false);
+          return;
         } else {
           // Reactivate subscription
-          await supabase
+          const { error: updateError } = await supabase
             .from('newsletter_subscribers')
-            .update({ is_active: true })
+            .update({ 
+              is_active: true,
+              first_name: firstName,
+              last_name: lastName,
+            })
             .eq('id', existing.id);
-          
+
+          if (updateError) throw updateError;
+
           toast({
-            title: "Subscription Reactivated!",
-            description: "Welcome back! You'll start receiving our newsletters again.",
+            title: "Welcome Back!",
+            description: "Your newsletter subscription has been reactivated.",
           });
+          setIsSubscribed(true);
+          setLoading(false);
+          return;
         }
-        setIsSubscribed(true);
-        return;
       }
 
-      // Create new subscription
-      const { error } = await supabase
+      // New subscription with lead capture data
+      const { error: insertError } = await supabase
         .from('newsletter_subscribers')
         .insert({
-          email: email.trim(),
-          first_name: firstName.trim() || null,
-          last_name: lastName.trim() || null,
+          email: email.toLowerCase(),
+          first_name: firstName,
+          last_name: lastName,
           is_active: true,
+          source: 'website_form',
+          tags: ['newsletter'],
+          metadata: {
+            subscribed_from: window.location.pathname,
+            user_agent: navigator.userAgent,
+          },
         });
 
-      if (error) throw error;
-      
-      setIsSubscribed(true);
+      if (insertError) throw insertError;
+
       toast({
         title: "Successfully Subscribed!",
-        description: "Thank you for subscribing to our newsletter. You'll receive updates soon!",
+        description: "Thank you for subscribing to our newsletter.",
       });
+      setIsSubscribed(true);
     } catch (error: any) {
-      console.error('Error subscribing to newsletter:', error);
+      console.error('Newsletter subscription error:', error);
       toast({
-        title: "Subscription Error",
-        description: error.message || "Failed to subscribe. Please try again.",
+        title: "Subscription Failed",
+        description: error.message || "Please try again later.",
         variant: "destructive",
       });
     } finally {

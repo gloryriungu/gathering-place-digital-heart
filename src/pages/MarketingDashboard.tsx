@@ -18,12 +18,29 @@ import { SocialMediaManager } from "@/components/marketing/SocialMediaManager";
 import { TestimonialsManager } from "@/components/marketing/TestimonialsManager";
 import { FAQManager } from "@/components/marketing/FAQManager";
 import { EventRegistrationsManager } from "@/components/media/EventRegistrationsManager";
+import { LeadCaptureManager } from "@/components/marketing/LeadCaptureManager";
+import { CampaignBuilder } from "@/components/marketing/CampaignBuilder";
+import { SuppressionListManager } from "@/components/marketing/SuppressionListManager";
 
 const MarketingDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   useInactivityLogout();
 
   const managementSections = [
+    {
+      id: "leads",
+      title: "Lead Capture",
+      description: "View and manage all captured leads from forms",
+      icon: Users,
+      color: "text-blue-600"
+    },
+    {
+      id: "campaigns",
+      title: "Email Campaigns",
+      description: "Create and manage targeted email campaigns with segmentation",
+      icon: Mail,
+      color: "text-green-600"
+    },
     {
       id: "about",
       title: "About Us Content",
@@ -146,6 +163,17 @@ const MarketingDashboard = () => {
                     </Card>
                   );
                 })}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="leads">
+              <LeadCaptureManager />
+            </TabsContent>
+
+            <TabsContent value="campaigns">
+              <div className="space-y-6">
+                <CampaignBuilder />
+                <SuppressionListManager />
               </div>
             </TabsContent>
 

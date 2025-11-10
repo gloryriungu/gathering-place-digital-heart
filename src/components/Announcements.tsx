@@ -1,3 +1,22 @@
+/**
+ * Announcements Component
+ * 
+ * Language: TypeScript + React
+ * 
+ * Purpose:
+ * - Displays important church announcements on the homepage
+ * - Fetches published announcements from Supabase
+ * - Filters by expiration date and homepage visibility
+ * - Allows users to dismiss announcements (stored in localStorage)
+ * 
+ * Key Features:
+ * - Priority-based styling (high, medium, low)
+ * - Automatic expiration handling
+ * - Persistent dismissal tracking
+ * - Real-time content updates from database
+ * - Responsive grid layout
+ */
+
 import { useState, useEffect, memo, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

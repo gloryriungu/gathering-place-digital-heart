@@ -1,3 +1,24 @@
+/**
+ * AIAssistant Component
+ * 
+ * Language: TypeScript + React
+ * 
+ * Purpose:
+ * - Floating AI chatbot assistant with offline mode support
+ * - Provides intelligent Q&A, assessments, and content generation
+ * - Syncs chat history with Supabase when online
+ * - Stores messages locally for offline access
+ * - Requires user authentication to function
+ * 
+ * Key Features:
+ * - Real-time network status detection
+ * - Automatic message sync between local storage and Supabase
+ * - Custom API endpoint integration support
+ * - Downloadable content generation
+ * - Message categorization (Q&A, assessment, content)
+ * - Persistent chat history across devices
+ */
+
 import { useState, useRef, useEffect } from "react";
 import { Bot, X, Send, Download, Wifi, WifiOff } from "lucide-react";
 import { Button } from "@/components/ui/button";

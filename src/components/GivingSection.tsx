@@ -1,3 +1,19 @@
+/**
+ * GivingSection Component
+ * 
+ * Language: TypeScript + React
+ * 
+ * Purpose:
+ * - Homepage section explaining how tithes and offerings are used
+ * - Showcases the impact of financial partnership
+ * - Encourages visitors to support the church's mission
+ * 
+ * Key Features:
+ * - Visual breakdown of giving allocation (Missions 35%, Ministry 30%, Community 20%, Operations 15%)
+ * - Call-to-action buttons for giving and learning more
+ * - Dark background with contrasting white cards
+ * - Links to giving page
+ */
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

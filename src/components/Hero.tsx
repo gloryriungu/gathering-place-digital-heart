@@ -1,3 +1,22 @@
+/**
+ * Hero Component
+ * 
+ * Language: TypeScript + React
+ * 
+ * Purpose:
+ * - Full-screen hero section for the homepage
+ * - Dynamically loads content from Supabase (hero_content type)
+ * - Features video/image background with call-to-action buttons
+ * - Displays service times banner at the bottom
+ * 
+ * Key Features:
+ * - Real-time content updates via Supabase subscriptions
+ * - Video background with image fallback
+ * - Customizable heading, subheading, and CTA buttons
+ * - Loading skeleton for smooth UX
+ * - Responsive design with mobile optimization
+ */
+
 import { useEffect, useState, memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, ArrowRight } from "lucide-react";

@@ -1,3 +1,21 @@
+/**
+ * Footer Component
+ * 
+ * Language: TypeScript + React
+ * 
+ * Purpose:
+ * - Site-wide footer with church information and navigation
+ * - Displays contact details, service times, and social media links
+ * - Provides copyright and developer attribution
+ * 
+ * Key Features:
+ * - Dynamic social media links from Supabase
+ * - Contact information (phone, email, location)
+ * - Service times for Sunday and weekday meetings
+ * - Privacy policy and terms of service links
+ * - Responsive multi-column layout
+ */
+
 import { MapPin, Phone, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSocialMedia } from "@/hooks/useSocialMedia";

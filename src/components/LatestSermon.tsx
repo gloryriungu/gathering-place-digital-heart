@@ -1,3 +1,22 @@
+/**
+ * LatestSermon Component
+ * 
+ * Language: TypeScript + React
+ * 
+ * Purpose:
+ * - Displays the most recent sermon/message on the homepage
+ * - Fetches latest live stream content from Supabase
+ * - Embeds YouTube video or shows thumbnail with play button
+ * - Provides sermon details (pastor, date, duration)
+ * 
+ * Key Features:
+ * - Real-time sermon updates via Supabase subscriptions
+ * - YouTube embed integration with fallback to thumbnail
+ * - Lazy-loaded images for performance
+ * - Links to Watch page for full message library
+ * - Dark theme with white text
+ */
+
 import { useEffect, useState, memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Calendar, User, ArrowRight } from "lucide-react";

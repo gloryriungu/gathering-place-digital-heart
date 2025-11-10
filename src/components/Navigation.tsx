@@ -1,3 +1,23 @@
+/**
+ * Navigation Component
+ * 
+ * Language: TypeScript + React
+ * 
+ * Purpose:
+ * - Fixed top navigation bar for the entire website
+ * - Provides primary site navigation and mobile menu
+ * - Includes social media links and shopping cart
+ * - Features dropdown menu for "Get Involved" section
+ * 
+ * Key Features:
+ * - Responsive mobile hamburger menu
+ * - Dropdown menu with multiple sub-items
+ * - Dynamic social media links from Supabase
+ * - Shopping cart with item count badge
+ * - Sign in and Visit Us CTA buttons
+ * - Semi-transparent background with backdrop blur
+ */
+
 import { useState, memo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";

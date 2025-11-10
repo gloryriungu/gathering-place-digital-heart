@@ -1,3 +1,19 @@
+/**
+ * ConnectSection Component
+ * 
+ * Language: TypeScript + React
+ * 
+ * Purpose:
+ * - Homepage section showcasing connection opportunities
+ * - Highlights Life Groups, Serve Teams, Prayer Ministry, and Discipleship
+ * - Encourages community engagement and spiritual growth
+ * 
+ * Key Features:
+ * - Four connection pathways with icons and descriptions
+ * - Call-to-action buttons linking to relevant pages
+ * - Hover animations for interactive experience
+ * - Responsive grid layout
+ */
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

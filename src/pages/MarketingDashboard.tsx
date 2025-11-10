@@ -86,7 +86,7 @@ const MarketingDashboard = () => {
   ];
 
   return (
-    <AuthGuard allowedRoles={["marketing", "it"]}>
+    <AuthGuard allowedRoles={["marketing", "admin", "it"]}>
       <div className="min-h-screen bg-gray-50">
         <Navigation />
         <div className="pt-20">

@@ -175,6 +175,39 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_history: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string
+          download_url: string | null
+          id: string
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string
+          download_url?: string | null
+          id?: string
+          role: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string
+          download_url?: string | null
+          id?: string
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       church_events: {
         Row: {
           created_at: string | null
@@ -1562,6 +1595,16 @@ export type Database = {
           total_members: number
           upcoming_events: number
           weekly_attendance: number
+        }[]
+      }
+      get_pastor_activity_summary: {
+        Args: { pastor_user_id: string }
+        Returns: {
+          availability_changes: number
+          cancelled_sessions: number
+          completed_sessions: number
+          last_activity: string
+          total_sessions: number
         }[]
       }
       has_role: {

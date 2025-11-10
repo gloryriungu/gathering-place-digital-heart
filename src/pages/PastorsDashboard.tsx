@@ -29,6 +29,7 @@
 import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { PastorDashboardHeader } from "@/components/admin/PastorDashboardHeader";
 import { DashboardStats } from "@/components/admin/DashboardStats";
 import { ContentManagementGrid } from "@/components/admin/ContentManagementGrid";
@@ -36,14 +37,18 @@ import { DepartmentVisibilityPanel } from "@/components/admin/DepartmentVisibili
 import { RecentActivity } from "@/components/admin/RecentActivity";
 import { DemographicsAnalytics } from "@/components/founder/DemographicsAnalytics";
 import { UserProfile } from "@/components/dashboard/UserProfile";
+import { PastorActivityLogs } from "@/components/pastor/PastorActivityLogs";
+import { PastorAvailability } from "@/components/pastor/PastorAvailability";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, LayoutDashboard, User } from "lucide-react";
+import { FileText, LayoutDashboard, User, Calendar, Activity } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const PastorsDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const { userRole } = useAuth();
+  const isLeadership = userRole === 'founder' || userRole === 'senior_pastor' || userRole === 'it';
   useInactivityLogout();
 
   return (
@@ -53,10 +58,18 @@ const PastorsDashboard = () => {
         <PastorDashboardHeader />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsList className="grid w-full max-w-4xl grid-cols-4">
               <TabsTrigger value="overview" className="flex items-center gap-2">
                 <LayoutDashboard className="h-4 w-4" />
                 Overview
+              </TabsTrigger>
+              <TabsTrigger value="counseling" className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Counseling
+              </TabsTrigger>
+              <TabsTrigger value="audit" className="flex items-center gap-2">
+                <Activity className="h-4 w-4" />
+                Activity
               </TabsTrigger>
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <User className="h-4 w-4" />
@@ -96,6 +109,14 @@ const PastorsDashboard = () => {
               <div className="mt-8">
                 <DemographicsAnalytics />
               </div>
+            </TabsContent>
+
+            <TabsContent value="counseling">
+              <PastorAvailability isPastor={true} />
+            </TabsContent>
+
+            <TabsContent value="audit">
+              <PastorActivityLogs isLeadership={isLeadership} />
             </TabsContent>
 
             <TabsContent value="profile">

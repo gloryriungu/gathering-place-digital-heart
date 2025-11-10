@@ -131,7 +131,7 @@ export const PastorAvailability = ({ isPastor = false }: PastorAvailabilityProps
   const handleAddAvailability = async (formData: FormData) => {
     try {
       const user = await supabase.auth.getUser();
-      const { error } = await supabase
+      const { data: availabilityData, error } = await supabase
         .from('pastor_availability')
         .insert({
           pastor_id: user.data.user?.id,
@@ -140,9 +140,26 @@ export const PastorAvailability = ({ isPastor = false }: PastorAvailabilityProps
           end_time: formData.get('end_time') as string,
           session_duration: parseInt(formData.get('session_duration') as string),
           max_sessions: parseInt(formData.get('max_sessions') as string)
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Log activity
+      if (user.data.user?.id) {
+        await supabase.from("activity_logs").insert([{
+          user_id: user.data.user.id,
+          action: "create",
+          entity_type: "pastor_availability",
+          entity_id: availabilityData.id,
+          details: {
+            day: formData.get('day_of_week')?.toString(),
+            time_range: `${formData.get('start_time')} - ${formData.get('end_time')}`,
+            max_sessions: formData.get('max_sessions')?.toString()
+          }
+        }]);
+      }
 
       toast({
         title: "Success",
@@ -214,6 +231,8 @@ export const PastorAvailability = ({ isPastor = false }: PastorAvailabilityProps
 
   const updateSessionStatus = async (sessionId: string, status: string, notes?: string) => {
     try {
+      const user = await supabase.auth.getUser();
+      
       const updates: any = { status };
       if (notes !== undefined) {
         updates.notes = notes;
@@ -225,6 +244,20 @@ export const PastorAvailability = ({ isPastor = false }: PastorAvailabilityProps
         .eq('id', sessionId);
 
       if (error) throw error;
+
+      // Log activity
+      if (user.data.user) {
+        await supabase.from("activity_logs").insert([{
+          user_id: user.data.user.id,
+          action: status === 'completed' ? 'complete' : status === 'cancelled' ? 'cancel' : 'update',
+          entity_type: "counseling_session",
+          entity_id: sessionId,
+          details: {
+            new_status: status,
+            notes_added: notes ? true : false
+          }
+        }]);
+      }
 
       toast({
         title: "Success",
@@ -243,12 +276,27 @@ export const PastorAvailability = ({ isPastor = false }: PastorAvailabilityProps
 
   const toggleAvailability = async (availabilityId: string, isActive: boolean) => {
     try {
+      const user = await supabase.auth.getUser();
+      
       const { error } = await supabase
         .from('pastor_availability')
         .update({ is_active: !isActive })
         .eq('id', availabilityId);
 
       if (error) throw error;
+
+      // Log activity
+      if (user.data.user) {
+        await supabase.from("activity_logs").insert([{
+          user_id: user.data.user.id,
+          action: "update",
+          entity_type: "pastor_availability",
+          entity_id: availabilityId,
+          details: {
+            status_changed_to: !isActive ? "active" : "inactive"
+          }
+        }]);
+      }
 
       toast({
         title: "Success",

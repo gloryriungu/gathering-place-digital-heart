@@ -30,6 +30,7 @@ export const GivingForm = ({ open, onOpenChange }: GivingFormProps) => {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('mobile_money');
   const [amount, setAmount] = useState<string>("");
   const [contributionType, setContributionType] = useState("offering");
+  const [customContributionType, setCustomContributionType] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -85,6 +86,16 @@ export const GivingForm = ({ open, onOpenChange }: GivingFormProps) => {
       return;
     }
 
+    // Validate custom contribution type
+    if (contributionType === "others" && !customContributionType.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please specify the contribution type",
+        variant: "destructive"
+      });
+      return;
+    }
+
     // Validate guest details
     if (!user) {
       if (!name || !email) {
@@ -120,7 +131,7 @@ export const GivingForm = ({ open, onOpenChange }: GivingFormProps) => {
           amount: parseFloat(amount),
           email: email,
           phone: mpesaPhone,
-          contribution_type: contributionType,
+          contribution_type: contributionType === "others" ? customContributionType : contributionType,
           user_id: user?.id,
           save_details: saveDetails,
           name: name
@@ -159,7 +170,7 @@ export const GivingForm = ({ open, onOpenChange }: GivingFormProps) => {
           payment_method: 'card',
           amount: parseFloat(amount),
           email: email,
-          contribution_type: contributionType,
+          contribution_type: contributionType === "others" ? customContributionType : contributionType,
           user_id: user?.id,
           save_details: saveDetails,
           name: name
@@ -238,6 +249,7 @@ export const GivingForm = ({ open, onOpenChange }: GivingFormProps) => {
     setStep('details');
     setAmount("");
     setContributionType("offering");
+    setCustomContributionType("");
     if (!user) {
       setName("");
       setEmail("");
@@ -268,20 +280,38 @@ export const GivingForm = ({ open, onOpenChange }: GivingFormProps) => {
           <div className="space-y-6 py-4">
             <div>
               <Label>Contribution Type</Label>
-              <Select value={contributionType} onValueChange={setContributionType}>
+              <Select value={contributionType} onValueChange={(value) => {
+                setContributionType(value);
+                if (value !== "others") {
+                  setCustomContributionType("");
+                }
+              }}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="tithe">Tithe</SelectItem>
                   <SelectItem value="offering">Offering</SelectItem>
-                  <SelectItem value="building_fund">Building Fund</SelectItem>
-                  <SelectItem value="missions">Missions</SelectItem>
-                  <SelectItem value="community_outreach">Community Outreach</SelectItem>
-                  <SelectItem value="special_offering">Special Offering</SelectItem>
+                  <SelectItem value="gift">Gift</SelectItem>
+                  <SelectItem value="seed">Seed</SelectItem>
+                  <SelectItem value="mission">Mission</SelectItem>
+                  <SelectItem value="thanksgiving">Thanksgiving</SelectItem>
+                  <SelectItem value="others">Others</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
+            {contributionType === "others" && (
+              <div>
+                <Label htmlFor="custom-type">Specify Contribution Type *</Label>
+                <Input
+                  id="custom-type"
+                  value={customContributionType}
+                  onChange={(e) => setCustomContributionType(e.target.value)}
+                  placeholder="e.g., Building Project, Youth Ministry"
+                />
+              </div>
+            )}
 
             <div>
               <Label>Amount (KES)</Label>

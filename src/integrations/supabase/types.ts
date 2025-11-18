@@ -271,6 +271,7 @@ export type Database = {
           save_details: boolean | null
           transaction_reference: string | null
           transaction_status: string | null
+          updated_at: string | null
         }
         Insert: {
           amount: number
@@ -289,6 +290,7 @@ export type Database = {
           save_details?: boolean | null
           transaction_reference?: string | null
           transaction_status?: string | null
+          updated_at?: string | null
         }
         Update: {
           amount?: number
@@ -307,6 +309,7 @@ export type Database = {
           save_details?: boolean | null
           transaction_reference?: string | null
           transaction_status?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {

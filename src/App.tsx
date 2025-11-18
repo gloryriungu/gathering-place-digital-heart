@@ -41,6 +41,7 @@ const RegistrationDashboard = lazy(() => import("./pages/RegistrationDashboard")
 const ProfileCompletion = lazy(() => import("./pages/ProfileCompletion"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const GiveVerify = lazy(() => import("./pages/GiveVerify"));
+const GivingHistory = lazy(() => import("./pages/GivingHistory"));
 
 // Optimized loading fallback
 const PageLoader = () => (
@@ -88,6 +89,7 @@ const App = () => (
               <Route path="/events/:eventId/register" element={<EventRegistration />} />
               <Route path="/give" element={<Give />} />
               <Route path="/give/verify" element={<GiveVerify />} />
+              <Route path="/giving-history" element={<GivingHistory />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/visit-us" element={<VisitUs />} />
               <Route path="/auth" element={<Auth />} />

@@ -108,11 +108,13 @@ import { DemographicsAnalytics } from "@/components/founder/DemographicsAnalytic
 import { BudgetProposals } from "@/components/budget/BudgetProposals";
 import { DepartmentTabManager } from "@/components/admin/DepartmentTabManager";
 import { UserProfile } from "@/components/dashboard/UserProfile";
+import { GivingForm } from "@/components/giving/GivingForm";
 
 const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState<string>("user");
+  const [showGivingForm, setShowGivingForm] = useState(false);
   useInactivityLogout();
 
   useEffect(() => {
@@ -425,11 +427,20 @@ const Dashboard = () => {
                     Every seed you sow makes an eternal difference. Your faithful giving enables us to fulfill our mission of raising champions for Christ.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold px-8">
+                    <Button 
+                      size="lg" 
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold px-8"
+                      onClick={() => setShowGivingForm(true)}
+                    >
                       <Heart className="h-5 w-5 mr-2" />
                       GIVE NOW
                     </Button>
-                    <Button size="lg" variant="outline" className="border-2 font-bold px-8">
+                    <Button 
+                      size="lg" 
+                      variant="outline" 
+                      className="border-2 font-bold px-8"
+                      onClick={() => navigate('/give')}
+                    >
                       LEARN ABOUT GIVING
                     </Button>
                   </div>
@@ -599,6 +610,8 @@ const Dashboard = () => {
           </Tabs>
         </div>
       </div>
+      
+      <GivingForm open={showGivingForm} onOpenChange={setShowGivingForm} />
     </div>
   );
 };

@@ -439,9 +439,9 @@ const Dashboard = () => {
                       size="lg" 
                       variant="outline" 
                       className="border-2 font-bold px-8"
-                      onClick={() => navigate('/give')}
+                      onClick={() => navigate('/giving-history')}
                     >
-                      LEARN ABOUT GIVING
+                      VIEW GIVING HISTORY
                     </Button>
                   </div>
                 </CardContent>

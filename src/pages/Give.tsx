@@ -63,8 +63,12 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Heart, Gift, Users, Globe } from "lucide-react";
+import { GivingForm } from "@/components/giving/GivingForm";
+import { useState } from "react";
 
 const Give = () => {
+  const [showGivingForm, setShowGivingForm] = useState(false);
+
   const givingOptions = [
     {
       title: "Tithes & Offerings",
@@ -105,7 +109,10 @@ const Give = () => {
                 Partner with us in advancing God's kingdom through your generous giving and faithful stewardship.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button className="bg-white text-black hover:bg-gray-100 font-bold text-lg px-8 py-4">
+                <Button 
+                  onClick={() => setShowGivingForm(true)}
+                  className="bg-white text-black hover:bg-gray-100 font-bold text-lg px-8 py-4"
+                >
                   Give Online Now
                 </Button>
                 <Button variant="outline" className="border-white text-white hover:bg-white hover:text-black font-bold text-lg px-8 py-4">
@@ -258,6 +265,8 @@ const Give = () => {
           </div>
         </section>
       </div>
+
+      <GivingForm open={showGivingForm} onOpenChange={setShowGivingForm} />
       <Footer />
     </div>
   );

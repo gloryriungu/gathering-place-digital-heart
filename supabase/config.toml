@@ -8,3 +8,12 @@ verify_jwt = false
 
 [functions.send-campaign]
 verify_jwt = true
+
+[functions.initialize-payment]
+verify_jwt = false
+
+[functions.verify-payment]
+verify_jwt = false
+
+[functions.webhook-paystack]
+verify_jwt = false

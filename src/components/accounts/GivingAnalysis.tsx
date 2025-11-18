@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RealTimeGivingDashboard } from "./RealTimeGivingDashboard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -42,6 +44,7 @@ export const GivingAnalysis = () => {
   const [isAddContributionOpen, setIsAddContributionOpen] = useState(false);
   const [dateFilter, setDateFilter] = useState({ start: '', end: '' });
   const [typeFilter, setTypeFilter] = useState('all');
+  const [activeTab, setActiveTab] = useState('analytics');
 
   useEffect(() => {
     fetchContributions();
@@ -210,7 +213,14 @@ export const GivingAnalysis = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <TabsList>
+        <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        <TabsTrigger value="realtime">Real-Time</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="analytics" className="space-y-4">
+        <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

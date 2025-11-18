@@ -11,9 +11,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatAmount, getContributionTypeLabel, getPaymentMethodLabel } from "@/lib/paystack";
 import { format } from "date-fns";
-import { TrendingUp, Calendar, DollarSign, ArrowLeft, Download, Filter, X } from "lucide-react";
+import { TrendingUp, Calendar, DollarSign, ArrowLeft, Download, Filter, X, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SEO } from "@/components/SEO";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
 
 export default function GivingHistory() {
   const navigate = useNavigate();
@@ -185,6 +187,196 @@ export default function GivingHistory() {
     });
   };
 
+  const generatePDFReport = async () => {
+    if (filteredContributions.length === 0) {
+      toast({
+        title: "No Data",
+        description: "No contributions to generate report",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('first_name, last_name')
+        .eq('user_id', user?.id)
+        .maybeSingle();
+
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.width;
+      const pageHeight = doc.internal.pageSize.height;
+      let yPos = 20;
+
+      // Header
+      doc.setFontSize(20);
+      doc.setTextColor(44, 62, 80);
+      doc.text('Contribution Report', pageWidth / 2, yPos, { align: 'center' });
+      
+      yPos += 10;
+      doc.setFontSize(12);
+      doc.setTextColor(100, 100, 100);
+      doc.text('The Overcomer Tribe', pageWidth / 2, yPos, { align: 'center' });
+      
+      yPos += 15;
+      doc.setDrawColor(74, 144, 226);
+      doc.setLineWidth(0.5);
+      doc.line(20, yPos, pageWidth - 20, yPos);
+      
+      yPos += 15;
+
+      // User Information
+      doc.setFontSize(11);
+      doc.setTextColor(44, 62, 80);
+      doc.setFont(undefined, 'bold');
+      doc.text('Report Generated For:', 20, yPos);
+      doc.setFont(undefined, 'normal');
+      doc.text(`${profile?.first_name || ''} ${profile?.last_name || ''}`, 70, yPos);
+      
+      yPos += 7;
+      doc.setFont(undefined, 'bold');
+      doc.text('Report Date:', 20, yPos);
+      doc.setFont(undefined, 'normal');
+      doc.text(format(new Date(), 'PPP'), 70, yPos);
+      
+      yPos += 7;
+      doc.setFont(undefined, 'bold');
+      doc.text('Period:', 20, yPos);
+      doc.setFont(undefined, 'normal');
+      const periodText = filterStartDate && filterEndDate 
+        ? `${format(new Date(filterStartDate), 'PP')} - ${format(new Date(filterEndDate), 'PP')}`
+        : 'All Time';
+      doc.text(periodText, 70, yPos);
+
+      yPos += 15;
+
+      // Summary Statistics Box
+      doc.setFillColor(240, 248, 255);
+      doc.roundedRect(20, yPos, pageWidth - 40, 35, 3, 3, 'F');
+      
+      yPos += 10;
+      doc.setFontSize(10);
+      doc.setTextColor(44, 62, 80);
+      
+      const summaryStartY = yPos;
+      doc.setFont(undefined, 'bold');
+      doc.text('Total Contributions:', 25, yPos);
+      doc.setFont(undefined, 'normal');
+      doc.text(stats.contributionCount.toString(), 75, yPos);
+      
+      yPos += 8;
+      doc.setFont(undefined, 'bold');
+      doc.text('This Month:', 25, yPos);
+      doc.setFont(undefined, 'normal');
+      doc.text(formatAmount(stats.totalThisMonth), 75, yPos);
+      
+      yPos += 8;
+      doc.setFont(undefined, 'bold');
+      doc.text('All Time Total:', 25, yPos);
+      doc.setFont(undefined, 'normal');
+      doc.setTextColor(34, 139, 34);
+      doc.text(formatAmount(stats.totalAllTime), 75, yPos);
+
+      // Contribution by Type (right side)
+      const typeBreakdown: { [key: string]: number } = {};
+      filteredContributions
+        .filter(c => c.transaction_status === 'completed')
+        .forEach(c => {
+          const type = getContributionTypeLabel(c.contribution_type);
+          typeBreakdown[type] = (typeBreakdown[type] || 0) + c.amount;
+        });
+
+      let rightYPos = summaryStartY;
+      doc.setTextColor(44, 62, 80);
+      doc.setFont(undefined, 'bold');
+      doc.text('By Type:', pageWidth / 2 + 10, rightYPos);
+      doc.setFont(undefined, 'normal');
+      
+      Object.entries(typeBreakdown).forEach(([type, amount]) => {
+        rightYPos += 8;
+        doc.text(`${type}:`, pageWidth / 2 + 10, rightYPos);
+        doc.text(formatAmount(amount), pageWidth / 2 + 50, rightYPos);
+      });
+
+      yPos += 20;
+
+      // Detailed Transactions Table
+      doc.setFontSize(12);
+      doc.setTextColor(44, 62, 80);
+      doc.setFont(undefined, 'bold');
+      doc.text('Detailed Transactions', 20, yPos);
+      
+      yPos += 5;
+
+      const tableData = filteredContributions.map(c => [
+        format(new Date(c.contribution_date), 'MM/dd/yyyy'),
+        getContributionTypeLabel(c.contribution_type),
+        formatAmount(c.amount),
+        getPaymentMethodLabel(c.payment_method),
+        c.transaction_status,
+        (c.transaction_reference || '').substring(0, 15)
+      ]);
+
+      (doc as any).autoTable({
+        startY: yPos,
+        head: [['Date', 'Type', 'Amount', 'Method', 'Status', 'Reference']],
+        body: tableData,
+        theme: 'striped',
+        headStyles: {
+          fillColor: [74, 144, 226],
+          textColor: 255,
+          fontSize: 9,
+          fontStyle: 'bold'
+        },
+        bodyStyles: {
+          fontSize: 8,
+          textColor: [44, 62, 80]
+        },
+        alternateRowStyles: {
+          fillColor: [245, 247, 250]
+        },
+        columnStyles: {
+          0: { cellWidth: 25 },
+          1: { cellWidth: 30 },
+          2: { cellWidth: 25 },
+          3: { cellWidth: 25 },
+          4: { cellWidth: 20 },
+          5: { cellWidth: 35 }
+        },
+        margin: { left: 20, right: 20 },
+        didDrawPage: (data: any) => {
+          // Footer on each page
+          const footerY = pageHeight - 15;
+          doc.setFontSize(8);
+          doc.setTextColor(150, 150, 150);
+          doc.text(
+            `Generated on ${format(new Date(), 'PPP')} | Page ${data.pageNumber}`,
+            pageWidth / 2,
+            footerY,
+            { align: 'center' }
+          );
+        }
+      });
+
+      // Save PDF
+      doc.save(`contribution-report-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+      
+      toast({
+        title: "Report Generated",
+        description: "Your contribution report has been downloaded",
+      });
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast({
+        title: "Export Failed",
+        description: "Failed to generate PDF report",
+        variant: "destructive"
+      });
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
@@ -252,15 +444,25 @@ export default function GivingHistory() {
                 <p className="text-muted-foreground">View and manage your contributions</p>
               </div>
             </div>
-            <Button
-              onClick={exportToCSV}
-              variant="outline"
-              className="gap-2"
-              disabled={filteredContributions.length === 0}
-            >
-              <Download className="h-4 w-4" />
-              Export CSV
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={generatePDFReport}
+                className="gap-2"
+                disabled={filteredContributions.length === 0}
+              >
+                <FileText className="h-4 w-4" />
+                Generate PDF Report
+              </Button>
+              <Button
+                onClick={exportToCSV}
+                variant="outline"
+                className="gap-2"
+                disabled={filteredContributions.length === 0}
+              >
+                <Download className="h-4 w-4" />
+                Export CSV
+              </Button>
+            </div>
           </div>
 
           {/* Stats Cards */}

@@ -485,6 +485,12 @@ export const GivingAnalysis = () => {
           </Table>
         </CardContent>
       </Card>
-    </div>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="realtime">
+        <RealTimeGivingDashboard />
+      </TabsContent>
+    </Tabs>
   );
 };

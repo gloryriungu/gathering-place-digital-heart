@@ -259,30 +259,54 @@ export type Database = {
           contribution_date: string | null
           contribution_type: string | null
           created_at: string | null
+          donor_email: string | null
+          donor_name: string | null
+          donor_phone: string | null
           id: string
           member_id: string | null
           notes: string | null
+          payment_channel: string | null
           payment_method: string | null
+          paystack_reference: string | null
+          save_details: boolean | null
+          transaction_reference: string | null
+          transaction_status: string | null
         }
         Insert: {
           amount: number
           contribution_date?: string | null
           contribution_type?: string | null
           created_at?: string | null
+          donor_email?: string | null
+          donor_name?: string | null
+          donor_phone?: string | null
           id?: string
           member_id?: string | null
           notes?: string | null
+          payment_channel?: string | null
           payment_method?: string | null
+          paystack_reference?: string | null
+          save_details?: boolean | null
+          transaction_reference?: string | null
+          transaction_status?: string | null
         }
         Update: {
           amount?: number
           contribution_date?: string | null
           contribution_type?: string | null
           created_at?: string | null
+          donor_email?: string | null
+          donor_name?: string | null
+          donor_phone?: string | null
           id?: string
           member_id?: string | null
           notes?: string | null
+          payment_channel?: string | null
           payment_method?: string | null
+          paystack_reference?: string | null
+          save_details?: boolean | null
+          transaction_reference?: string | null
+          transaction_status?: string | null
         }
         Relationships: [
           {
@@ -1357,6 +1381,45 @@ export type Database = {
           status?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      saved_payment_methods: {
+        Row: {
+          authorization_code: string | null
+          card_last4: string | null
+          card_type: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          is_default: boolean | null
+          phone_number: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          authorization_code?: string | null
+          card_last4?: string | null
+          card_type?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_default?: boolean | null
+          phone_number?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          authorization_code?: string | null
+          card_last4?: string | null
+          card_type?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_default?: boolean | null
+          phone_number?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }

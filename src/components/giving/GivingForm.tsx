@@ -203,9 +203,11 @@ export const GivingForm = ({ open, onOpenChange }: GivingFormProps) => {
     if (attempts >= maxAttempts) {
       toast({
         title: "Payment Timeout",
-        description: "We're still processing your payment. You'll receive a confirmation shortly.",
+        description: "Payment was not completed. Please try again or contact support if money was deducted.",
+        variant: "destructive"
       });
-      onOpenChange(false);
+      setIsLoading(false);
+      setStep('details');
       return;
     }
 
@@ -228,7 +230,14 @@ export const GivingForm = ({ open, onOpenChange }: GivingFormProps) => {
       }
 
       if (data.data.status === 'failed') {
-        throw new Error('Payment was declined');
+        toast({
+          title: "Payment Failed",
+          description: "Payment was declined or abandoned. Please try again.",
+          variant: "destructive"
+        });
+        setIsLoading(false);
+        setStep('details');
+        return;
       }
 
       // Continue polling

@@ -5,7 +5,7 @@
  * Secret key operations are handled by edge functions
  */
 
-export const PAYSTACK_PUBLIC_KEY = 'pk_test_f6377c31ab144a2621981166eed6a50d6bb91976';
+export const PAYSTACK_PUBLIC_KEY = 'pk_live_11ed132ad1682bbca05985907b6b7b99ff33413d';
 
 export type PaymentMethod = 'mobile_money' | 'card';
 

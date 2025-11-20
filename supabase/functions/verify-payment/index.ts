@@ -76,7 +76,8 @@ serve(async (req) => {
     // Determine transaction status
     const isSuccessful = transactionData.status === 'success';
     const transactionStatus = isSuccessful ? 'completed' : 
-                             transactionData.status === 'failed' ? 'failed' : 'pending';
+                             transactionData.status === 'failed' ? 'failed' :
+                             transactionData.status === 'abandoned' ? 'failed' : 'pending';
 
     // Update contribution record
     const { error: updateError } = await supabaseClient

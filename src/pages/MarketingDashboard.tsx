@@ -8,7 +8,7 @@ import { RequisitionManager } from "@/components/requisitions/RequisitionManager
 import { UserProfile } from "@/components/dashboard/UserProfile";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, Users, Star, MessageSquare, Share2, HelpCircle, FileText, Mail, User } from "lucide-react";
+import { BarChart3, Users, Star, MessageSquare, Share2, HelpCircle, FileText, Mail, User, Webhook } from "lucide-react";
 
 // Marketing management components
 import { AboutUsManager } from "@/components/marketing/AboutUsManager";
@@ -21,6 +21,7 @@ import { EventRegistrationsManager } from "@/components/media/EventRegistrations
 import { LeadCaptureManager } from "@/components/marketing/LeadCaptureManager";
 import { CampaignBuilder } from "@/components/marketing/CampaignBuilder";
 import { SuppressionListManager } from "@/components/marketing/SuppressionListManager";
+import { PaystackWebhookLogs } from "@/components/accounts/PaystackWebhookLogs";
 
 const MarketingDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -94,7 +95,7 @@ const MarketingDashboard = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <TabsList className="grid w-full sm:w-auto grid-cols-3 sm:grid-cols-5 lg:grid-cols-10">
+              <TabsList className="grid w-full sm:w-auto grid-cols-3 sm:grid-cols-5 lg:grid-cols-11">
                 <TabsTrigger value="overview">
                   <span className="hidden sm:inline">Overview</span>
                   <span className="sm:hidden">Home</span>
@@ -111,6 +112,7 @@ const MarketingDashboard = () => {
                 <TabsTrigger value="social" className="hidden sm:flex">Social Media</TabsTrigger>
                 <TabsTrigger value="testimonials" className="hidden lg:flex">Testimonials</TabsTrigger>
                 <TabsTrigger value="faq" className="hidden lg:flex">FAQ</TabsTrigger>
+                <TabsTrigger value="webhooks" className="hidden lg:flex">Webhooks</TabsTrigger>
                 <TabsTrigger value="requisitions" className="hidden lg:flex">Requisitions</TabsTrigger>
                 <TabsTrigger value="inventory" className="hidden lg:flex">Inventory</TabsTrigger>
                 <TabsTrigger value="profile" className="hidden lg:flex">Profile</TabsTrigger>
@@ -127,6 +129,7 @@ const MarketingDashboard = () => {
                   <option value="social">Social Media</option>
                   <option value="testimonials">Testimonials</option>
                   <option value="faq">FAQ</option>
+                  <option value="webhooks">Webhook Logs</option>
                   <option value="requisitions">Requisitions</option>
                   <option value="inventory">Inventory</option>
                   <option value="profile">Profile</option>
@@ -199,6 +202,10 @@ const MarketingDashboard = () => {
 
             <TabsContent value="faq">
               <FAQManager />
+            </TabsContent>
+
+            <TabsContent value="webhooks">
+              <PaystackWebhookLogs />
             </TabsContent>
 
             <TabsContent value="registrations">

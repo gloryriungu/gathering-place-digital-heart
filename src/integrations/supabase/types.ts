@@ -1246,6 +1246,59 @@ export type Database = {
         }
         Relationships: []
       }
+      paystack_webhook_logs: {
+        Row: {
+          created_at: string
+          event_data: Json
+          event_type: string
+          id: string
+          ip_address: string | null
+          processed_at: string | null
+          processing_error: string | null
+          processing_status: string
+          reference: string | null
+          related_contribution_id: string | null
+          signature_valid: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data: Json
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          processed_at?: string | null
+          processing_error?: string | null
+          processing_status?: string
+          reference?: string | null
+          related_contribution_id?: string | null
+          signature_valid?: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          processed_at?: string | null
+          processing_error?: string | null
+          processing_status?: string
+          reference?: string | null
+          related_contribution_id?: string | null
+          signature_valid?: boolean
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paystack_webhook_logs_related_contribution_id_fkey"
+            columns: ["related_contribution_id"]
+            isOneToOne: false
+            referencedRelation: "contributions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           address: string | null

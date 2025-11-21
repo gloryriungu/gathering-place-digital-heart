@@ -17,9 +17,10 @@ import { PaymentMethod, formatAmount, validateEmail } from "@/lib/paystack";
 interface GivingFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultContributionType?: string;
 }
 
-export const GivingForm = ({ open, onOpenChange }: GivingFormProps) => {
+export const GivingForm = ({ open, onOpenChange, defaultContributionType }: GivingFormProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [step, setStep] = useState<'details' | 'payment' | 'processing' | 'success'>('details');
@@ -29,7 +30,7 @@ export const GivingForm = ({ open, onOpenChange }: GivingFormProps) => {
   // Form data
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('mobile_money');
   const [amount, setAmount] = useState<string>("");
-  const [contributionType, setContributionType] = useState("offering");
+  const [contributionType, setContributionType] = useState(defaultContributionType || "Tithe");
   const [customContributionType, setCustomContributionType] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

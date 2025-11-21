@@ -270,14 +270,14 @@ const Dashboard = () => {
         { value: "inventory", label: "All Inventory", icon: Settings },
       ],
       user: [
-        { value: "join-family", label: "Join Family", icon: Heart },
-        { value: "apply-ministry", label: "Apply to Ministry", icon: Users },
-        { value: "apply-serve", label: "Apply to Serve", icon: UserCheck },
-        { value: "counseling-book", label: "Book Counseling", icon: Calendar },
         { value: "giving", label: "My Giving", icon: Heart },
         { value: "recurring-giving", label: "Recurring Giving", icon: Calendar },
         { value: "payment-methods", label: "Payment Methods", icon: CreditCard },
         { value: "events", label: "Events", icon: Calendar },
+        { value: "join-family", label: "Join Family", icon: Heart },
+        { value: "apply-ministry", label: "Apply to Ministry", icon: Users },
+        { value: "apply-serve", label: "Apply to Serve", icon: UserCheck },
+        { value: "counseling-book", label: "Book Counseling", icon: Calendar },
       ]
     };
 
@@ -344,21 +344,24 @@ const Dashboard = () => {
           </div>
 
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="inline-flex w-full overflow-x-auto flex-nowrap h-auto p-1">
-              {getRoleBasedTabs().map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <TabsTrigger 
-                    key={tab.value} 
-                    value={tab.value} 
-                    className="flex items-center gap-2 whitespace-nowrap flex-shrink-0"
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span className="hidden sm:inline">{tab.label}</span>
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
+            <div className="relative">
+              <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent pointer-events-none z-10" />
+              <TabsList className="inline-flex w-full overflow-x-auto flex-nowrap h-auto p-1 scrollbar-hide">
+                {getRoleBasedTabs().map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <TabsTrigger 
+                      key={tab.value} 
+                      value={tab.value} 
+                      className="flex items-center gap-2 whitespace-nowrap flex-shrink-0"
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span className="hidden sm:inline">{tab.label}</span>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </div>
 
             <TabsContent value="overview" className="space-y-6">
               <DashboardOverviewStats />

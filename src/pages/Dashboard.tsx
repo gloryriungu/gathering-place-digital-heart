@@ -344,11 +344,15 @@ const Dashboard = () => {
           </div>
 
           <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid grid-cols-4 lg:grid-cols-6 w-full">
+            <TabsList className="inline-flex w-full overflow-x-auto flex-nowrap h-auto p-1">
               {getRoleBasedTabs().map((tab) => {
                 const Icon = tab.icon;
                 return (
-                  <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-2">
+                  <TabsTrigger 
+                    key={tab.value} 
+                    value={tab.value} 
+                    className="flex items-center gap-2 whitespace-nowrap flex-shrink-0"
+                  >
                     <Icon className="h-4 w-4" />
                     <span className="hidden sm:inline">{tab.label}</span>
                   </TabsTrigger>

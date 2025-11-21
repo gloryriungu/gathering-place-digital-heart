@@ -76,7 +76,8 @@ import {
   Shield,
   Activity,
   Ticket,
-  Mail
+  Mail,
+  CreditCard
 } from "lucide-react";
 import { AttendanceTracker } from "@/components/dashboard/AttendanceTracker";
 import { FinancialContributions } from "@/components/dashboard/FinancialContributions";
@@ -109,6 +110,8 @@ import { BudgetProposals } from "@/components/budget/BudgetProposals";
 import { DepartmentTabManager } from "@/components/admin/DepartmentTabManager";
 import { UserProfile } from "@/components/dashboard/UserProfile";
 import { GivingForm } from "@/components/giving/GivingForm";
+import { SavedPaymentMethods } from "@/components/giving/SavedPaymentMethods";
+import { RecurringGivingManager } from "@/components/giving/RecurringGivingManager";
 
 const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
@@ -272,6 +275,8 @@ const Dashboard = () => {
         { value: "apply-serve", label: "Apply to Serve", icon: UserCheck },
         { value: "counseling-book", label: "Book Counseling", icon: Calendar },
         { value: "giving", label: "My Giving", icon: Heart },
+        { value: "recurring-giving", label: "Recurring Giving", icon: Calendar },
+        { value: "payment-methods", label: "Payment Methods", icon: CreditCard },
         { value: "events", label: "Events", icon: Calendar },
       ]
     };
@@ -446,6 +451,14 @@ const Dashboard = () => {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="recurring-giving">
+              <RecurringGivingManager />
+            </TabsContent>
+
+            <TabsContent value="payment-methods">
+              <SavedPaymentMethods />
             </TabsContent>
 
             <TabsContent value="join-family">

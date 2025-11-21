@@ -1341,6 +1341,78 @@ export type Database = {
         }
         Relationships: []
       }
+      recurring_contributions: {
+        Row: {
+          amount: number
+          contribution_type: string
+          created_at: string
+          end_date: string | null
+          failed_attempts: number | null
+          frequency: string
+          id: string
+          last_charge_date: string | null
+          last_charge_status: string | null
+          member_id: string | null
+          next_charge_date: string
+          payment_method_id: string
+          start_date: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          contribution_type?: string
+          created_at?: string
+          end_date?: string | null
+          failed_attempts?: number | null
+          frequency?: string
+          id?: string
+          last_charge_date?: string | null
+          last_charge_status?: string | null
+          member_id?: string | null
+          next_charge_date: string
+          payment_method_id: string
+          start_date?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          contribution_type?: string
+          created_at?: string
+          end_date?: string | null
+          failed_attempts?: number | null
+          frequency?: string
+          id?: string
+          last_charge_date?: string | null
+          last_charge_status?: string | null
+          member_id?: string | null
+          next_charge_date?: string
+          payment_method_id?: string
+          start_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_recurring_member"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_recurring_payment_method"
+            columns: ["payment_method_id"]
+            isOneToOne: false
+            referencedRelation: "saved_payment_methods"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reports: {
         Row: {
           created_at: string

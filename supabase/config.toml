@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.webhook-paystack]
 verify_jwt = false
+
+[functions.process-recurring-payments]
+verify_jwt = false

@@ -36,10 +36,13 @@ export const GivingForm = ({ open, onOpenChange, defaultContributionType }: Givi
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [saveDetails, setSaveDetails] = useState(false);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [savedPaymentMethods, setSavedPaymentMethods] = useState<any[]>([]);
+  const [selectedPaymentMethodId, setSelectedPaymentMethodId] = useState<string>("");
   
   const presetAmounts = [500, 1000, 2000, 5000, 10000];
 
-  // Load user data
+  // Load user data and saved payment methods
   useState(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
@@ -58,6 +61,19 @@ export const GivingForm = ({ open, onOpenChange, defaultContributionType }: Givi
               setPhone(data.phone || "");
             }
           });
+
+        // Load saved payment methods for recurring option
+        supabase
+          .from('saved_payment_methods')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('is_default', { ascending: false })
+          .then(({ data }) => {
+            if (data && data.length > 0) {
+              setSavedPaymentMethods(data);
+              setSelectedPaymentMethodId(data[0].id); // Set default
+            }
+          });
       }
     });
   });
@@ -66,7 +82,7 @@ export const GivingForm = ({ open, onOpenChange, defaultContributionType }: Givi
     setAmount(value.toString());
   };
 
-  const handleContinueToPayment = () => {
+  const handleContinueToPayment = async () => {
     // Validate amount
     const numAmount = parseFloat(amount);
     if (!numAmount || numAmount < 10) {
@@ -118,7 +134,87 @@ export const GivingForm = ({ open, onOpenChange, defaultContributionType }: Givi
       }
     }
 
+    // Recurring giving validation
+    if (isRecurring) {
+      if (!user) {
+        toast({
+          title: "Login Required",
+          description: "You must be logged in to set up recurring giving",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (savedPaymentMethods.length === 0) {
+        toast({
+          title: "Payment Method Required",
+          description: "Please save a payment method first to enable recurring giving",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Create recurring contribution record
+      await createRecurringContribution();
+      return;
+    }
+
     setStep('payment');
+  };
+
+  const createRecurringContribution = async () => {
+    setIsLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Get member_id
+      const { data: member } = await supabase
+        .from('members')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      // Calculate next charge date (first day of next month)
+      const nextMonth = new Date();
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      nextMonth.setDate(1);
+
+      const { error } = await supabase
+        .from('recurring_contributions')
+        .insert({
+          user_id: user.id,
+          member_id: member?.id,
+          contribution_type: contributionType === "others" ? customContributionType : contributionType,
+          amount: parseFloat(amount),
+          frequency: 'monthly',
+          payment_method_id: selectedPaymentMethodId,
+          status: 'active',
+          next_charge_date: nextMonth.toISOString().split('T')[0]
+        });
+
+      if (error) throw error;
+
+      setStep('success');
+      toast({
+        title: "Recurring Giving Set Up!",
+        description: `Your monthly ${contributionType} of ${formatAmount(parseFloat(amount))} has been scheduled`,
+      });
+
+      setTimeout(() => {
+        onOpenChange(false);
+        navigate('/dashboard');
+      }, 3000);
+    } catch (error: any) {
+      console.error('Error setting up recurring:', error);
+      toast({
+        title: "Setup Failed",
+        description: error.message || "Failed to set up recurring giving",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleMpesaPayment = async (mpesaPhone: string) => {
@@ -385,23 +481,72 @@ export const GivingForm = ({ open, onOpenChange, defaultContributionType }: Givi
             </div>
 
             {user && (
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="save-details"
-                  checked={saveDetails}
-                  onCheckedChange={(checked) => setSaveDetails(checked as boolean)}
-                />
-                <label
-                  htmlFor="save-details"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Save payment details for faster giving next time
-                </label>
-              </div>
+              <>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="save-details"
+                    checked={saveDetails}
+                    onCheckedChange={(checked) => setSaveDetails(checked as boolean)}
+                  />
+                  <label
+                    htmlFor="save-details"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Save payment details for faster giving next time
+                  </label>
+                </div>
+
+                {savedPaymentMethods.length > 0 && (
+                  <div className="space-y-3 p-4 bg-muted/50 rounded-lg border">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="recurring"
+                        checked={isRecurring}
+                        onCheckedChange={(checked) => setIsRecurring(checked as boolean)}
+                      />
+                      <label
+                        htmlFor="recurring"
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Make this a recurring monthly contribution
+                      </label>
+                    </div>
+
+                    {isRecurring && (
+                      <div>
+                        <Label htmlFor="payment-method">Payment Method</Label>
+                        <Select value={selectedPaymentMethodId} onValueChange={setSelectedPaymentMethodId}>
+                          <SelectTrigger id="payment-method">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {savedPaymentMethods.map((method) => (
+                              <SelectItem key={method.id} value={method.id}>
+                                {method.phone_number 
+                                  ? `M-Pesa: ${method.phone_number}` 
+                                  : `${method.card_type} •••• ${method.card_last4}`}
+                                {method.is_default && " (Default)"}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Charges will occur on the 1st of each month
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
             )}
 
-            <Button onClick={handleContinueToPayment} className="w-full" size="lg">
-              Continue to Payment
+            <Button 
+              onClick={handleContinueToPayment} 
+              className="w-full" 
+              size="lg"
+              disabled={isLoading}
+            >
+              {isRecurring ? 'Set Up Recurring Giving' : 'Continue to Payment'}
             </Button>
           </div>
         )}

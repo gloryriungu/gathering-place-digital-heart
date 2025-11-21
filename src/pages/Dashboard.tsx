@@ -119,6 +119,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState<string>("user");
   const [showGivingForm, setShowGivingForm] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
   useInactivityLogout();
 
   useEffect(() => {
@@ -342,14 +343,16 @@ const Dashboard = () => {
                 <SidebarMenu>
                   {getRoleBasedTabs().map((tab) => {
                     const Icon = tab.icon;
+                    const isActive = activeTab === tab.value;
                     return (
                       <SidebarMenuItem key={tab.value}>
                         <SidebarMenuButton
                           onClick={() => {
+                            setActiveTab(tab.value);
                             const tabTrigger = document.querySelector(`[data-value="${tab.value}"]`) as HTMLButtonElement;
                             tabTrigger?.click();
                           }}
-                          className="w-full"
+                          className={`w-full ${isActive ? 'bg-primary text-primary-foreground font-medium hover:bg-primary hover:text-primary-foreground' : 'hover:bg-muted'}`}
                         >
                           <Icon className="h-4 w-4 mr-2" />
                           <span>{tab.label}</span>

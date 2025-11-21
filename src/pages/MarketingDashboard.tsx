@@ -22,12 +22,20 @@ import { LeadCaptureManager } from "@/components/marketing/LeadCaptureManager";
 import { CampaignBuilder } from "@/components/marketing/CampaignBuilder";
 import { SuppressionListManager } from "@/components/marketing/SuppressionListManager";
 import { PaystackWebhookLogs } from "@/components/accounts/PaystackWebhookLogs";
+import { GivePageManager } from "@/components/marketing/GivePageManager";
 
 const MarketingDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   useInactivityLogout();
 
   const managementSections = [
+    {
+      id: "give-page",
+      title: "Give Page Content",
+      description: "Edit all content sections for the Give page",
+      icon: FileText,
+      color: "text-emerald-600"
+    },
     {
       id: "leads",
       title: "Lead Capture",
@@ -95,11 +103,12 @@ const MarketingDashboard = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <TabsList className="grid w-full sm:w-auto grid-cols-3 sm:grid-cols-5 lg:grid-cols-11">
+              <TabsList className="grid w-full sm:w-auto grid-cols-3 sm:grid-cols-5 lg:grid-cols-12">
                 <TabsTrigger value="overview">
                   <span className="hidden sm:inline">Overview</span>
                   <span className="sm:hidden">Home</span>
                 </TabsTrigger>
+                <TabsTrigger value="give-page" className="hidden lg:flex">Give Page</TabsTrigger>
                 <TabsTrigger value="about">
                   <span className="hidden sm:inline">About Us</span>
                   <span className="sm:hidden">About</span>
@@ -171,6 +180,10 @@ const MarketingDashboard = () => {
 
             <TabsContent value="leads">
               <LeadCaptureManager />
+            </TabsContent>
+
+            <TabsContent value="give-page">
+              <GivePageManager />
             </TabsContent>
 
             <TabsContent value="campaigns">

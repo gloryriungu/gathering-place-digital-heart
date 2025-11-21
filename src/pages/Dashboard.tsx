@@ -60,6 +60,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
@@ -323,45 +324,74 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <div className="pt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-              <p className="text-muted-foreground mt-1">Welcome back! Here's what's happening today.</p>
-            </div>
-            <div className="flex items-center gap-4">
+    <SidebarProvider>
+      <div className="min-h-screen bg-background w-full flex">
+        <Sidebar className="border-r">
+          <SidebarContent>
+            <div className="p-4 border-b">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-lg font-semibold">Dashboard</h2>
+                <SidebarTrigger />
+              </div>
               {getUserRoleBadge()}
-              <Button variant="outline" size="icon">
-                <Bell className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" onClick={signOut}>
+            </div>
+
+            <SidebarGroup>
+              <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {getRoleBasedTabs().map((tab) => {
+                    const Icon = tab.icon;
+                    return (
+                      <SidebarMenuItem key={tab.value}>
+                        <SidebarMenuButton
+                          onClick={() => {
+                            const tabTrigger = document.querySelector(`[data-value="${tab.value}"]`) as HTMLButtonElement;
+                            tabTrigger?.click();
+                          }}
+                          className="w-full"
+                        >
+                          <Icon className="h-4 w-4 mr-2" />
+                          <span>{tab.label}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+
+            <div className="mt-auto p-4 border-t">
+              <Button variant="outline" onClick={signOut} className="w-full">
                 Sign Out
               </Button>
             </div>
-          </div>
+          </SidebarContent>
+        </Sidebar>
 
-          <Tabs defaultValue="overview" className="space-y-6">
-            <div className="relative">
-              <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent pointer-events-none z-10" />
-              <TabsList className="inline-flex w-full overflow-x-auto flex-nowrap h-auto p-1 scrollbar-hide">
-                {getRoleBasedTabs().map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <TabsTrigger 
-                      key={tab.value} 
-                      value={tab.value} 
-                      className="flex items-center gap-2 whitespace-nowrap flex-shrink-0"
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span className="hidden sm:inline">{tab.label}</span>
-                    </TabsTrigger>
-                  );
-                })}
-              </TabsList>
-            </div>
+        <div className="flex-1 flex flex-col">
+          <Navigation />
+          <div className="pt-20 flex-1">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-4">
+                  <SidebarTrigger />
+                  <div>
+                    <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+                    <p className="text-muted-foreground mt-1">Welcome back! Here's what's happening today.</p>
+                  </div>
+                </div>
+                <Button variant="outline" size="icon">
+                  <Bell className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <Tabs defaultValue="overview" className="space-y-6">
+                <TabsList className="hidden">
+                  {getRoleBasedTabs().map((tab) => (
+                    <TabsTrigger key={tab.value} value={tab.value} data-value={tab.value} />
+                  ))}
+                </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
               <DashboardOverviewStats />
@@ -627,12 +657,14 @@ const Dashboard = () => {
               <RequisitionManager userRole={userRole} departmentId={userRole === 'admin' || userRole === 'accounts' || userRole === 'it' || userRole === 'founder' || userRole === 'senior_pastor' ? undefined : userRole} />
             </TabsContent>
 
-          </Tabs>
+              </Tabs>
+            </div>
+          </div>
         </div>
+        
+        <GivingForm open={showGivingForm} onOpenChange={setShowGivingForm} />
       </div>
-      
-      <GivingForm open={showGivingForm} onOpenChange={setShowGivingForm} />
-    </div>
+    </SidebarProvider>
   );
 };
 

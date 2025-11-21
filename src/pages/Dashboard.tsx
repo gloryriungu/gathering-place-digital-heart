@@ -187,6 +187,8 @@ const Dashboard = () => {
     const baseTabs = [
       { value: "overview", label: "Overview", icon: Calendar },
       { value: "give", label: "Give", icon: Heart },
+      { value: "recurring-giving", label: "Recurring Giving", icon: Calendar },
+      { value: "payment-methods", label: "Payment Methods", icon: CreditCard },
       { value: "profile", label: "Profile", icon: Users },
       { value: "newsletter", label: "Newsletter", icon: Mail },
     ];
@@ -273,8 +275,6 @@ const Dashboard = () => {
       ],
       user: [
         { value: "giving", label: "My Giving", icon: Heart },
-        { value: "recurring-giving", label: "Recurring Giving", icon: Calendar },
-        { value: "payment-methods", label: "Payment Methods", icon: CreditCard },
         { value: "events", label: "Events", icon: Calendar },
         { value: "join-family", label: "Join Family", icon: Heart },
         { value: "apply-ministry", label: "Apply to Ministry", icon: Users },
@@ -347,11 +347,7 @@ const Dashboard = () => {
                     return (
                       <SidebarMenuItem key={tab.value}>
                         <SidebarMenuButton
-                          onClick={() => {
-                            setActiveTab(tab.value);
-                            const tabTrigger = document.querySelector(`[data-value="${tab.value}"]`) as HTMLButtonElement;
-                            tabTrigger?.click();
-                          }}
+                          onClick={() => setActiveTab(tab.value)}
                           className={`w-full ${isActive ? 'bg-primary text-primary-foreground font-medium hover:bg-primary hover:text-primary-foreground' : 'hover:bg-muted'}`}
                         >
                           <Icon className="h-4 w-4 mr-2" />
@@ -389,10 +385,10 @@ const Dashboard = () => {
                 </Button>
               </div>
 
-              <Tabs defaultValue="overview" className="space-y-6">
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                 <TabsList className="hidden">
                   {getRoleBasedTabs().map((tab) => (
-                    <TabsTrigger key={tab.value} value={tab.value} data-value={tab.value} />
+                    <TabsTrigger key={tab.value} value={tab.value} />
                   ))}
                 </TabsList>
 

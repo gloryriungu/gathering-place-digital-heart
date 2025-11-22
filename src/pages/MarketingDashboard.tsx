@@ -14,13 +14,12 @@ import { BarChart3, Users, Star, MessageSquare, Share2, HelpCircle, FileText, Ma
 
 // Marketing management components
 import { AboutUsManager } from "@/components/marketing/AboutUsManager";
-import { NewsletterCRM } from "@/components/marketing/NewsletterCRM";
 import { NoticeFilmingManager } from "@/components/marketing/NoticeFilmingManager";
 import { SocialMediaManager } from "@/components/marketing/SocialMediaManager";  
 import { TestimonialsManager } from "@/components/marketing/TestimonialsManager";
 import { FAQManager } from "@/components/marketing/FAQManager";
 import { EventRegistrationsManager } from "@/components/media/EventRegistrationsManager";
-import { LeadCaptureManager } from "@/components/marketing/LeadCaptureManager";
+import { SubscriberManagement } from "@/components/marketing/SubscriberManagement";
 import { CampaignBuilder } from "@/components/marketing/CampaignBuilder";
 import { SuppressionListManager } from "@/components/marketing/SuppressionListManager";
 import { PaystackWebhookLogs } from "@/components/accounts/PaystackWebhookLogs";
@@ -33,10 +32,9 @@ const MarketingDashboard = () => {
   const menuItems = [
     { value: "overview", label: "Overview", icon: Calendar },
     { value: "give-page", label: "Give Page", icon: FileText },
-    { value: "leads", label: "Lead Capture", icon: Users },
+    { value: "subscribers", label: "Subscribers", icon: Users },
     { value: "campaigns", label: "Email Campaigns", icon: Mail },
     { value: "about", label: "About Us", icon: FileText },
-    { value: "newsletter", label: "Newsletter", icon: Mail },
     { value: "filming", label: "Filming", icon: BarChart3 },
     { value: "social", label: "Social Media", icon: Share2 },
     { value: "testimonials", label: "Testimonials", icon: Star },
@@ -56,9 +54,9 @@ const MarketingDashboard = () => {
       color: "text-emerald-600"
     },
     {
-      id: "leads",
-      title: "Lead Capture",
-      description: "View and manage all captured leads from forms",
+      id: "subscribers",
+      title: "Subscriber Management",
+      description: "Unified analytics, management, and campaigns for all subscribers",
       icon: Users,
       color: "text-blue-600"
     },
@@ -75,13 +73,6 @@ const MarketingDashboard = () => {
       description: "Manage church story, beliefs, leadership, and mission content",
       icon: FileText,
       color: "text-blue-600"
-    },
-    {
-      id: "newsletter",
-      title: "Newsletter & CRM",
-      description: "Manage subscribers, campaigns, and customer relationships",
-      icon: Mail,
-      color: "text-green-600"
     },
     {
       id: "filming",
@@ -195,8 +186,8 @@ const MarketingDashboard = () => {
                     </div>
                   </TabsContent>
 
-                  <TabsContent value="leads">
-                    <LeadCaptureManager />
+                  <TabsContent value="subscribers">
+                    <SubscriberManagement />
                   </TabsContent>
 
                   <TabsContent value="give-page">
@@ -212,10 +203,6 @@ const MarketingDashboard = () => {
 
                   <TabsContent value="about">
                     <AboutUsManager />
-                  </TabsContent>
-
-                  <TabsContent value="newsletter">
-                    <NewsletterCRM />
                   </TabsContent>
 
                   <TabsContent value="filming">

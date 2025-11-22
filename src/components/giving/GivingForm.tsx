@@ -219,7 +219,6 @@ export const GivingForm = ({ open, onOpenChange, defaultContributionType }: Givi
 
   const handleMpesaPayment = async (mpesaPhone: string) => {
     setIsLoading(true);
-    setStep('processing');
 
     try {
       const { data, error } = await supabase.functions.invoke('initialize-payment', {
@@ -241,9 +240,8 @@ export const GivingForm = ({ open, onOpenChange, defaultContributionType }: Givi
         throw new Error(data.error || 'Failed to initialize payment');
       }
 
-      // Start polling for payment status
-      const reference = data.data.reference;
-      await pollPaymentStatus(reference);
+      // Redirect to Paystack checkout - this will trigger STK push
+      window.location.href = data.data.authorization_url;
 
     } catch (error: any) {
       console.error('Payment error:', error);
@@ -253,7 +251,6 @@ export const GivingForm = ({ open, onOpenChange, defaultContributionType }: Givi
         variant: "destructive"
       });
       setStep('payment');
-    } finally {
       setIsLoading(false);
     }
   };

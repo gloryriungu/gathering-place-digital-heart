@@ -39,7 +39,8 @@ export const MpesaPayment = ({ amount, onSubmit, isLoading, defaultPhone }: Mpes
             <p className="font-semibold text-foreground mb-1">M-Pesa Payment Instructions:</p>
             <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
               <li>Enter your Safaricom M-Pesa number</li>
-              <li>You'll receive an STK push on your phone</li>
+              <li>You'll be redirected to complete payment</li>
+              <li>Check your phone for the STK push</li>
               <li>Enter your M-Pesa PIN to complete payment</li>
             </ol>
           </div>
@@ -86,26 +87,15 @@ export const MpesaPayment = ({ amount, onSubmit, isLoading, defaultPhone }: Mpes
         {isLoading ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Processing...
+            Redirecting...
           </>
         ) : (
           <>
             <Smartphone className="mr-2 h-4 w-4" />
-            Pay with M-Pesa
+            Continue with M-Pesa
           </>
         )}
       </Button>
-
-      {isLoading && (
-        <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg text-center">
-          <p className="text-sm font-medium text-foreground">
-            Check your phone for the M-Pesa prompt
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Enter your PIN to complete the transaction
-          </p>
-        </div>
-      )}
     </form>
   );
 };

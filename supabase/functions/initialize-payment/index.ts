@@ -131,13 +131,31 @@ serve(async (req) => {
 
     console.log('Initializing Paystack transaction:', paystackPayload.reference);
 
-    const paystackResponse = await fetch('https://api.paystack.co/transaction/initialize', {
+    // Use different endpoint for mobile money to trigger STK push
+    const endpoint = payment_method === 'mobile_money' 
+      ? 'https://api.paystack.co/charge'
+      : 'https://api.paystack.co/transaction/initialize';
+
+    // For mobile money, use charge payload format
+    const requestPayload = payment_method === 'mobile_money' ? {
+      email,
+      amount: amountInKobo,
+      currency: 'KES',
+      reference: contribution.id,
+      mobile_money: {
+        phone,
+        provider: 'mpg'  // mpg is Paystack's provider code for M-Pesa Kenya
+      },
+      metadata: paystackPayload.metadata
+    } : paystackPayload;
+
+    const paystackResponse = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${paystackSecretKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(paystackPayload),
+      body: JSON.stringify(requestPayload),
     });
 
     const paystackData = await paystackResponse.json();
@@ -158,23 +176,41 @@ serve(async (req) => {
     }
 
     // Update contribution with Paystack reference
+    const reference = paystackData.data.reference || contribution.id;
     await supabaseClient
       .from('contributions')
       .update({
-        paystack_reference: paystackData.data.reference,
-        transaction_reference: paystackData.data.reference
+        paystack_reference: reference,
+        transaction_reference: reference
       })
       .eq('id', contribution.id);
 
-    console.log('Payment initialized successfully:', paystackData.data.reference);
+    console.log('Payment initialized successfully:', reference);
 
+    // For mobile money charge, return display info for pending status
+    if (payment_method === 'mobile_money') {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          data: {
+            reference,
+            contribution_id: contribution.id,
+            display_text: paystackData.data.display_text || 'Check your phone for M-Pesa prompt',
+            status: 'pending'
+          }
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // For card payments, return authorization URL
     return new Response(
       JSON.stringify({
         success: true,
         data: {
           authorization_url: paystackData.data.authorization_url,
           access_code: paystackData.data.access_code,
-          reference: paystackData.data.reference,
+          reference,
           contribution_id: contribution.id
         }
       }),

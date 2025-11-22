@@ -1,33 +1,3 @@
-/**
- * REGISTRATION DASHBOARD - MEMBER & ATTENDANCE MANAGEMENT
- * 
- * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
- * - TypeScript: Provides strong typing for registration and member data structures
- * - React: Component-based UI framework for the dashboard interface
- * - React Hooks: useState, useEffect, useNavigate for state and navigation management
- * 
- * FUNCTIONALITY:
- * Centralized dashboard for church registration staff to manage all member-related operations:
- * - QR Scanner: Quick attendance check-in using QR codes for contactless registration
- * - Attendance Tracking: Record and monitor service attendance across different services
- * - Member Management: Add, edit, view, and organize member information
- * - Import Members: Bulk upload members from CSV/Excel files
- * - Link Members: Connect duplicate profiles and family relationships
- * - Reports: Generate attendance and membership reports
- * - Profile: View and update personal user profile
- * 
- * ACCESS CONTROL:
- * - Restricted to users with 'registration' or 'it' roles
- * - Auto-redirects unauthorized users to appropriate dashboards
- * - Implements session timeout via useInactivityLogout hook
- * - Checks authentication status before rendering content
- * 
- * DATA MANAGEMENT:
- * - Integrates with Supabase for real-time data synchronization
- * - Handles member import history and validation
- * - Supports family linking and relationship management
- * - Generates comprehensive attendance and membership reports
- */
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";
@@ -40,13 +10,15 @@ import { UserProfile } from "@/components/dashboard/UserProfile";
 import { ImportHistory } from "@/components/registration/ImportHistory";
 import { MemberLinkingManager } from "@/components/registration/MemberLinkingManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Users, Calendar, FileText, User, Upload, Link2, QrCode } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const RegistrationDashboard = () => {
   const { isAuthenticated, userRole, loading } = useAuth();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("qr-scanner");
   useInactivityLogout();
 
   useEffect(() => {
@@ -87,59 +59,92 @@ const RegistrationDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <div className="pt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <RegistrationDashboardHeader />
-          
-          <Tabs defaultValue="qr-scanner" className="space-y-6">
-            <TabsList className="flex flex-wrap gap-2 h-auto bg-muted p-2">
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-2">
-                    <Icon className="h-4 w-4" />
-                    {tab.label}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
+    <SidebarProvider>
+      <div className="min-h-screen bg-background w-full flex">
+        <Sidebar className="border-r">
+          <SidebarContent>
+            <div className="p-4 border-b">
+              <h2 className="text-lg font-semibold">Registration Dashboard</h2>
+            </div>
 
-            <TabsContent value="qr-scanner">
-              <AttendanceQRScanner 
-                selectedDate={new Date().toISOString().split('T')[0]}
-                serviceType="sunday_service"
-              />
-            </TabsContent>
+            <SidebarGroup>
+              <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {tabs.map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = activeTab === tab.value;
+                    return (
+                      <SidebarMenuItem key={tab.value}>
+                        <SidebarMenuButton
+                          onClick={() => setActiveTab(tab.value)}
+                          className={isActive ? 'bg-primary text-primary-foreground font-medium' : ''}
+                        >
+                          <Icon className="h-4 w-4" />
+                          <span>{tab.label}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
 
-            <TabsContent value="attendance">
-              <AttendanceTracker />
-            </TabsContent>
+        <div className="flex-1">
+          <Navigation />
+          <div className="pt-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <RegistrationDashboardHeader />
+              
+              <div className="flex items-center gap-4 mb-8">
+                <SidebarTrigger />
+              </div>
 
-            <TabsContent value="members">
-              <MemberManagement />
-            </TabsContent>
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                <TabsList className="hidden">
+                  {tabs.map((tab) => (
+                    <TabsTrigger key={tab.value} value={tab.value} />
+                  ))}
+                </TabsList>
 
-            <TabsContent value="import">
-              <ImportHistory />
-            </TabsContent>
+                <TabsContent value="qr-scanner">
+                  <AttendanceQRScanner 
+                    selectedDate={new Date().toISOString().split('T')[0]}
+                    serviceType="sunday_service"
+                  />
+                </TabsContent>
 
-            <TabsContent value="linking">
-              <MemberLinkingManager />
-            </TabsContent>
+                <TabsContent value="attendance">
+                  <AttendanceTracker />
+                </TabsContent>
 
-            <TabsContent value="reports">
-              <ReportsOverview />
-            </TabsContent>
+                <TabsContent value="members">
+                  <MemberManagement />
+                </TabsContent>
 
-            <TabsContent value="profile">
-              <UserProfile />
-            </TabsContent>
-          </Tabs>
+                <TabsContent value="import">
+                  <ImportHistory />
+                </TabsContent>
+
+                <TabsContent value="linking">
+                  <MemberLinkingManager />
+                </TabsContent>
+
+                <TabsContent value="reports">
+                  <ReportsOverview />
+                </TabsContent>
+
+                <TabsContent value="profile">
+                  <UserProfile />
+                </TabsContent>
+              </Tabs>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

@@ -7,7 +7,9 @@ import { DepartmentInventory } from "@/components/inventory/DepartmentInventory"
 import { RequisitionManager } from "@/components/requisitions/RequisitionManager";
 import { UserProfile } from "@/components/dashboard/UserProfile";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { BarChart3, Users, Star, MessageSquare, Share2, HelpCircle, FileText, Mail, User, Webhook, Calendar, Settings } from "lucide-react";
 
 // Marketing management components
@@ -27,6 +29,23 @@ import { GivePageManager } from "@/components/marketing/GivePageManager";
 const MarketingDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   useInactivityLogout();
+
+  const menuItems = [
+    { value: "overview", label: "Overview", icon: Calendar },
+    { value: "give-page", label: "Give Page", icon: FileText },
+    { value: "leads", label: "Lead Capture", icon: Users },
+    { value: "campaigns", label: "Email Campaigns", icon: Mail },
+    { value: "about", label: "About Us", icon: FileText },
+    { value: "newsletter", label: "Newsletter", icon: Mail },
+    { value: "filming", label: "Filming", icon: BarChart3 },
+    { value: "social", label: "Social Media", icon: Share2 },
+    { value: "testimonials", label: "Testimonials", icon: Star },
+    { value: "faq", label: "FAQ", icon: HelpCircle },
+    { value: "webhooks", label: "Webhooks", icon: Webhook },
+    { value: "requisitions", label: "Requisitions", icon: FileText },
+    { value: "inventory", label: "Inventory", icon: Settings },
+    { value: "profile", label: "Profile", icon: User },
+  ];
 
   const managementSections = [
     {
@@ -96,160 +115,154 @@ const MarketingDashboard = () => {
 
   return (
     <AuthGuard allowedRoles={["marketing", "admin", "it"]}>
-      <div className="min-h-screen bg-gray-50">
-        <Navigation />
-        <div className="pt-20">
-          <MarketingDashboardHeader />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="flex flex-wrap gap-2 h-auto bg-muted p-2">
-              <TabsTrigger value="overview" className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Overview
-              </TabsTrigger>
-              <TabsTrigger value="give-page" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Give Page
-              </TabsTrigger>
-              <TabsTrigger value="about" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                About Us
-              </TabsTrigger>
-              <TabsTrigger value="newsletter" className="flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                Newsletter
-              </TabsTrigger>
-              <TabsTrigger value="filming" className="flex items-center gap-2">
-                <BarChart3 className="h-4 w-4" />
-                Filming
-              </TabsTrigger>
-              <TabsTrigger value="social" className="flex items-center gap-2">
-                <Share2 className="h-4 w-4" />
-                Social Media
-              </TabsTrigger>
-              <TabsTrigger value="testimonials" className="flex items-center gap-2">
-                <Star className="h-4 w-4" />
-                Testimonials
-              </TabsTrigger>
-              <TabsTrigger value="faq" className="flex items-center gap-2">
-                <HelpCircle className="h-4 w-4" />
-                FAQ
-              </TabsTrigger>
-              <TabsTrigger value="webhooks" className="flex items-center gap-2">
-                <Webhook className="h-4 w-4" />
-                Webhooks
-              </TabsTrigger>
-              <TabsTrigger value="requisitions" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Requisitions
-              </TabsTrigger>
-              <TabsTrigger value="inventory" className="flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                Inventory
-              </TabsTrigger>
-              <TabsTrigger value="profile" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Profile
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="overview" className="space-y-6">
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {managementSections.map((section) => {
-                  const IconComponent = section.icon;
-                  return (
-                    <Card
-                      key={section.id}
-                      className="cursor-pointer transition-all hover:shadow-lg border-l-4 border-l-primary"
-                      onClick={() => setActiveTab(section.id)}
-                    >
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center space-x-3">
-                          <IconComponent className={`h-8 w-8 ${section.color}`} />
-                          <div>
-                            <CardTitle className="text-lg">{section.title}</CardTitle>
-                            <CardDescription className="text-sm">
-                              {section.description}
-                            </CardDescription>
-                          </div>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-sm text-muted-foreground">
-                          Click to manage →
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+      <SidebarProvider>
+        <div className="min-h-screen bg-gray-50 w-full flex">
+          <Sidebar className="border-r">
+            <SidebarContent>
+              <div className="p-4 border-b">
+                <h2 className="text-lg font-semibold">Marketing Dashboard</h2>
               </div>
-            </TabsContent>
 
-            <TabsContent value="leads">
-              <LeadCaptureManager />
-            </TabsContent>
+              <SidebarGroup>
+                <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu>
+                    {menuItems.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = activeTab === item.value;
+                      return (
+                        <SidebarMenuItem key={item.value}>
+                          <SidebarMenuButton
+                            onClick={() => setActiveTab(item.value)}
+                            className={isActive ? 'bg-primary text-primary-foreground font-medium' : ''}
+                          >
+                            <Icon className="h-4 w-4" />
+                            <span>{item.label}</span>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      );
+                    })}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            </SidebarContent>
+          </Sidebar>
 
-            <TabsContent value="give-page">
-              <GivePageManager />
-            </TabsContent>
+          <div className="flex-1">
+            <Navigation />
+            <div className="pt-20">
+              <MarketingDashboardHeader />
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div className="flex items-center gap-4 mb-8">
+                  <SidebarTrigger />
+                </div>
 
-            <TabsContent value="campaigns">
-              <div className="space-y-6">
-                <CampaignBuilder />
-                <SuppressionListManager />
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                  <TabsList className="hidden">
+                    {menuItems.map((item) => (
+                      <TabsTrigger key={item.value} value={item.value} />
+                    ))}
+                  </TabsList>
+
+                  <TabsContent value="overview" className="space-y-6">
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                      {managementSections.map((section) => {
+                        const IconComponent = section.icon;
+                        return (
+                          <Card
+                            key={section.id}
+                            className="cursor-pointer transition-all hover:shadow-lg border-l-4 border-l-primary"
+                            onClick={() => setActiveTab(section.id)}
+                          >
+                            <CardHeader className="pb-3">
+                              <div className="flex items-center space-x-3">
+                                <IconComponent className={`h-8 w-8 ${section.color}`} />
+                                <div>
+                                  <CardTitle className="text-lg">{section.title}</CardTitle>
+                                  <CardDescription className="text-sm">
+                                    {section.description}
+                                  </CardDescription>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="text-sm text-muted-foreground">
+                                Click to manage →
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="leads">
+                    <LeadCaptureManager />
+                  </TabsContent>
+
+                  <TabsContent value="give-page">
+                    <GivePageManager />
+                  </TabsContent>
+
+                  <TabsContent value="campaigns">
+                    <div className="space-y-6">
+                      <CampaignBuilder />
+                      <SuppressionListManager />
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="about">
+                    <AboutUsManager />
+                  </TabsContent>
+
+                  <TabsContent value="newsletter">
+                    <NewsletterCRM />
+                  </TabsContent>
+
+                  <TabsContent value="filming">
+                    <NoticeFilmingManager />
+                  </TabsContent>
+
+                  <TabsContent value="social">
+                    <SocialMediaManager />
+                  </TabsContent>
+
+                  <TabsContent value="testimonials">
+                    <TestimonialsManager />
+                  </TabsContent>
+
+                  <TabsContent value="faq">
+                    <FAQManager />
+                  </TabsContent>
+
+                  <TabsContent value="webhooks">
+                    <PaystackWebhookLogs />
+                  </TabsContent>
+
+                  <TabsContent value="registrations">
+                    <EventRegistrationsManager />
+                  </TabsContent>
+
+                  <TabsContent value="requisitions">
+                    <RequisitionManager userRole="marketing" departmentId="marketing" />
+                  </TabsContent>
+
+                  <TabsContent value="inventory">
+                    <DepartmentInventory 
+                      departmentId="marketing" 
+                      departmentName="Marketing" 
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="profile">
+                    <UserProfile />
+                  </TabsContent>
+                </Tabs>
               </div>
-            </TabsContent>
-
-            <TabsContent value="about">
-              <AboutUsManager />
-            </TabsContent>
-
-            <TabsContent value="newsletter">
-              <NewsletterCRM />
-            </TabsContent>
-
-            <TabsContent value="filming">
-              <NoticeFilmingManager />
-            </TabsContent>
-
-            <TabsContent value="social">
-              <SocialMediaManager />
-            </TabsContent>
-
-            <TabsContent value="testimonials">
-              <TestimonialsManager />
-            </TabsContent>
-
-            <TabsContent value="faq">
-              <FAQManager />
-            </TabsContent>
-
-            <TabsContent value="webhooks">
-              <PaystackWebhookLogs />
-            </TabsContent>
-
-            <TabsContent value="registrations">
-              <EventRegistrationsManager />
-            </TabsContent>
-
-            <TabsContent value="requisitions">
-              <RequisitionManager userRole="marketing" departmentId="marketing" />
-            </TabsContent>
-
-            <TabsContent value="inventory">
-              <DepartmentInventory 
-                departmentId="marketing" 
-                departmentName="Marketing" 
-              />
-            </TabsContent>
-
-            <TabsContent value="profile">
-              <UserProfile />
-            </TabsContent>
-          </Tabs>
+            </div>
           </div>
         </div>
-      </div>
+      </SidebarProvider>
     </AuthGuard>
   );
 };

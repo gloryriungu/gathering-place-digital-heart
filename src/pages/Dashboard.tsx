@@ -325,14 +325,16 @@ const Dashboard = () => {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen bg-background w-full flex">
-        <Sidebar className="border-r">
-          <SidebarContent>
-            <div className="p-4 border-b">
-              <h2 className="text-lg font-semibold">Dashboard</h2>
-              <div className="mt-2">{getUserRoleBadge()}</div>
-            </div>
+    <>
+      <Navigation />
+      <SidebarProvider>
+        <div className="min-h-screen bg-background w-full flex pt-16">
+          <Sidebar className="border-r bg-card shadow-sm">
+            <SidebarContent>
+              <div className="p-4 border-b bg-card">
+                <h2 className="text-lg font-semibold text-foreground">Dashboard</h2>
+                <div className="mt-2">{getUserRoleBadge()}</div>
+              </div>
 
             <SidebarGroup>
               <SidebarGroupLabel>Main Menu</SidebarGroupLabel>
@@ -343,10 +345,10 @@ const Dashboard = () => {
                     const isActive = activeTab === tab.value;
                     return (
                       <SidebarMenuItem key={tab.value}>
-                        <SidebarMenuButton
-                          onClick={() => setActiveTab(tab.value)}
-                          className={isActive ? 'bg-primary text-primary-foreground font-medium' : ''}
-                        >
+                      <SidebarMenuButton
+                        onClick={() => setActiveTab(tab.value)}
+                        className={isActive ? 'bg-primary text-primary-foreground font-medium' : 'hover:bg-accent hover:text-accent-foreground'}
+                      >
                           <Icon className="h-4 w-4" />
                           <span>{tab.label}</span>
                         </SidebarMenuButton>
@@ -365,10 +367,8 @@ const Dashboard = () => {
           </SidebarContent>
         </Sidebar>
 
-        <div className="flex-1">
-          <Navigation />
-          <div className="pt-20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex-1 bg-background">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-4">
                   <SidebarTrigger />
@@ -659,8 +659,8 @@ const Dashboard = () => {
         </div>
         
         <GivingForm open={showGivingForm} onOpenChange={setShowGivingForm} />
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </>
   );
 };
 

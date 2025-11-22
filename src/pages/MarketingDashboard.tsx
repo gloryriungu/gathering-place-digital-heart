@@ -8,7 +8,7 @@ import { RequisitionManager } from "@/components/requisitions/RequisitionManager
 import { UserProfile } from "@/components/dashboard/UserProfile";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, Users, Star, MessageSquare, Share2, HelpCircle, FileText, Mail, User, Webhook } from "lucide-react";
+import { BarChart3, Users, Star, MessageSquare, Share2, HelpCircle, FileText, Mail, User, Webhook, Calendar, Settings } from "lucide-react";
 
 // Marketing management components
 import { AboutUsManager } from "@/components/marketing/AboutUsManager";
@@ -102,49 +102,56 @@ const MarketingDashboard = () => {
           <MarketingDashboardHeader />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <TabsList className="grid w-full sm:w-auto grid-cols-3 sm:grid-cols-5 lg:grid-cols-12">
-                <TabsTrigger value="overview">
-                  <span className="hidden sm:inline">Overview</span>
-                  <span className="sm:hidden">Home</span>
-                </TabsTrigger>
-                <TabsTrigger value="give-page" className="hidden lg:flex">Give Page</TabsTrigger>
-                <TabsTrigger value="about">
-                  <span className="hidden sm:inline">About Us</span>
-                  <span className="sm:hidden">About</span>
-                </TabsTrigger>
-                <TabsTrigger value="newsletter">
-                  <span className="hidden sm:inline">Newsletter</span>
-                  <span className="sm:hidden">News</span>
-                </TabsTrigger>
-                <TabsTrigger value="filming" className="hidden sm:flex">Filming</TabsTrigger>
-                <TabsTrigger value="social" className="hidden sm:flex">Social Media</TabsTrigger>
-                <TabsTrigger value="testimonials" className="hidden lg:flex">Testimonials</TabsTrigger>
-                <TabsTrigger value="faq" className="hidden lg:flex">FAQ</TabsTrigger>
-                <TabsTrigger value="webhooks" className="hidden lg:flex">Webhooks</TabsTrigger>
-                <TabsTrigger value="requisitions" className="hidden lg:flex">Requisitions</TabsTrigger>
-                <TabsTrigger value="inventory" className="hidden lg:flex">Inventory</TabsTrigger>
-                <TabsTrigger value="profile" className="hidden lg:flex">Profile</TabsTrigger>
-              </TabsList>
-              
-              {/* Mobile dropdown for hidden tabs */}
-              <div className="sm:hidden w-full">
-                <select 
-                  value={activeTab} 
-                  onChange={(e) => setActiveTab(e.target.value)}
-                  className="w-full p-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="filming">Filming</option>
-                  <option value="social">Social Media</option>
-                  <option value="testimonials">Testimonials</option>
-                  <option value="faq">FAQ</option>
-                  <option value="webhooks">Webhook Logs</option>
-                  <option value="requisitions">Requisitions</option>
-                  <option value="inventory">Inventory</option>
-                  <option value="profile">Profile</option>
-                </select>
-              </div>
-            </div>
+            <TabsList className="flex flex-wrap gap-2 h-auto bg-muted p-2">
+              <TabsTrigger value="overview" className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                Overview
+              </TabsTrigger>
+              <TabsTrigger value="give-page" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Give Page
+              </TabsTrigger>
+              <TabsTrigger value="about" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                About Us
+              </TabsTrigger>
+              <TabsTrigger value="newsletter" className="flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                Newsletter
+              </TabsTrigger>
+              <TabsTrigger value="filming" className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                Filming
+              </TabsTrigger>
+              <TabsTrigger value="social" className="flex items-center gap-2">
+                <Share2 className="h-4 w-4" />
+                Social Media
+              </TabsTrigger>
+              <TabsTrigger value="testimonials" className="flex items-center gap-2">
+                <Star className="h-4 w-4" />
+                Testimonials
+              </TabsTrigger>
+              <TabsTrigger value="faq" className="flex items-center gap-2">
+                <HelpCircle className="h-4 w-4" />
+                FAQ
+              </TabsTrigger>
+              <TabsTrigger value="webhooks" className="flex items-center gap-2">
+                <Webhook className="h-4 w-4" />
+                Webhooks
+              </TabsTrigger>
+              <TabsTrigger value="requisitions" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Requisitions
+              </TabsTrigger>
+              <TabsTrigger value="inventory" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Inventory
+              </TabsTrigger>
+              <TabsTrigger value="profile" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                Profile
+              </TabsTrigger>
+            </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

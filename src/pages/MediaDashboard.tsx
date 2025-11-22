@@ -30,43 +30,48 @@ const MediaDashboard = () => {
           <MediaDashboardHeader />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <TabsList className="grid w-full sm:w-auto grid-cols-3 sm:grid-cols-5 lg:grid-cols-10 bg-white shadow-lg rounded-xl p-1">
-                  <TabsTrigger value="overview" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
-                    <span className="hidden sm:inline">Overview</span>
-                    <span className="sm:hidden">Home</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="livestream" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">
-                    <span className="hidden sm:inline">Live Stream</span>
-                    <span className="sm:hidden">Live</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="events" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white">Events</TabsTrigger>
-                  <TabsTrigger value="shop" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white hidden sm:flex">Shop</TabsTrigger>
-                  <TabsTrigger value="hero" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white hidden sm:flex">Homepage</TabsTrigger>
-                  <TabsTrigger value="announcements" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white hidden lg:flex">Announcements</TabsTrigger>
-                  <TabsTrigger value="watch" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white hidden lg:flex">Watch Page</TabsTrigger>
-                  <TabsTrigger value="requisitions" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white hidden lg:flex">Requisitions</TabsTrigger>
-                  <TabsTrigger value="inventory" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white hidden lg:flex">Inventory</TabsTrigger>
-                  <TabsTrigger value="profile" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white hidden lg:flex">Profile</TabsTrigger>
-                </TabsList>
-                
-                {/* Mobile dropdown for hidden tabs */}
-                <div className="sm:hidden w-full">
-                  <select 
-                    value={activeTab} 
-                    onChange={(e) => setActiveTab(e.target.value)}
-                    className="w-full p-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                  >
-                    <option value="shop">Shop</option>
-                    <option value="hero">Homepage</option>
-                    <option value="announcements">Announcements</option>
-                    <option value="watch">Watch Page</option>
-                    <option value="requisitions">Requisitions</option>
-                    <option value="inventory">Inventory</option>
-                    <option value="profile">Profile</option>
-                  </select>
-                </div>
-              </div>
+              <TabsList className="flex flex-wrap gap-2 h-auto bg-muted p-2">
+                <TabsTrigger value="overview" className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger value="livestream" className="flex items-center gap-2">
+                  <Video className="h-4 w-4" />
+                  Live Stream
+                </TabsTrigger>
+                <TabsTrigger value="events" className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Events
+                </TabsTrigger>
+                <TabsTrigger value="shop" className="flex items-center gap-2">
+                  <ShoppingBag className="h-4 w-4" />
+                  Shop
+                </TabsTrigger>
+                <TabsTrigger value="hero" className="flex items-center gap-2">
+                  <Home className="h-4 w-4" />
+                  Homepage
+                </TabsTrigger>
+                <TabsTrigger value="announcements" className="flex items-center gap-2">
+                  <Megaphone className="h-4 w-4" />
+                  Announcements
+                </TabsTrigger>
+                <TabsTrigger value="watch" className="flex items-center gap-2">
+                  <Play className="h-4 w-4" />
+                  Watch Page
+                </TabsTrigger>
+                <TabsTrigger value="requisitions" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Requisitions
+                </TabsTrigger>
+                <TabsTrigger value="inventory" className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  Inventory
+                </TabsTrigger>
+                <TabsTrigger value="profile" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Profile
+                </TabsTrigger>
+              </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
                 <div className="text-center mb-8">

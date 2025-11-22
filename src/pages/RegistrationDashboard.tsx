@@ -94,13 +94,13 @@ const RegistrationDashboard = () => {
           <RegistrationDashboardHeader />
           
           <Tabs defaultValue="qr-scanner" className="space-y-6">
-            <TabsList className="grid grid-cols-7 w-full max-w-5xl">
+            <TabsList className="flex flex-wrap gap-2 h-auto bg-muted p-2">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
                   <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-2">
                     <Icon className="h-4 w-4" />
-                    <span className="hidden lg:inline">{tab.label}</span>
+                    {tab.label}
                   </TabsTrigger>
                 );
               })}

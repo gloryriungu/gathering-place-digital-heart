@@ -2,140 +2,116 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { 
-  Heart, Gift, Users, Globe, Sprout, Package, Edit, 
-  Smartphone, CreditCard, Shield, Lock, CheckCircle, 
-  TrendingUp, DollarSign, HandHeart, ChevronDown
-} from "lucide-react";
+import { Heart, Gift, Users, Globe, Sprout, Package, Edit, Smartphone, CreditCard, Shield, Lock, CheckCircle, TrendingUp, DollarSign, HandHeart, ChevronDown } from "lucide-react";
 import { GivingForm } from "@/components/giving/GivingForm";
 import { useState } from "react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { SEO } from "@/components/SEO";
-
 const Give = () => {
   const [showGivingForm, setShowGivingForm] = useState(false);
   const [selectedType, setSelectedType] = useState<string | undefined>(undefined);
-
   const handleGiveClick = (type?: string) => {
     setSelectedType(type);
     setShowGivingForm(true);
   };
-
-  const contributionTypes = [
-    {
-      type: "Tithe",
-      title: "Tithe",
-      description: "Honor God with your first fruits and faithful stewardship",
-      icon: Heart,
-      color: "text-red-600"
-    },
-    {
-      type: "Offering",
-      title: "Offering",
-      description: "Support ongoing ministry operations and programs",
-      icon: Gift,
-      color: "text-blue-600"
-    },
-    {
-      type: "Seed",
-      title: "Seed",
-      description: "Sow a seed of faith for your future harvest",
-      icon: Sprout,
-      color: "text-green-600"
-    },
-    {
-      type: "Mission",
-      title: "Missions",
-      description: "Partner in church planting across East Africa & beyond",
-      icon: Globe,
-      color: "text-purple-600"
-    },
-    {
-      type: "Gift",
-      title: "Special Gift",
-      description: "One-time special gift to bless the ministry",
-      icon: Package,
-      color: "text-orange-600"
-    },
-    {
-      type: "Thanksgiving",
-      title: "Thanksgiving",
-      description: "Express gratitude to God through generous giving",
-      icon: HandHeart,
-      color: "text-pink-600"
-    },
-    {
-      type: "Others",
-      title: "Custom Contribution",
-      description: "Building fund, youth ministry, or specify your own",
-      icon: Edit,
-      color: "text-indigo-600"
-    }
-  ];
-
-  const impactAllocations = [
-    { percentage: "35%", title: "MISSIONS", description: "Global missions & church planting", icon: Globe },
-    { percentage: "30%", title: "MINISTRY", description: "Life-changing programs & events", icon: Users },
-    { percentage: "20%", title: "COMMUNITY", description: "Outreach & feeding initiatives", icon: Heart },
-    { percentage: "15%", title: "OPERATIONS", description: "Facilities & staff support", icon: TrendingUp }
-  ];
-
-  const testimonials = [
-    {
-      quote: "Giving has transformed my life. I've experienced God's faithfulness in ways I never imagined.",
-      name: "Sarah M.",
-      role: "TOT Member"
-    },
-    {
-      quote: "When I started tithing faithfully, God opened doors I didn't know existed. He is truly faithful.",
-      name: "John K.",
-      role: "Ministry Partner"
-    },
-    {
-      quote: "Supporting missions through my giving has given me purpose. I'm part of something bigger than myself.",
-      name: "Grace N.",
-      role: "Missions Supporter"
-    }
-  ];
-
-  const faqs = [
-    {
-      question: "How do I get a receipt for my contribution?",
-      answer: "All contributions are automatically recorded in your giving history. Authenticated users can view and download receipts from their dashboard. Receipts are sent via email immediately after successful payment."
-    },
-    {
-      question: "Can I set up recurring giving?",
-      answer: "Recurring giving is coming soon! For now, you can make one-time contributions anytime through our secure platform. We're working on automated recurring options for monthly tithes and offerings."
-    },
-    {
-      question: "How do I view my giving history?",
-      answer: "Log in to your account and navigate to your dashboard. Click on 'My Giving' to see all your past contributions, generate reports, and download receipts for tax purposes."
-    },
-    {
-      question: "Is my donation tax-deductible?",
-      answer: "Yes! TOT International is a registered religious organization. All contributions are tax-deductible. You'll receive proper documentation for tax purposes with each contribution."
-    },
-    {
-      question: "What payment methods do you accept?",
-      answer: "We accept M-Pesa (mobile money) and all major credit/debit cards (Visa, Mastercard) through our secure Paystack integration. All transactions are encrypted and protected."
-    },
-    {
-      question: "How long does it take to process my payment?",
-      answer: "M-Pesa payments are instant. Card payments are processed immediately, and you'll receive confirmation within seconds. Your contribution is recorded in real-time and you'll get instant email confirmation."
-    }
-  ];
-
-  return (
-    <div className="min-h-screen bg-background">
-      <SEO 
-        title="Give - Partner with TOT International"
-        description="Support missions, ministries, and community outreach through faithful giving. Multiple secure payment options available including M-Pesa and card payments."
-      />
+  const contributionTypes = [{
+    type: "Tithe",
+    title: "Tithe",
+    description: "Honor God with your first fruits and faithful stewardship",
+    icon: Heart,
+    color: "text-red-600"
+  }, {
+    type: "Offering",
+    title: "Offering",
+    description: "Support ongoing ministry operations and programs",
+    icon: Gift,
+    color: "text-blue-600"
+  }, {
+    type: "Seed",
+    title: "Seed",
+    description: "Sow a seed of faith for your future harvest",
+    icon: Sprout,
+    color: "text-green-600"
+  }, {
+    type: "Mission",
+    title: "Missions",
+    description: "Partner in church planting across East Africa & beyond",
+    icon: Globe,
+    color: "text-purple-600"
+  }, {
+    type: "Gift",
+    title: "Special Gift",
+    description: "One-time special gift to bless the ministry",
+    icon: Package,
+    color: "text-orange-600"
+  }, {
+    type: "Thanksgiving",
+    title: "Thanksgiving",
+    description: "Express gratitude to God through generous giving",
+    icon: HandHeart,
+    color: "text-pink-600"
+  }, {
+    type: "Others",
+    title: "Custom Contribution",
+    description: "Building fund, youth ministry, or specify your own",
+    icon: Edit,
+    color: "text-indigo-600"
+  }];
+  const impactAllocations = [{
+    percentage: "35%",
+    title: "MISSIONS",
+    description: "Global missions & church planting",
+    icon: Globe
+  }, {
+    percentage: "30%",
+    title: "MINISTRY",
+    description: "Life-changing programs & events",
+    icon: Users
+  }, {
+    percentage: "20%",
+    title: "COMMUNITY",
+    description: "Outreach & feeding initiatives",
+    icon: Heart
+  }, {
+    percentage: "15%",
+    title: "OPERATIONS",
+    description: "Facilities & staff support",
+    icon: TrendingUp
+  }];
+  const testimonials = [{
+    quote: "Giving has transformed my life. I've experienced God's faithfulness in ways I never imagined.",
+    name: "Sarah M.",
+    role: "TOT Member"
+  }, {
+    quote: "When I started tithing faithfully, God opened doors I didn't know existed. He is truly faithful.",
+    name: "John K.",
+    role: "Ministry Partner"
+  }, {
+    quote: "Supporting missions through my giving has given me purpose. I'm part of something bigger than myself.",
+    name: "Grace N.",
+    role: "Missions Supporter"
+  }];
+  const faqs = [{
+    question: "How do I get a receipt for my contribution?",
+    answer: "All contributions are automatically recorded in your giving history. Authenticated users can view and download receipts from their dashboard. Receipts are sent via email immediately after successful payment."
+  }, {
+    question: "Can I set up recurring giving?",
+    answer: "Recurring giving is coming soon! For now, you can make one-time contributions anytime through our secure platform. We're working on automated recurring options for monthly tithes and offerings."
+  }, {
+    question: "How do I view my giving history?",
+    answer: "Log in to your account and navigate to your dashboard. Click on 'My Giving' to see all your past contributions, generate reports, and download receipts for tax purposes."
+  }, {
+    question: "Is my donation tax-deductible?",
+    answer: "Yes! TOT International is a registered religious organization. All contributions are tax-deductible. You'll receive proper documentation for tax purposes with each contribution."
+  }, {
+    question: "What payment methods do you accept?",
+    answer: "We accept M-Pesa (mobile money) and all major credit/debit cards (Visa, Mastercard) through our secure Paystack integration. All transactions are encrypted and protected."
+  }, {
+    question: "How long does it take to process my payment?",
+    answer: "M-Pesa payments are instant. Card payments are processed immediately, and you'll receive confirmation within seconds. Your contribution is recorded in real-time and you'll get instant email confirmation."
+  }];
+  return <div className="min-h-screen bg-background">
+      <SEO title="Give - Partner with TOT International" description="Support missions, ministries, and community outreach through faithful giving. Multiple secure payment options available including M-Pesa and card payments." />
       <Navigation />
       
       <div className="pt-20">
@@ -167,19 +143,12 @@ const Give = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <Button 
-                  onClick={() => handleGiveClick()}
-                  size="lg"
-                  className="bg-background text-foreground hover:bg-background/90 font-bold text-lg px-8 py-6"
-                >
+                <Button onClick={() => handleGiveClick()} size="lg" className="bg-background text-foreground hover:bg-background/90 font-bold text-lg px-8 py-6">
                   Give Now
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary font-bold text-lg px-8 py-6"
-                  onClick={() => document.getElementById('impact')?.scrollIntoView({ behavior: 'smooth' })}
-                >
+                <Button variant="outline" size="lg" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary font-bold text-lg px-8 py-6" onClick={() => document.getElementById('impact')?.scrollIntoView({
+                behavior: 'smooth'
+              })}>
                   See Your Impact
                 </Button>
               </div>
@@ -217,9 +186,8 @@ const Give = () => {
             
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {impactAllocations.map((allocation, index) => {
-                const IconComponent = allocation.icon;
-                return (
-                  <Card key={index} className="p-8 text-center hover:shadow-lg transition-all">
+              const IconComponent = allocation.icon;
+              return <Card key={index} className="p-8 text-center hover:shadow-lg transition-all">
                     <div className="mb-4">
                       <IconComponent className="h-12 w-12 mx-auto text-primary" />
                     </div>
@@ -232,15 +200,12 @@ const Give = () => {
                     <p className="text-muted-foreground text-sm">
                       {allocation.description}
                     </p>
-                  </Card>
-                );
-              })}
+                  </Card>;
+            })}
             </div>
 
             <div className="text-center mt-8">
-              <Button variant="outline" size="sm">
-                View Detailed Financial Reports
-              </Button>
+              
             </div>
           </div>
         </section>
@@ -259,13 +224,8 @@ const Give = () => {
             
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {contributionTypes.map((type, index) => {
-                const IconComponent = type.icon;
-                return (
-                  <Card 
-                    key={index} 
-                    className="p-6 hover:shadow-xl transition-all cursor-pointer group"
-                    onClick={() => handleGiveClick(type.type)}
-                  >
+              const IconComponent = type.icon;
+              return <Card key={index} className="p-6 hover:shadow-xl transition-all cursor-pointer group" onClick={() => handleGiveClick(type.type)}>
                     <div className="flex items-start gap-4 mb-4">
                       <div className={`${type.color} group-hover:scale-110 transition-transform`}>
                         <IconComponent className="h-8 w-8" />
@@ -283,16 +243,12 @@ const Give = () => {
                       <span className="text-sm font-semibold text-muted-foreground">
                         Any Amount
                       </span>
-                      <Button 
-                        size="sm"
-                        className="group-hover:bg-primary group-hover:text-primary-foreground"
-                      >
+                      <Button size="sm" className="group-hover:bg-primary group-hover:text-primary-foreground">
                         Give {type.title}
                       </Button>
                     </div>
-                  </Card>
-                );
-              })}
+                  </Card>;
+            })}
             </div>
           </div>
         </section>
@@ -428,8 +384,7 @@ const Give = () => {
             </div>
             
             <div className="grid md:grid-cols-3 gap-6">
-              {testimonials.map((testimonial, index) => (
-                <Card key={index} className="p-6">
+              {testimonials.map((testimonial, index) => <Card key={index} className="p-6">
                   <div className="mb-4">
                     <svg className="h-8 w-8 text-primary/20" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
@@ -442,8 +397,7 @@ const Give = () => {
                     <p className="font-bold text-foreground">{testimonial.name}</p>
                     <p className="text-sm text-muted-foreground">{testimonial.role}</p>
                   </div>
-                </Card>
-              ))}
+                </Card>)}
             </div>
           </div>
         </section>
@@ -480,16 +434,14 @@ const Give = () => {
             </div>
             
             <Accordion type="single" collapsible className="w-full">
-              {faqs.map((faq, index) => (
-                <AccordionItem key={index} value={`item-${index}`}>
+              {faqs.map((faq, index) => <AccordionItem key={index} value={`item-${index}`}>
                   <AccordionTrigger className="text-left font-semibold">
                     {faq.question}
                   </AccordionTrigger>
                   <AccordionContent className="text-muted-foreground">
                     {faq.answer}
                   </AccordionContent>
-                </AccordionItem>
-              ))}
+                </AccordionItem>)}
             </Accordion>
           </div>
         </section>
@@ -504,20 +456,11 @@ const Give = () => {
               Your faithful giving enables us to fulfill our mission of reaching nations and transforming lives
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Button 
-                onClick={() => handleGiveClick()}
-                size="lg"
-                className="font-bold text-lg px-8 py-6"
-              >
+              <Button onClick={() => handleGiveClick()} size="lg" className="font-bold text-lg px-8 py-6">
                 <DollarSign className="mr-2 h-5 w-5" />
                 Give Now
               </Button>
-              <Button 
-                variant="outline"
-                size="lg"
-                className="font-bold text-lg px-8 py-6"
-                onClick={() => window.location.href = '/giving-history'}
-              >
+              <Button variant="outline" size="lg" className="font-bold text-lg px-8 py-6" onClick={() => window.location.href = '/giving-history'}>
                 View Giving History
               </Button>
             </div>
@@ -538,14 +481,8 @@ const Give = () => {
         </section>
       </div>
 
-      <GivingForm 
-        open={showGivingForm} 
-        onOpenChange={setShowGivingForm}
-        defaultContributionType={selectedType}
-      />
+      <GivingForm open={showGivingForm} onOpenChange={setShowGivingForm} defaultContributionType={selectedType} />
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Give;

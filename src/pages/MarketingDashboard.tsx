@@ -119,8 +119,8 @@ const MarketingDashboard = () => {
       <SidebarProvider>
         <div className="min-h-screen bg-background w-full flex pt-16">
           <Sidebar className="border-r bg-card shadow-sm">
-            <SidebarContent>
-              <div className="p-4 border-b bg-card">
+            <SidebarContent className="overflow-y-auto pb-20">
+              <div className="p-4 border-b bg-card sticky top-0 z-10">
                 <h2 className="text-lg font-semibold text-foreground">Marketing Dashboard</h2>
               </div>
 

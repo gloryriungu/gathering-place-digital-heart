@@ -119,11 +119,12 @@ serve(async (req) => {
 
     // Add channel-specific parameters
     if (payment_method === 'mobile_money') {
+      // For M-Pesa, only specify the channel - Paystack handles the rest
       paystackPayload.channels = ['mobile_money'];
-      paystackPayload.mobile_money = {
-        phone,
-        provider: 'mpesa'
-      };
+      // Phone must be in format 254XXXXXXXXX for Kenya M-Pesa
+      if (phone) {
+        paystackPayload.metadata.phone = phone;
+      }
     } else {
       paystackPayload.channels = ['card'];
     }

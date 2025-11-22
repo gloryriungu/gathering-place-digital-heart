@@ -243,7 +243,14 @@ const Give = () => {
                       <span className="text-sm font-semibold text-muted-foreground">
                         Any Amount
                       </span>
-                      <Button size="sm" className="group-hover:bg-primary group-hover:text-primary-foreground">
+                      <Button 
+                        size="sm" 
+                        className="group-hover:bg-primary group-hover:text-primary-foreground"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleGiveClick(type.type);
+                        }}
+                      >
                         Give {type.title}
                       </Button>
                     </div>

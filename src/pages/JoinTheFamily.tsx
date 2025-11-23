@@ -73,6 +73,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Heart, Users, MapPin, Phone, Mail, Baby, Plus, Trash2 } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const JoinTheFamily = () => {
   const [formData, setFormData] = useState({
@@ -98,11 +101,89 @@ const JoinTheFamily = () => {
   });
 
   const [showChildrenSection, setShowChildrenSection] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", formData);
-    // This will be connected to Supabase later
+    setLoading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to submit your application.",
+          variant: "destructive",
+        });
+        navigate("/auth");
+        return;
+      }
+
+      const { error } = await supabase
+        .from('join_family_applications')
+        .insert({
+          user_id: user.id,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          address: `${formData.address}, ${formData.city}, ${formData.state} ${formData.zipCode}`.trim(),
+          county: formData.state,
+          occupation: formData.occupation,
+          baptism_status: formData.baptized,
+          previous_church: formData.previousChurch,
+          ministry_interests: formData.interests,
+          volunteer_interests: [],
+          testimony: formData.testimony,
+          emergency_contact_name: null,
+          emergency_contact_phone: null,
+          notes: `How heard: ${formData.howDidYouHear}\nSalvation: ${formData.salvationDate}\nPrayer requests: ${formData.prayerRequests}\nChildren: ${JSON.stringify(formData.children)}`,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Application Submitted!",
+        description: "Thank you for joining our family. We'll be in touch soon!",
+      });
+
+      // Reset form
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        address: "",
+        city: "",
+        state: "",
+        zipCode: "",
+        birthDate: "",
+        maritalStatus: "",
+        occupation: "",
+        howDidYouHear: "",
+        previousChurch: "",
+        salvationDate: "",
+        baptized: "",
+        interests: [],
+        testimony: "",
+        prayerRequests: "",
+        children: []
+      });
+      setShowChildrenSection(false);
+
+    } catch (error) {
+      console.error('Error submitting application:', error);
+      toast({
+        title: "Submission Failed",
+        description: "There was an error submitting your application. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const howDidYouHearOptions = [
@@ -639,8 +720,8 @@ const JoinTheFamily = () => {
               </div>
 
               <div className="flex justify-center pt-8">
-                <Button type="submit" size="lg" className="bg-primary hover:bg-primary/90">
-                  JOIN OUR FAMILY
+                <Button type="submit" size="lg" className="bg-primary hover:bg-primary/90" disabled={loading}>
+                  {loading ? "SUBMITTING..." : "JOIN OUR FAMILY"}
                 </Button>
               </div>
             </form>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,10 +8,49 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { usePrerequisiteGuard } from "@/hooks/usePrerequisiteCheck";
 import CounselingBookingForm from "@/components/counseling/CounselingBookingForm";
 import UpcomingSessions from "@/components/counseling/UpcomingSessions";
+import { supabase } from "@/integrations/supabase/client";
+
+interface PageContent {
+  hero?: { title: string; subtitle: string; image?: string };
+  about?: { title: string; description: string };
+  services?: { title: string; description: string };
+  quote?: { text: string; author: string };
+  cta?: { title: string; description: string; buttonText: string };
+}
 
 const CounselingMentalHealth = () => {
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const [content, setContent] = useState<PageContent>({});
+  const [loading, setLoading] = useState(true);
   const { checkAccess } = usePrerequisiteGuard("counseling booking");
+
+  useEffect(() => {
+    fetchPageContent();
+  }, []);
+
+  const fetchPageContent = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('page_content')
+        .select('*')
+        .eq('page_name', 'counseling')
+        .eq('is_published', true);
+
+      if (error) throw error;
+
+      const contentObj: PageContent = {};
+      data?.forEach((item) => {
+        const parsedContent = JSON.parse(item.content);
+        contentObj[item.section_name as keyof PageContent] = parsedContent;
+      });
+
+      setContent(contentObj);
+    } catch (error) {
+      console.error('Error fetching page content:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleBookingClick = async () => {
     const hasAccess = await checkAccess();
@@ -28,17 +67,17 @@ const CounselingMentalHealth = () => {
       <section className="py-20 px-4 bg-gradient-to-b from-primary/10 to-background">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-            Counseling & Mental Health
+            {content.hero?.title || "Counseling & Mental Health"}
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-            We believe in caring for the whole person - mind, body, and spirit. Our counseling ministry provides professional support and biblical guidance for life's challenges.
+            {content.hero?.subtitle || "We believe in caring for the whole person - mind, body, and spirit. Our counseling ministry provides professional support and biblical guidance for life's challenges."}
           </p>
           
           <Dialog open={bookingDialogOpen} onOpenChange={setBookingDialogOpen}>
             <DialogTrigger asChild>
               <Button size="lg" className="mr-4" onClick={handleBookingClick}>
                 <Calendar className="mr-2 h-5 w-5" />
-                Schedule Appointment
+                {content.cta?.buttonText || "Schedule Appointment"}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -70,7 +109,14 @@ const CounselingMentalHealth = () => {
       {/* Services Section */}
       <section id="services-section" className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Our Services</h2>
+          <h2 className="text-3xl font-bold text-center mb-4">
+            {content.services?.title || "Our Services"}
+          </h2>
+          {content.services?.description && (
+            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+              {content.services.description}
+            </p>
+          )}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Card>
               <CardHeader>

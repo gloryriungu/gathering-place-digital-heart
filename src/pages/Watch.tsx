@@ -51,10 +51,39 @@ const Watch = () => {
     ]
   });
   const [loading, setLoading] = useState(true);
+  const [isLive, setIsLive] = useState(false);
+  const [liveStreamUrl, setLiveStreamUrl] = useState<string>('');
 
   useEffect(() => {
     fetchWatchPageData();
+    fetchLiveStreamStatus();
   }, []);
+
+  const fetchLiveStreamStatus = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('media_content')
+        .select('*')
+        .eq('content_type', 'live_stream')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching live stream status:', error);
+        return;
+      }
+
+      if (data && data.content_data) {
+        const content = data.content_data as any;
+        setIsLive(content.is_live || false);
+        setLiveStreamUrl(content.youtube_url || '');
+      }
+    } catch (error) {
+      console.error('Error fetching live stream status:', error);
+    }
+  };
 
   const fetchWatchPageData = async () => {
     try {
@@ -117,16 +146,25 @@ const Watch = () => {
               <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-8">
                 {watchData.hero_subtitle}
               </p>
-              <Button className="bg-white text-black hover:bg-gray-100 font-bold text-lg px-8 py-4">
+              <Button 
+                className="bg-white text-black hover:bg-gray-100 font-bold text-lg px-8 py-4"
+                onClick={() => {
+                  if (isLive && liveStreamUrl) {
+                    window.open(liveStreamUrl, '_blank');
+                  } else {
+                    document.getElementById('live-service-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              >
                 <Play className="mr-2 h-5 w-5" />
-                JOIN LIVE SERVICE
+                {isLive ? 'JOIN LIVE NOW' : 'VIEW SCHEDULE'}
               </Button>
             </div>
           </div>
         </section>
 
         {/* Live Service */}
-        <section className="py-20 bg-white">
+        <section id="live-service-section" className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">{watchData.live_service_title}</h2>
@@ -136,12 +174,27 @@ const Watch = () => {
             </div>
             
             <div className="max-w-4xl mx-auto">
-              <div className="aspect-video bg-black rounded-lg flex items-center justify-center mb-8">
-                <div className="text-center text-white">
-                  <Play className="h-20 w-20 mx-auto mb-4 opacity-60" />
-                  <p className="text-xl">TOT International Live Stream</p>
-                  <p className="text-gray-400">Next service: Sunday 9:00 AM EAT</p>
-                </div>
+              <div className="aspect-video bg-black rounded-lg overflow-hidden mb-8">
+                {isLive && liveStreamUrl && getYouTubeEmbedUrl(liveStreamUrl) ? (
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src={getYouTubeEmbedUrl(liveStreamUrl) || ''}
+                    title="Live Service Stream"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-center text-white">
+                    <div>
+                      <Play className="h-20 w-20 mx-auto mb-4 opacity-60" />
+                      <p className="text-xl">TOT International Live Stream</p>
+                      <p className="text-gray-400">Next service: Sunday 9:00 AM EAT</p>
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div className="grid md:grid-cols-2 gap-8 text-center">

@@ -10,7 +10,8 @@ import { RecentActivity } from "@/components/admin/RecentActivity";
 import { DemographicsAnalytics } from "@/components/founder/DemographicsAnalytics";
 import { UserProfile } from "@/components/dashboard/UserProfile";
 import { PastorActivityLogs } from "@/components/pastor/PastorActivityLogs";
-import { PastorAvailability } from "@/components/pastor/PastorAvailability";
+import PastorCounselingSessions from "@/components/pastor/PastorCounselingSessions";
+import PastorAvailabilityManager from "@/components/pastor/PastorAvailabilityManager";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -115,8 +116,9 @@ const PastorsDashboard = () => {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="counseling">
-                  <PastorAvailability isPastor={true} />
+                <TabsContent value="counseling" className="space-y-6">
+                  <PastorCounselingSessions />
+                  <PastorAvailabilityManager />
                 </TabsContent>
 
                 <TabsContent value="audit">

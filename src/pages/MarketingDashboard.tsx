@@ -24,6 +24,7 @@ import { CampaignBuilder } from "@/components/marketing/CampaignBuilder";
 import { SuppressionListManager } from "@/components/marketing/SuppressionListManager";
 import { PaystackWebhookLogs } from "@/components/accounts/PaystackWebhookLogs";
 import { GivePageManager } from "@/components/marketing/GivePageManager";
+import { CounselingPageManager } from "@/components/marketing/CounselingPageManager";
 
 const MarketingDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -32,6 +33,7 @@ const MarketingDashboard = () => {
   const menuItems = [
     { value: "overview", label: "Overview", icon: Calendar },
     { value: "give-page", label: "Give Page", icon: FileText },
+    { value: "counseling-page", label: "Counseling Page", icon: MessageSquare },
     { value: "subscribers", label: "Subscribers", icon: Users },
     { value: "campaigns", label: "Email Campaigns", icon: Mail },
     { value: "about", label: "About Us", icon: FileText },
@@ -52,6 +54,13 @@ const MarketingDashboard = () => {
       description: "Edit all content sections for the Give page",
       icon: FileText,
       color: "text-emerald-600"
+    },
+    {
+      id: "counseling-page",
+      title: "Counseling Page Content",
+      description: "Manage Counseling & Mental Health page sections and messaging",
+      icon: MessageSquare,
+      color: "text-teal-600"
     },
     {
       id: "subscribers",
@@ -192,6 +201,10 @@ const MarketingDashboard = () => {
 
                   <TabsContent value="give-page">
                     <GivePageManager />
+                  </TabsContent>
+
+                  <TabsContent value="counseling-page">
+                    <CounselingPageManager />
                   </TabsContent>
 
                   <TabsContent value="campaigns">

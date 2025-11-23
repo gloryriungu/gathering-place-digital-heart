@@ -114,6 +114,7 @@ import { GivingForm } from "@/components/giving/GivingForm";
 import { SavedPaymentMethods } from "@/components/giving/SavedPaymentMethods";
 import { RecurringGivingManager } from "@/components/giving/RecurringGivingManager";
 import { ApplicationStatus } from "@/components/dashboard/ApplicationStatus";
+import { ActivityLogVisibilityManager } from "@/components/admin/ActivityLogVisibilityManager";
 
 const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
@@ -208,6 +209,7 @@ const Dashboard = () => {
         { value: "demographics", label: "Demographics", icon: Users },
         { value: "budget-requests", label: "Budget Requests", icon: DollarSign },
         { value: "inventory", label: "All Inventory", icon: Settings },
+        { value: "activity-visibility", label: "Activity Visibility", icon: Shield },
         { value: "system-overview", label: "System Overview", icon: Monitor },
         { value: "reports", label: "All Reports", icon: FileText },
         { value: "users", label: "All Users", icon: Users },
@@ -542,6 +544,10 @@ const Dashboard = () => {
 
             <TabsContent value="budget-requests">
               <BudgetProposals userRole={userRole} canReview={true} />
+            </TabsContent>
+
+            <TabsContent value="activity-visibility">
+              <ActivityLogVisibilityManager />
             </TabsContent>
 
             <TabsContent value="budget-create">

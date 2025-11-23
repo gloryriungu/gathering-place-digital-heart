@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { AlertCircle } from "lucide-react";
 
 interface Activity {
   id: string;
@@ -13,10 +15,34 @@ interface Activity {
 export const RecentActivityCard = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasPermission, setHasPermission] = useState(false);
+  const { userRole } = useAuth();
 
   useEffect(() => {
-    fetchRecentActivity();
-  }, []);
+    checkPermissionAndFetch();
+  }, [userRole]);
+
+  const checkPermissionAndFetch = async () => {
+    try {
+      // Check if user has permission to view all activity
+      const { data: visibilityData } = await supabase
+        .from('activity_log_visibility')
+        .select('can_view_all_activity')
+        .eq('role', userRole as any)
+        .maybeSingle();
+
+      const canView = visibilityData?.can_view_all_activity || false;
+      setHasPermission(canView);
+
+      if (canView) {
+        await fetchRecentActivity();
+      }
+    } catch (error) {
+      console.error('Error checking permissions:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchRecentActivity = async () => {
     try {
@@ -82,8 +108,6 @@ export const RecentActivityCard = () => {
       setActivities(activities.slice(0, 5));
     } catch (error) {
       console.error('Error fetching recent activity:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -125,6 +149,16 @@ export const RecentActivityCard = () => {
                 </div>
               </div>
             ))}
+          </div>
+        ) : !hasPermission ? (
+          <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+            <AlertCircle className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <p className="text-sm font-medium">Access Restricted</p>
+              <p className="text-xs text-muted-foreground">
+                You don't have permission to view all activity. Contact the founder to request access.
+              </p>
+            </div>
           </div>
         ) : activities.length === 0 ? (
           <p className="text-muted-foreground text-sm">No recent activity</p>

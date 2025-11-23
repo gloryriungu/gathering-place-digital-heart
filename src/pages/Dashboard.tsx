@@ -113,6 +113,7 @@ import { UserProfile } from "@/components/dashboard/UserProfile";
 import { GivingForm } from "@/components/giving/GivingForm";
 import { SavedPaymentMethods } from "@/components/giving/SavedPaymentMethods";
 import { RecurringGivingManager } from "@/components/giving/RecurringGivingManager";
+import { ApplicationStatus } from "@/components/dashboard/ApplicationStatus";
 
 const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
@@ -393,9 +394,11 @@ const Dashboard = () => {
               <DashboardOverviewStats />
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <ApplicationStatus />
                 <RecentActivityCard />
-                <QuickActionsCard />
               </div>
+              
+              <QuickActionsCard />
             </TabsContent>
 
             <TabsContent value="attendance">

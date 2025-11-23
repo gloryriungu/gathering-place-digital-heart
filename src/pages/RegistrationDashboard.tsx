@@ -9,9 +9,10 @@ import { ReportsOverview } from "@/components/dashboard/ReportsOverview";
 import { UserProfile } from "@/components/dashboard/UserProfile";
 import { ImportHistory } from "@/components/registration/ImportHistory";
 import { MemberLinkingManager } from "@/components/registration/MemberLinkingManager";
+import { JoinFamilyApplicationsManager } from "@/components/registration/JoinFamilyApplicationsManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Users, Calendar, FileText, User, Upload, Link2, QrCode } from "lucide-react";
+import { Users, Calendar, FileText, User, Upload, Link2, QrCode, UserPlus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -52,6 +53,7 @@ const RegistrationDashboard = () => {
     { value: "qr-scanner", label: "QR Scanner", icon: QrCode },
     { value: "attendance", label: "Attendance Tracking", icon: Calendar },
     { value: "members", label: "Member Management", icon: Users },
+    { value: "applications", label: "Family Applications", icon: UserPlus },
     { value: "import", label: "Import Members", icon: Upload },
     { value: "linking", label: "Link Members", icon: Link2 },
     { value: "reports", label: "Reports", icon: FileText },
@@ -122,6 +124,10 @@ const RegistrationDashboard = () => {
 
                 <TabsContent value="members">
                   <MemberManagement />
+                </TabsContent>
+
+                <TabsContent value="applications">
+                  <JoinFamilyApplicationsManager />
                 </TabsContent>
 
                 <TabsContent value="import">

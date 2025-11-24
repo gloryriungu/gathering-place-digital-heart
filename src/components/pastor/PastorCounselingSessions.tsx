@@ -74,26 +74,51 @@ export default function PastorCounselingSessions() {
         console.error("Error fetching member profiles:", memberError);
       }
 
-      // Get member emails
-      const { data: members, error: membersError } = await supabase
-        .from("profiles")
-        .select("user_id, first_name, last_name")
-        .in("user_id", memberIds);
-
-      if (membersError) {
-        console.error("Error fetching members:", membersError);
+      // Get member emails from auth metadata as fallback
+      const memberEmailsMap = new Map<string, string>();
+      
+      // For members without profiles, we'll fetch from members table as fallback
+      const missingProfileIds = memberIds.filter(
+        id => !memberProfiles?.find(p => p.user_id === id)
+      );
+      
+      let memberTableData: any[] = [];
+      if (missingProfileIds.length > 0) {
+        const { data: membersData } = await supabase
+          .from("members")
+          .select("user_id, first_name, last_name, email")
+          .in("user_id", missingProfileIds);
+        
+        memberTableData = membersData || [];
       }
 
       // Map sessions with member info
       const sessionsWithMembers = sessionsData.map(session => {
-        const memberProfile = memberProfiles?.find(p => p.user_id === session.member_id);
+        let memberProfile = memberProfiles?.find(p => p.user_id === session.member_id);
+        
+        // Fallback to members table if profile not found
+        if (!memberProfile) {
+          const memberData = memberTableData.find(m => m.user_id === session.member_id);
+          if (memberData) {
+            memberProfile = {
+              user_id: memberData.user_id,
+              first_name: memberData.first_name,
+              last_name: memberData.last_name
+            };
+          }
+        }
+        
         return {
           ...session,
           member: memberProfile ? {
             first_name: memberProfile.first_name || "Unknown",
             last_name: memberProfile.last_name || "Member",
             email: ""
-          } : null
+          } : {
+            first_name: "Member",
+            last_name: `(ID: ${session.member_id.slice(0, 8)})`,
+            email: ""
+          }
         };
       });
 

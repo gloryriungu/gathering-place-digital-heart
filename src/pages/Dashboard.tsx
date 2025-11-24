@@ -115,6 +115,8 @@ import { SavedPaymentMethods } from "@/components/giving/SavedPaymentMethods";
 import { RecurringGivingManager } from "@/components/giving/RecurringGivingManager";
 import { ApplicationStatus } from "@/components/dashboard/ApplicationStatus";
 import { ActivityLogVisibilityManager } from "@/components/admin/ActivityLogVisibilityManager";
+import CounselingSessionsManagement from "@/components/dashboard/CounselingSessionsManagement";
+import PastorCounselingSessions from "@/components/pastor/PastorCounselingSessions";
 
 const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
@@ -193,6 +195,7 @@ const Dashboard = () => {
       { value: "payment-methods", label: "Payment Methods", icon: CreditCard },
       { value: "profile", label: "Profile", icon: Users },
       { value: "newsletter", label: "Newsletter", icon: Mail },
+      { value: "counseling", label: "Counseling Sessions", icon: Users },
     ];
 
     const roleTabs = {
@@ -224,7 +227,6 @@ const Dashboard = () => {
       ],
       pastor: [
         { value: "availability", label: "My Availability", icon: Calendar },
-        { value: "counseling", label: "Counseling Sessions", icon: Users },
         { value: "ministries-view", label: "View Ministries", icon: Heart },
         { value: "serve-view", label: "View Departments", icon: UserCheck },
         { value: "users", label: "All Users", icon: Users },
@@ -601,15 +603,11 @@ const Dashboard = () => {
             </TabsContent>
 
             <TabsContent value="counseling">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Counseling Sessions</CardTitle>
-                  <CardDescription>Manage your counseling appointments and notes</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Counseling session management coming soon...</p>
-                </CardContent>
-              </Card>
+              {userRole === 'pastor' || userRole === 'senior_pastor' ? (
+                <PastorCounselingSessions />
+              ) : (
+                <CounselingSessionsManagement />
+              )}
             </TabsContent>
 
             <TabsContent value="ministries-view">

@@ -20,7 +20,12 @@ interface CounselingSession {
   member_notes: string | null;
   notes: string | null;
   pastor_id: string;
-  profiles?: {
+  member_id: string;
+  pastor_profile?: {
+    first_name: string | null;
+    last_name: string | null;
+  };
+  member_profile?: {
     first_name: string | null;
     last_name: string | null;
   };
@@ -49,20 +54,28 @@ const CounselingSessionsManagement = () => {
 
       if (error) throw error;
 
-      // Fetch pastor profiles separately
+      // Fetch pastor and member profiles separately
       const pastorIds = [...new Set(data?.map(s => s.pastor_id) || [])];
+      const memberIds = [...new Set(data?.map(s => s.member_id) || [])];
+      
       const { data: pastorProfiles } = await supabase
         .from("profiles")
         .select("user_id, first_name, last_name")
         .in("user_id", pastorIds);
 
-      // Merge pastor data with sessions
-      const sessionsWithPastors = data?.map(session => ({
+      const { data: memberProfiles } = await supabase
+        .from("profiles")
+        .select("user_id, first_name, last_name")
+        .in("user_id", memberIds);
+
+      // Merge profiles with sessions
+      const sessionsWithProfiles = data?.map(session => ({
         ...session,
-        profiles: pastorProfiles?.find(p => p.user_id === session.pastor_id) || null
+        pastor_profile: pastorProfiles?.find(p => p.user_id === session.pastor_id) || null,
+        member_profile: memberProfiles?.find(p => p.user_id === session.member_id) || null
       })) || [];
 
-      setSessions(sessionsWithPastors);
+      setSessions(sessionsWithProfiles);
     } catch (error) {
       console.error("Error fetching sessions:", error);
       toast.error("Failed to load counseling sessions");
@@ -139,7 +152,7 @@ const CounselingSessionsManagement = () => {
               </Badge>
             </div>
             <CardDescription>
-              Session with {session.profiles?.first_name} {session.profiles?.last_name}
+              Booked by {session.member_profile?.first_name} {session.member_profile?.last_name}
             </CardDescription>
           </div>
           {session.status === "scheduled" && new Date(session.session_date) >= new Date() && (
@@ -182,7 +195,11 @@ const CounselingSessionsManagement = () => {
           </div>
           <div className="flex items-center gap-2 text-sm">
             <User className="h-4 w-4 text-muted-foreground" />
-            <span>Pastor {session.profiles?.first_name} {session.profiles?.last_name}</span>
+            <span>Pastor {session.pastor_profile?.first_name} {session.pastor_profile?.last_name}</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <User className="h-4 w-4 text-muted-foreground" />
+            <span>Member: {session.member_profile?.first_name} {session.member_profile?.last_name}</span>
           </div>
         </div>
 

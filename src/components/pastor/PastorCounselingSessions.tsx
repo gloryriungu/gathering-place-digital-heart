@@ -94,29 +94,18 @@ export default function PastorCounselingSessions() {
 
       // Map sessions with member info
       const sessionsWithMembers = sessionsData.map(session => {
-        let memberProfile = memberProfiles?.find(p => p.user_id === session.member_id);
+        const profileData = memberProfiles?.find(p => p.user_id === session.member_id);
+        const memberData = memberTableData.find(m => m.user_id === session.member_id);
         
-        // Fallback to members table if profile not found
-        if (!memberProfile) {
-          const memberData = memberTableData.find(m => m.user_id === session.member_id);
-          if (memberData) {
-            memberProfile = {
-              user_id: memberData.user_id,
-              first_name: memberData.first_name,
-              last_name: memberData.last_name
-            };
-          }
-        }
+        // Use profile data first, fallback to member table, then show ID
+        const firstName = profileData?.first_name || memberData?.first_name || "Member";
+        const lastName = profileData?.last_name || memberData?.last_name || `(ID: ${session.member_id.slice(0, 8)})`;
         
         return {
           ...session,
-          member: memberProfile ? {
-            first_name: memberProfile.first_name || "Unknown",
-            last_name: memberProfile.last_name || "Member",
-            email: ""
-          } : {
-            first_name: "Member",
-            last_name: `(ID: ${session.member_id.slice(0, 8)})`,
+          member: {
+            first_name: firstName,
+            last_name: lastName,
             email: ""
           }
         };

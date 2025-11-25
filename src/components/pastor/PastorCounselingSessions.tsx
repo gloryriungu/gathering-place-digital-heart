@@ -74,10 +74,7 @@ export default function PastorCounselingSessions() {
         console.error("Error fetching member profiles:", memberError);
       }
 
-      // Get member emails from auth metadata as fallback
-      const memberEmailsMap = new Map<string, string>();
-      
-      // For members without profiles, we'll fetch from members table as fallback
+      // For members without profiles, fetch from members table as fallback
       const missingProfileIds = memberIds.filter(
         id => !memberProfiles?.find(p => p.user_id === id)
       );
@@ -97,16 +94,35 @@ export default function PastorCounselingSessions() {
         const profileData = memberProfiles?.find(p => p.user_id === session.member_id);
         const memberData = memberTableData.find(m => m.user_id === session.member_id);
         
-        // Use profile data first, fallback to member table, then show ID
-        const firstName = profileData?.first_name || memberData?.first_name || "Member";
-        const lastName = profileData?.last_name || memberData?.last_name || `(ID: ${session.member_id.slice(0, 8)})`;
+        // Build display info from available data
+        const firstName = profileData?.first_name || memberData?.first_name;
+        const lastName = profileData?.last_name || memberData?.last_name;
+        const email = memberData?.email;
+        
+        // Create display name with fallback options
+        let displayFirstName: string;
+        let displayLastName: string;
+        
+        if (firstName && lastName) {
+          // We have full name
+          displayFirstName = firstName;
+          displayLastName = lastName;
+        } else if (email) {
+          // Show email if no name available
+          displayFirstName = email.split('@')[0];
+          displayLastName = `(${email})`;
+        } else {
+          // Last resort: show ID
+          displayFirstName = "Member";
+          displayLastName = `(ID: ${session.member_id.slice(0, 8)})`;
+        }
         
         return {
           ...session,
           member: {
-            first_name: firstName,
-            last_name: lastName,
-            email: ""
+            first_name: displayFirstName,
+            last_name: displayLastName,
+            email: email || ""
           }
         };
       });

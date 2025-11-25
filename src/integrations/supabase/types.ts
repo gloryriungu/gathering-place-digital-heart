@@ -1697,6 +1697,63 @@ export type Database = {
         }
         Relationships: []
       }
+      shop_orders: {
+        Row: {
+          created_at: string | null
+          customer_email: string
+          customer_name: string
+          customer_phone: string | null
+          id: string
+          items: Json
+          order_number: string
+          payment_channel: string | null
+          payment_method: string | null
+          paystack_reference: string | null
+          subtotal: number
+          total_amount: number
+          transaction_reference: string | null
+          transaction_status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          customer_email: string
+          customer_name: string
+          customer_phone?: string | null
+          id?: string
+          items: Json
+          order_number: string
+          payment_channel?: string | null
+          payment_method?: string | null
+          paystack_reference?: string | null
+          subtotal: number
+          total_amount: number
+          transaction_reference?: string | null
+          transaction_status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string | null
+          id?: string
+          items?: Json
+          order_number?: string
+          payment_channel?: string | null
+          payment_method?: string | null
+          paystack_reference?: string | null
+          subtotal?: number
+          total_amount?: number
+          transaction_reference?: string | null
+          transaction_status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       social_media_handles: {
         Row: {
           created_at: string
@@ -1973,6 +2030,7 @@ export type Database = {
     Functions: {
       can_view_all_activity: { Args: { _user_id: string }; Returns: boolean }
       generate_member_number: { Args: never; Returns: string }
+      generate_order_number: { Args: never; Returns: string }
       generate_ticket_number: { Args: never; Returns: string }
       get_campaign_stats: {
         Args: { campaign_uuid: string }

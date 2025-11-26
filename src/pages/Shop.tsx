@@ -10,6 +10,8 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ShopCheckout } from "@/components/shop/ShopCheckout";
+import { useToast } from "@/hooks/use-toast";
 
 interface Product {
   id: string;
@@ -27,8 +29,10 @@ interface CartItem extends Product {
 }
 
 const Shop = () => {
+  const { toast } = useToast();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -186,6 +190,16 @@ const Shop = () => {
     return cart.reduce((total, item) => total + item.quantity, 0);
   };
 
+  const handleCheckoutComplete = () => {
+    setCart([]);
+    setIsCartOpen(false);
+    setIsCheckoutOpen(false);
+    toast({
+      title: "Order Placed Successfully!",
+      description: "Thank you for your purchase",
+    });
+  };
+
   const socialLinks = [
     { icon: Facebook, href: "#", label: "Facebook" },
     { icon: Instagram, href: "#", label: "Instagram" },
@@ -306,7 +320,10 @@ const Shop = () => {
                           <span>Total:</span>
                           <span>KSh {getTotalPrice().toFixed(2)}</span>
                         </div>
-                        <Button className="w-full" size="lg">
+                        <Button className="w-full" size="lg" onClick={() => {
+                          setIsCartOpen(false);
+                          setIsCheckoutOpen(true);
+                        }}>
                           Proceed to Checkout
                         </Button>
                       </div>
@@ -315,6 +332,13 @@ const Shop = () => {
                 </SheetContent>
               </Sheet>
             </div>
+
+      <ShopCheckout
+        open={isCheckoutOpen}
+        onOpenChange={setIsCheckoutOpen}
+        cartItems={cart}
+        onCheckoutComplete={handleCheckoutComplete}
+      />
             
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

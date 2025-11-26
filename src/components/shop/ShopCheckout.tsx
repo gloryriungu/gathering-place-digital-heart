@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ShoppingCart, CreditCard, Loader2 } from "lucide-react";
-import { formatAmount, validateEmail } from "@/lib/paystack";
+import { formatAmount, validateEmail, formatPhoneNumber, validatePhoneNumber, PaymentMethod } from "@/lib/paystack";
+import { PaymentMethodSelector } from "@/components/giving/PaymentMethodSelector";
 
 interface CartItem {
   id: string;
@@ -29,6 +30,7 @@ export const ShopCheckout = ({ open, onOpenChange, cartItems, onCheckoutComplete
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
   
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -77,6 +79,24 @@ export const ShopCheckout = ({ open, onOpenChange, cartItems, onCheckoutComplete
       return;
     }
 
+    if (paymentMethod === 'mobile_money' && !phone) {
+      toast({
+        title: "Phone Required",
+        description: "Please enter your phone number for M-Pesa payment",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (paymentMethod === 'mobile_money' && !validatePhoneNumber(phone)) {
+      toast({
+        title: "Invalid Phone Number",
+        description: "Please enter a valid Kenyan phone number (e.g., 0712345678)",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (cartItems.length === 0) {
       toast({
         title: "Empty Cart",
@@ -91,9 +111,10 @@ export const ShopCheckout = ({ open, onOpenChange, cartItems, onCheckoutComplete
     try {
       const { data, error } = await supabase.functions.invoke('initialize-shop-payment', {
         body: {
+          payment_method: paymentMethod,
           customer_name: name,
           customer_email: email,
-          customer_phone: phone,
+          customer_phone: paymentMethod === 'mobile_money' ? formatPhoneNumber(phone) : phone,
           items: cartItems.map(item => ({
             product_id: item.id,
             product_name: item.name,
@@ -153,6 +174,15 @@ export const ShopCheckout = ({ open, onOpenChange, cartItems, onCheckoutComplete
             </div>
           </div>
 
+          {/* Payment Method */}
+          <div className="space-y-3">
+            <h3 className="font-semibold text-sm">Payment Method</h3>
+            <PaymentMethodSelector
+              selected={paymentMethod}
+              onChange={setPaymentMethod}
+            />
+          </div>
+
           {/* Customer Details */}
           <div className="space-y-4">
             <h3 className="font-semibold text-sm">Customer Details</h3>
@@ -181,7 +211,9 @@ export const ShopCheckout = ({ open, onOpenChange, cartItems, onCheckoutComplete
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
+              <Label htmlFor="phone">
+                Phone Number {paymentMethod === 'mobile_money' && '*'}
+              </Label>
               <Input
                 id="phone"
                 value={phone}
@@ -189,6 +221,11 @@ export const ShopCheckout = ({ open, onOpenChange, cartItems, onCheckoutComplete
                 placeholder="0712345678"
                 disabled={isLoading}
               />
+              {paymentMethod === 'mobile_money' && (
+                <p className="text-xs text-muted-foreground">
+                  Required for M-Pesa payment
+                </p>
+              )}
             </div>
           </div>
 
@@ -213,7 +250,10 @@ export const ShopCheckout = ({ open, onOpenChange, cartItems, onCheckoutComplete
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            You will be redirected to Paystack to complete your payment securely
+            {paymentMethod === 'mobile_money' 
+              ? "You will be prompted to enter your M-Pesa PIN to complete payment"
+              : "You will be redirected to Paystack to complete your card payment securely"
+            }
           </p>
         </div>
       </DialogContent>

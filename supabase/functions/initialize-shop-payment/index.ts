@@ -13,6 +13,7 @@ serve(async (req) => {
 
   try {
     const { 
+      payment_method,
       customer_name,
       customer_email,
       customer_phone,
@@ -22,7 +23,7 @@ serve(async (req) => {
       user_id
     } = await req.json();
 
-    console.log('Initialize shop payment:', { customer_email, total_amount });
+    console.log('Initialize shop payment:', { payment_method, customer_email, total_amount });
 
     // Validate inputs
     if (!customer_name || !customer_email || !items || !total_amount) {
@@ -35,6 +36,13 @@ serve(async (req) => {
     if (total_amount < 10) {
       return new Response(
         JSON.stringify({ error: 'Minimum order amount is KES 10' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (payment_method === 'mobile_money' && !customer_phone) {
+      return new Response(
+        JSON.stringify({ error: 'Phone number required for M-Pesa payment' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -71,8 +79,8 @@ serve(async (req) => {
         items,
         subtotal,
         total_amount,
-        payment_method: 'card',
-        payment_channel: 'paystack',
+        payment_method: payment_method === 'mobile_money' ? 'mpesa' : 'card',
+        payment_channel: payment_method || 'card',
         transaction_status: 'pending'
       })
       .select()
@@ -92,7 +100,7 @@ serve(async (req) => {
     const paystackSecretKey = Deno.env.get('PAYSTACK_SECRET_KEY');
     const amountInKobo = Math.round(total_amount * 100);
 
-    const paystackPayload = {
+    const paystackPayload: any = {
       email: customer_email,
       amount: amountInKobo,
       currency: 'KES',
@@ -111,6 +119,16 @@ serve(async (req) => {
         ]
       }
     };
+
+    // Add channel-specific parameters
+    if (payment_method === 'mobile_money') {
+      paystackPayload.channels = ['mobile_money'];
+      if (customer_phone) {
+        paystackPayload.metadata.phone = customer_phone;
+      }
+    } else {
+      paystackPayload.channels = ['card'];
+    }
 
     console.log('Initializing Paystack transaction:', paystackPayload.reference);
 

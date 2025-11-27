@@ -9,6 +9,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ShoppingBag, Plus, Edit, Trash2, DollarSign } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CategoryManager } from "./CategoryManager";
 
 interface ProductData {
   id: string;
@@ -20,8 +23,15 @@ interface ProductData {
   created_at: string;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 export const ShopManager = () => {
   const [products, setProducts] = useState<ProductData[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -39,8 +49,24 @@ export const ShopManager = () => {
   });
 
   useEffect(() => {
+    fetchCategories();
     fetchProducts();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('shop_categories')
+        .select('id, name, slug')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -229,8 +255,14 @@ export const ShopManager = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <Card>
+    <Tabs defaultValue="products" className="space-y-6">
+      <TabsList>
+        <TabsTrigger value="products">Products</TabsTrigger>
+        <TabsTrigger value="categories">Categories</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="products">
+        <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -309,13 +341,22 @@ export const ShopManager = () => {
 
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="category">Category</Label>
-                      <Input
-                        id="category"
+                      <Label htmlFor="category">Category *</Label>
+                      <Select
                         value={formData.category}
-                        onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                        placeholder="e.g., Books, Apparel, Music"
-                      />
+                        onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((category) => (
+                            <SelectItem key={category.id} value={category.name}>
+                              {category.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div className="flex items-center space-x-2">
@@ -435,6 +476,11 @@ export const ShopManager = () => {
           )}
         </CardContent>
       </Card>
-    </div>
+      </TabsContent>
+
+      <TabsContent value="categories">
+        <CategoryManager />
+      </TabsContent>
+    </Tabs>
   );
 };

@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ShopCheckout } from "@/components/shop/ShopCheckout";
 import { useToast } from "@/hooks/use-toast";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface Product {
   id: string;
@@ -28,16 +30,33 @@ interface CartItem extends Product {
   quantity: number;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  icon?: string;
+}
+
 const Shop = () => {
   const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    fetchCategories();
     fetchProducts();
+    
+    // Get category from URL
+    const categoryParam = searchParams.get('category');
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
     
     // Set up real-time subscription
     const channel = supabase
@@ -60,6 +79,34 @@ const Shop = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('shop_categories')
+        .select('id, name, slug, icon')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching categories:', error);
+      } else {
+        setCategories(data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const handleCategoryChange = (categorySlug: string) => {
+    setSelectedCategory(categorySlug);
+    if (categorySlug === 'all') {
+      searchParams.delete('category');
+    } else {
+      searchParams.set('category', categorySlug);
+    }
+    setSearchParams(searchParams);
+  };
 
   const fetchProducts = async () => {
     try {
@@ -149,6 +196,21 @@ const Shop = () => {
   ];
 
   const displayProducts = products.length > 0 ? products : defaultProducts;
+  
+  const filteredProducts = selectedCategory === 'all' 
+    ? displayProducts 
+    : displayProducts.filter(product => {
+        const categorySlug = product.category.toLowerCase().replace(/\s+/g, '-');
+        return categorySlug === selectedCategory;
+      });
+
+  const getCategoryCount = (categorySlug: string) => {
+    if (categorySlug === 'all') return displayProducts.length;
+    return displayProducts.filter(product => {
+      const slug = product.category.toLowerCase().replace(/\s+/g, '-');
+      return slug === categorySlug;
+    }).length;
+  };
 
   const addToCart = (product: Product) => {
     setCart(prevCart => {
@@ -243,11 +305,53 @@ const Shop = () => {
           </div>
         </section>
 
+        {/* Category Filter */}
+        <section className="py-6 bg-muted/20 border-y">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <ScrollArea className="w-full whitespace-nowrap">
+              <div className="flex space-x-2">
+                <Button
+                  variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                  onClick={() => handleCategoryChange('all')}
+                  className="shrink-0"
+                >
+                  All Products
+                  <Badge variant="secondary" className="ml-2">
+                    {getCategoryCount('all')}
+                  </Badge>
+                </Button>
+                {categories.map((category) => (
+                  <Button
+                    key={category.id}
+                    variant={selectedCategory === category.slug ? 'default' : 'outline'}
+                    onClick={() => handleCategoryChange(category.slug)}
+                    className="shrink-0"
+                  >
+                    {category.name}
+                    <Badge variant="secondary" className="ml-2">
+                      {getCategoryCount(category.slug)}
+                    </Badge>
+                  </Button>
+                ))}
+              </div>
+              <ScrollBar orientation="horizontal" />
+            </ScrollArea>
+          </div>
+        </section>
+
         {/* Products Grid */}
         <section className="py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-3xl font-bold">Kingdom Resources</h2>
+              <div>
+                <h2 className="text-3xl font-bold">Kingdom Resources</h2>
+                <p className="text-muted-foreground mt-1">
+                  {selectedCategory === 'all' 
+                    ? `Showing all ${filteredProducts.length} products`
+                    : `${filteredProducts.length} ${categories.find(c => c.slug === selectedCategory)?.name || 'products'}`
+                  }
+                </p>
+              </div>
               
               {/* Cart Button */}
               <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
@@ -361,9 +465,24 @@ const Shop = () => {
                   </Card>
                 ))}
               </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="text-center py-16">
+                <ShoppingCart className="mx-auto h-16 w-16 text-muted-foreground" />
+                <h3 className="mt-4 text-xl font-semibold">No products found</h3>
+                <p className="mt-2 text-muted-foreground">
+                  There are no products in this category yet
+                </p>
+                <Button 
+                  variant="outline" 
+                  className="mt-4"
+                  onClick={() => handleCategoryChange('all')}
+                >
+                  View All Products
+                </Button>
+              </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {displayProducts.map((product) => (
+                {filteredProducts.map((product) => (
                   <Card key={product.id} className="overflow-hidden">
                     <CardHeader className="p-0">
                       <img

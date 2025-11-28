@@ -6,7 +6,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Plus, Minus, X, Facebook, Instagram, Youtube, Twitter } from "lucide-react";
+import { ShoppingCart, Plus, Minus, X, Facebook, Instagram, Youtube, Twitter, Heart } from "lucide-react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
@@ -47,8 +47,11 @@ const Shop = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [loading, setLoading] = useState(true);
+  const [wishlistItems, setWishlistItems] = useState<Set<string>>(new Set());
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
+    checkAuth();
     fetchCategories();
     fetchProducts();
     
@@ -79,6 +82,99 @@ const Shop = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  const checkAuth = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setUser(user);
+    if (user) {
+      fetchWishlist();
+    }
+  };
+
+  const fetchWishlist = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('wishlist')
+        .select('product_id');
+
+      if (error) throw error;
+      
+      const wishlistSet = new Set(data?.map(item => item.product_id) || []);
+      setWishlistItems(wishlistSet);
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+    }
+  };
+
+  const isInWishlist = (productId: string) => {
+    return wishlistItems.has(productId);
+  };
+
+  const toggleWishlist = async (productId: string) => {
+    if (!user) {
+      toast({
+        title: "Login Required",
+        description: "Please log in to save items to your wishlist",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      if (isInWishlist(productId)) {
+        // Remove from wishlist
+        const { error } = await supabase
+          .from('wishlist')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('product_id', productId);
+
+        if (error) throw error;
+
+        setWishlistItems(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(productId);
+          return newSet;
+        });
+
+        toast({
+          title: "Removed from wishlist",
+          description: "Item removed from your wishlist",
+        });
+      } else {
+        // Add to wishlist
+        const { error } = await supabase
+          .from('wishlist')
+          .insert({
+            user_id: user.id,
+            product_id: productId,
+          });
+
+        if (error) throw error;
+
+        setWishlistItems(prev => new Set([...prev, productId]));
+
+        toast({
+          title: "Added to wishlist",
+          description: "Item saved to your wishlist",
+        });
+      }
+    } catch (error: any) {
+      console.error('Error toggling wishlist:', error);
+      if (error.code === '23505') {
+        toast({
+          title: "Already in wishlist",
+          description: "This item is already in your wishlist",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update wishlist",
+          variant: "destructive",
+        });
+      }
+    }
+  };
 
   const fetchCategories = async () => {
     try {
@@ -484,12 +580,22 @@ const Shop = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProducts.map((product) => (
                   <Card key={product.id} className="overflow-hidden">
-                    <CardHeader className="p-0">
+                    <CardHeader className="p-0 relative">
                       <img
                         src={product.image}
                         alt={product.name}
                         className="h-48 w-full object-cover"
                       />
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        className="absolute top-2 right-2"
+                        onClick={() => toggleWishlist(product.id)}
+                      >
+                        <Heart 
+                          className={`h-4 w-4 ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : ''}`}
+                        />
+                      </Button>
                     </CardHeader>
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-2">

@@ -18,6 +18,7 @@ const Events = lazy(() => import("./pages/Events"));
 const EventRegistration = lazy(() => import("./pages/EventRegistration"));
 const Give = lazy(() => import("./pages/Give"));
 const Shop = lazy(() => import("./pages/Shop"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
 const VisitUs = lazy(() => import("./pages/VisitUs"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const PastorsDashboard = lazy(() => import("./pages/PastorsDashboard"));
@@ -93,6 +94,7 @@ const App = () => (
               <Route path="/giving-history" element={<GivingHistory />} />
               <Route path="/shop" element={<Shop />} />
               <Route path="/shop/verify" element={<ShopVerify />} />
+              <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/visit-us" element={<VisitUs />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/auth/complete-profile" element={<ProfileCompletion />} />

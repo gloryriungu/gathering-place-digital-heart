@@ -21,7 +21,7 @@
 import { useState, memo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, ChevronDown, ShoppingCart } from "lucide-react";
+import { Menu, X, ChevronDown, ShoppingCart, Heart } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,13 +30,55 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useSocialMedia } from "@/hooks/useSocialMedia";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 import logo from "@/assets/logo.png";
 
 export const Navigation = memo(() => {
   const [isOpen, setIsOpen] = useState(false);
   const [cartItems, setCartItems] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
   const [isGetInvolvedOpen, setIsGetInvolvedOpen] = useState(false);
   const { socialLinks } = useSocialMedia();
+
+  useEffect(() => {
+    fetchWishlistCount();
+    
+    // Subscribe to wishlist changes
+    const channel = supabase
+      .channel('wishlist-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'wishlist',
+        },
+        () => {
+          fetchWishlistCount();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const fetchWishlistCount = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      setWishlistCount(0);
+      return;
+    }
+
+    const { count } = await supabase
+      .from('wishlist')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id);
+
+    setWishlistCount(count || 0);
+  };
 
   const toggleMenu = useCallback(() => setIsOpen(!isOpen), [isOpen]);
   const closeMenu = useCallback(() => setIsOpen(false), []);
@@ -125,16 +167,31 @@ export const Navigation = memo(() => {
               ))}
             </div>
 
-            {/* Cart Icon */}
-            <div className="relative">
-              <Link to="/shop" className="text-white hover:text-gray-300 transition-colors">
-                <ShoppingCart className="h-5 w-5" />
-                {cartItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {cartItems}
-                  </span>
-                )}
-              </Link>
+            {/* Wishlist & Cart Icons */}
+            <div className="flex items-center space-x-4">
+              {/* Wishlist Icon */}
+              <div className="relative">
+                <Link to="/wishlist" className="text-white hover:text-gray-300 transition-colors">
+                  <Heart className="h-5 w-5" />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {wishlistCount}
+                    </span>
+                  )}
+                </Link>
+              </div>
+
+              {/* Cart Icon */}
+              <div className="relative">
+                <Link to="/shop" className="text-white hover:text-gray-300 transition-colors">
+                  <ShoppingCart className="h-5 w-5" />
+                  {cartItems > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {cartItems}
+                    </span>
+                  )}
+                </Link>
+              </div>
             </div>
           </div>
 

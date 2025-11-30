@@ -132,7 +132,7 @@ export const Hero = memo(() => {
   const backgroundVideo = (content as any).background_video || (content as any).video_url || defaultContent.video_url;
   const backgroundImage = (content as any).background_image || (content as any).image_url || defaultContent.image_url;
 
-  return <section className="relative min-h-screen bg-primary text-primary-foreground overflow-hidden">
+  return <section className="relative min-h-screen bg-primary text-primary-foreground overflow-hidden pt-20">
       {/* Background Image (immediate) */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-300"

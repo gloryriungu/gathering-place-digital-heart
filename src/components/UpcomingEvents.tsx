@@ -11,6 +11,7 @@ interface EventContent {
   id: string;
   title: string;
   description: string;
+  image_url?: string;
   content_data: {
     date?: string;
     time?: string;
@@ -23,6 +24,19 @@ interface EventContent {
 const UpcomingEvents = () => {
   const [events, setEvents] = useState<EventContent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
+
+  const toggleExpanded = (eventId: string) => {
+    setExpandedEvents(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(eventId)) {
+        newSet.delete(eventId);
+      } else {
+        newSet.add(eventId);
+      }
+      return newSet;
+    });
+  };
 
   useEffect(() => {
     fetchEvents();
@@ -152,23 +166,49 @@ const UpcomingEvents = () => {
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 mb-12">
-          {displayEvents.slice(0, 3).map((event, index) => (
-            <Card key={event.id || index} className="border-2 border-black hover:shadow-xl transition-all hover:-translate-y-1">
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="bg-black text-white px-3 py-1 rounded font-bold text-sm">
-                    {event.content_data?.category || 'EVENT'}
+          {displayEvents.slice(0, 3).map((event, index) => {
+            const isExpanded = expandedEvents.has(event.id || index.toString());
+            const shouldTruncate = event.description && event.description.length > 120;
+            const displayDescription = !shouldTruncate || isExpanded 
+              ? event.description 
+              : event.description.slice(0, 120) + '...';
+
+            return (
+              <Card key={event.id || index} className="border-2 border-black hover:shadow-xl transition-all hover:-translate-y-1 flex flex-col">
+                {event.image_url && (
+                  <div className="w-full aspect-[4/3] overflow-hidden">
+                    <img 
+                      src={event.image_url} 
+                      alt={event.title}
+                      className="w-full h-full object-contain bg-gray-50"
+                    />
                   </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-black text-black">{event.content_data?.date || 'TBD'}</div>
+                )}
+                <CardHeader className="pb-4">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="bg-black text-white px-3 py-1 rounded font-bold text-sm">
+                      {event.content_data?.category || 'EVENT'}
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-black text-black">{event.content_data?.date || 'TBD'}</div>
+                    </div>
                   </div>
-                </div>
-                <CardTitle className="text-xl font-bold text-black leading-tight">
-                  {event.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-gray-600 leading-relaxed">{event.description}</p>
+                  <CardTitle className="text-xl font-bold text-black leading-tight">
+                    {event.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 flex-1 flex flex-col">
+                  <div>
+                    <p className="text-gray-600 leading-relaxed">{displayDescription}</p>
+                    {shouldTruncate && (
+                      <button 
+                        onClick={() => toggleExpanded(event.id || index.toString())}
+                        className="text-black font-bold text-sm mt-2 hover:underline"
+                      >
+                        {isExpanded ? 'Read Less' : 'Read More'}
+                      </button>
+                    )}
+                  </div>
                 
                 <div className="space-y-2">
                   <div className="flex items-center text-sm">
@@ -181,24 +221,27 @@ const UpcomingEvents = () => {
                   </div>
                 </div>
 
-                {event.content_data?.enable_rsvp ? (
-                  <Button asChild className="w-full bg-black text-white hover:bg-gray-800 font-bold">
-                    <Link to={`/events/${event.id}/register`}>
-                      <Users className="h-4 w-4 mr-2" />
-                      REGISTER NOW
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button asChild variant="outline" className="w-full font-bold">
-                    <Link to="/events">
-                      LEARN MORE
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </Link>
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+                  <div className="mt-auto">
+                    {event.content_data?.enable_rsvp ? (
+                      <Button asChild className="w-full bg-black text-white hover:bg-gray-800 font-bold">
+                        <Link to={`/events/${event.id}/register`}>
+                          <Users className="h-4 w-4 mr-2" />
+                          REGISTER NOW
+                        </Link>
+                      </Button>
+                    ) : (
+                      <Button asChild variant="outline" className="w-full font-bold">
+                        <Link to="/events">
+                          LEARN MORE
+                          <ArrowRight className="h-4 w-4 ml-2" />
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         <div className="text-center">

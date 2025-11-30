@@ -244,16 +244,18 @@ const Events = () => {
                 ))
               ) : events.length > 0 ? (
                 events.map((event) => (
-                  <div key={event.id} className="bg-white border border-gray-200 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                  <div key={event.id} className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                    <div className="flex flex-col lg:flex-row gap-6">
                       {event.image_url && (
-                        <img 
-                          src={event.image_url} 
-                          alt={event.title}
-                          className="w-full lg:w-48 h-32 object-cover rounded-lg"
-                        />
+                        <div className="lg:w-80 flex-shrink-0">
+                          <img 
+                            src={event.image_url} 
+                            alt={event.title}
+                            className="w-full h-full object-contain bg-gray-50"
+                          />
+                        </div>
                       )}
-                      <div className="flex-1">
+                      <div className="flex-1 p-6">
                         <div className="flex items-center gap-3 mb-3">
                           <h3 className="text-2xl font-bold text-black">{event.title}</h3>
                           {event.content_data.category && (
@@ -291,7 +293,7 @@ const Events = () => {
                         </div>
                       </div>
                       
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-2 p-6 lg:p-0">
                         {event.content_data.enable_rsvp ? (
                           <Button asChild className="bg-black text-white hover:bg-gray-800">
                             <Link to={`/events/${event.id}/register`}>Register Now</Link>

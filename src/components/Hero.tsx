@@ -104,7 +104,7 @@ export const Hero = memo(() => {
     return (
       <section className="relative min-h-screen bg-primary text-primary-foreground overflow-hidden">
         <div className="relative flex items-center justify-center min-h-screen pb-32">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-7 text-center space-y-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 text-center space-y-6">
             <Skeleton className="h-20 w-full max-w-4xl mx-auto" />
             <Skeleton className="h-16 w-full max-w-6xl mx-auto" />
             <Skeleton className="h-12 w-full max-w-4xl mx-auto" />
@@ -159,7 +159,7 @@ export const Hero = memo(() => {
       
       {/* Content */}
       <div className="relative flex items-center justify-center min-h-screen pb-32">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-7 text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 xl:px-16 text-center">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight leading-tight">
             {content.heading || defaultContent.heading}
           </h1>

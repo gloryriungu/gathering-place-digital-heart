@@ -6,7 +6,8 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, Plus, Minus, X, Facebook, Instagram, Youtube, Twitter, Heart } from "lucide-react";
+import { ShoppingCart, Plus, Minus, X, Facebook, Instagram, Youtube, Twitter, Heart, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,6 +47,7 @@ const Shop = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [wishlistItems, setWishlistItems] = useState<Set<string>>(new Set());
   const [user, setUser] = useState<any>(null);
@@ -293,12 +295,18 @@ const Shop = () => {
 
   const displayProducts = products.length > 0 ? products : defaultProducts;
   
-  const filteredProducts = selectedCategory === 'all' 
-    ? displayProducts 
-    : displayProducts.filter(product => {
-        const categorySlug = product.category.toLowerCase().replace(/\s+/g, '-');
-        return categorySlug === selectedCategory;
-      });
+  const filteredProducts = displayProducts.filter(product => {
+    // Filter by category
+    const matchesCategory = selectedCategory === 'all' || 
+      product.category.toLowerCase().replace(/\s+/g, '-') === selectedCategory;
+    
+    // Filter by search term
+    const matchesSearch = !searchTerm || 
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    return matchesCategory && matchesSearch;
+  });
 
   const getCategoryCount = (categorySlug: string) => {
     if (categorySlug === 'all') return displayProducts.length;
@@ -401,9 +409,22 @@ const Shop = () => {
           </div>
         </section>
 
-        {/* Category Filter */}
+        {/* Search and Category Filter */}
         <section className="py-6 bg-muted/20 border-y">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Search Bar */}
+            <div className="mb-4">
+              <div className="relative max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Search products by name or description..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
             <ScrollArea className="w-full whitespace-nowrap">
               <div className="flex space-x-2">
                 <Button

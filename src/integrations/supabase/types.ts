@@ -110,6 +110,90 @@ export type Database = {
         }
         Relationships: []
       }
+      applicant_progress: {
+        Row: {
+          application_id: string
+          completed_at: string
+          id: string
+          resource_id: string
+        }
+        Insert: {
+          application_id: string
+          completed_at?: string
+          id?: string
+          resource_id: string
+        }
+        Update: {
+          application_id?: string
+          completed_at?: string
+          id?: string
+          resource_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applicant_progress_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "program_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applicant_progress_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "program_resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      applicant_responses: {
+        Row: {
+          application_id: string
+          id: string
+          is_correct: boolean | null
+          pastor_feedback: string | null
+          question_id: string
+          response: string
+          submitted_at: string
+          updated_at: string
+        }
+        Insert: {
+          application_id: string
+          id?: string
+          is_correct?: boolean | null
+          pastor_feedback?: string | null
+          question_id: string
+          response: string
+          submitted_at?: string
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string
+          id?: string
+          is_correct?: boolean | null
+          pastor_feedback?: string | null
+          question_id?: string
+          response?: string
+          submitted_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applicant_responses_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "program_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applicant_responses_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "program_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       attendance_records: {
         Row: {
           checked_in_at: string | null
@@ -1326,6 +1410,54 @@ export type Database = {
           },
         ]
       }
+      preparation_programs: {
+        Row: {
+          ceremony_date: string
+          ceremony_time: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          location: string | null
+          max_participants: number | null
+          program_type: string
+          registration_deadline: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          ceremony_date: string
+          ceremony_time?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          max_participants?: number | null
+          program_type: string
+          registration_deadline?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          ceremony_date?: string
+          ceremony_time?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          max_participants?: number | null
+          program_type?: string
+          registration_deadline?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           address: string | null
@@ -1367,6 +1499,153 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      program_applications: {
+        Row: {
+          application_notes: string | null
+          created_at: string
+          id: string
+          program_id: string
+          resource_access_granted: boolean
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          application_notes?: string | null
+          created_at?: string
+          id?: string
+          program_id: string
+          resource_access_granted?: boolean
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          application_notes?: string | null
+          created_at?: string
+          id?: string
+          program_id?: string
+          resource_access_granted?: boolean
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_applications_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "preparation_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_questions: {
+        Row: {
+          correct_answer: string | null
+          created_at: string
+          created_by: string
+          display_order: number
+          explanation: string | null
+          id: string
+          is_required: boolean
+          options: Json | null
+          program_id: string
+          question: string
+          question_type: string
+          updated_at: string
+        }
+        Insert: {
+          correct_answer?: string | null
+          created_at?: string
+          created_by: string
+          display_order?: number
+          explanation?: string | null
+          id?: string
+          is_required?: boolean
+          options?: Json | null
+          program_id: string
+          question: string
+          question_type: string
+          updated_at?: string
+        }
+        Update: {
+          correct_answer?: string | null
+          created_at?: string
+          created_by?: string
+          display_order?: number
+          explanation?: string | null
+          id?: string
+          is_required?: boolean
+          options?: Json | null
+          program_id?: string
+          question?: string
+          question_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_questions_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "preparation_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_resources: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          display_order: number
+          estimated_time: number | null
+          id: string
+          is_active: boolean
+          program_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          display_order?: number
+          estimated_time?: number | null
+          id?: string
+          is_active?: boolean
+          program_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          display_order?: number
+          estimated_time?: number | null
+          id?: string
+          is_active?: boolean
+          program_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_resources_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "preparation_programs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       recurring_contributions: {
         Row: {

@@ -12,6 +12,11 @@ import { UserProfile } from "@/components/dashboard/UserProfile";
 import { PastorActivityLogs } from "@/components/pastor/PastorActivityLogs";
 import PastorCounselingSessions from "@/components/pastor/PastorCounselingSessions";
 import PastorAvailabilityManager from "@/components/pastor/PastorAvailabilityManager";
+import { ProgramManagement } from "@/components/pastor/ProgramManagement";
+import { ProgramApplicationsManager } from "@/components/pastor/ProgramApplicationsManager";
+import { ProgramResourcesEditor } from "@/components/pastor/ProgramResourcesEditor";
+import { ProgramQuestionsEditor } from "@/components/pastor/ProgramQuestionsEditor";
+import { CandidateProgressViewer } from "@/components/pastor/CandidateProgressViewer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,6 +32,7 @@ const PastorsDashboard = () => {
 
   const menuItems = [
     { value: "overview", label: "Overview", icon: LayoutDashboard },
+    { value: "programs", label: "Programs", icon: Calendar },
     { value: "counseling", label: "Counseling", icon: Calendar },
     { value: "audit", label: "Activity", icon: Activity },
     { value: "profile", label: "Profile", icon: User },
@@ -116,10 +122,27 @@ const PastorsDashboard = () => {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="counseling" className="space-y-6">
-                  <PastorCounselingSessions />
-                  <PastorAvailabilityManager />
-                </TabsContent>
+            <TabsContent value="programs" className="space-y-6">
+              <Tabs defaultValue="manage">
+                <TabsList>
+                  <TabsTrigger value="manage">Manage Programs</TabsTrigger>
+                  <TabsTrigger value="applications">Applications</TabsTrigger>
+                  <TabsTrigger value="resources">Resources</TabsTrigger>
+                  <TabsTrigger value="questions">Questions</TabsTrigger>
+                  <TabsTrigger value="progress">Progress</TabsTrigger>
+                </TabsList>
+                <TabsContent value="manage"><ProgramManagement /></TabsContent>
+                <TabsContent value="applications"><ProgramApplicationsManager /></TabsContent>
+                <TabsContent value="resources"><ProgramResourcesEditor /></TabsContent>
+                <TabsContent value="questions"><ProgramQuestionsEditor /></TabsContent>
+                <TabsContent value="progress"><CandidateProgressViewer /></TabsContent>
+              </Tabs>
+            </TabsContent>
+
+            <TabsContent value="counseling" className="space-y-6">
+              <PastorCounselingSessions />
+              <PastorAvailabilityManager />
+            </TabsContent>
 
                 <TabsContent value="audit">
                   <PastorActivityLogs isLeadership={isLeadership} />

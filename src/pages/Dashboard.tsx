@@ -117,6 +117,11 @@ import { ApplicationStatus } from "@/components/dashboard/ApplicationStatus";
 import { ActivityLogVisibilityManager } from "@/components/admin/ActivityLogVisibilityManager";
 import CounselingSessionsManagement from "@/components/dashboard/CounselingSessionsManagement";
 import PastorCounselingSessions from "@/components/pastor/PastorCounselingSessions";
+import { ProgramManagement } from "@/components/pastor/ProgramManagement";
+import { ProgramApplicationsManager } from "@/components/pastor/ProgramApplicationsManager";
+import { ProgramResourcesEditor } from "@/components/pastor/ProgramResourcesEditor";
+import { ProgramQuestionsEditor } from "@/components/pastor/ProgramQuestionsEditor";
+import { CandidateProgressViewer } from "@/components/pastor/CandidateProgressViewer";
 
 const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
@@ -226,6 +231,7 @@ const Dashboard = () => {
         { value: "users", label: "All Users", icon: Users },
       ],
       pastor: [
+        { value: "programs", label: "Programs", icon: BookOpen },
         { value: "availability", label: "My Availability", icon: Calendar },
         { value: "ministries-view", label: "View Ministries", icon: Heart },
         { value: "serve-view", label: "View Departments", icon: UserCheck },
@@ -598,6 +604,23 @@ const Dashboard = () => {
             </TabsContent>
 
             {/* Pastor Role Tabs */}
+            <TabsContent value="programs">
+              <Tabs defaultValue="manage">
+                <TabsList>
+                  <TabsTrigger value="manage">Manage Programs</TabsTrigger>
+                  <TabsTrigger value="applications">Applications</TabsTrigger>
+                  <TabsTrigger value="resources">Resources</TabsTrigger>
+                  <TabsTrigger value="questions">Questions</TabsTrigger>
+                  <TabsTrigger value="progress">Progress</TabsTrigger>
+                </TabsList>
+                <TabsContent value="manage"><ProgramManagement /></TabsContent>
+                <TabsContent value="applications"><ProgramApplicationsManager /></TabsContent>
+                <TabsContent value="resources"><ProgramResourcesEditor /></TabsContent>
+                <TabsContent value="questions"><ProgramQuestionsEditor /></TabsContent>
+                <TabsContent value="progress"><CandidateProgressViewer /></TabsContent>
+              </Tabs>
+            </TabsContent>
+
             <TabsContent value="availability">
               <PastorAvailability isPastor={true} />
             </TabsContent>

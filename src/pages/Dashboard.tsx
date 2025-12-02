@@ -205,6 +205,7 @@ const Dashboard = () => {
 
     const roleTabs = {
       admin: [
+        { value: "programs", label: "Programs", icon: BookOpen },
         { value: "ministries", label: "Ministries", icon: Users },
         { value: "serve-management", label: "Serve Management", icon: UserCheck },
         { value: "applications", label: "Applications", icon: FileText },
@@ -213,6 +214,7 @@ const Dashboard = () => {
         { value: "users", label: "User Management", icon: UserCheck },
       ],
       founder: [
+        { value: "programs", label: "Programs", icon: BookOpen },
         { value: "analytics", label: "Advanced Analytics", icon: Activity },
         { value: "demographics", label: "Demographics", icon: Users },
         { value: "budget-requests", label: "Budget Requests", icon: DollarSign },
@@ -223,6 +225,7 @@ const Dashboard = () => {
         { value: "users", label: "All Users", icon: Users },
       ],
       senior_pastor: [
+        { value: "programs", label: "Programs", icon: BookOpen },
         { value: "demographics", label: "Demographics", icon: Users },
         { value: "giving-analysis", label: "Giving Analysis", icon: DollarSign },
         { value: "budget-review", label: "Budget Review", icon: FileText },
@@ -275,6 +278,7 @@ const Dashboard = () => {
         { value: "reports", label: "Reports", icon: FileText },
       ],
       it: [
+        { value: "programs", label: "Programs", icon: BookOpen },
         { value: "user-management", label: "User Management", icon: Users },
         { value: "system-logs", label: "System Logs", icon: Activity },
         { value: "ticketing", label: "Support Tickets", icon: Ticket },

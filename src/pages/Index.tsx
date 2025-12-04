@@ -65,8 +65,8 @@ const Index = memo(() => {
     "@context": "https://schema.org",
     "@type": "Church",
     "name": "TOT International",
-    "url": "https://tot123.netlify.app",
-    "logo": "https://tot123.netlify.app/favicon.png",
+    "url": "https://stg.tot.co.ke",
+    "logo": "https://stg.tot.co.ke/favicon.png",
     "description": "A church community focused on transforming lives through God's Word, building faith, and serving our community with love.",
     "address": {
       "@type": "PostalAddress",

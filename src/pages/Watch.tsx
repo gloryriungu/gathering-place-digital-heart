@@ -124,7 +124,7 @@ const Watch = () => {
     "name": watchData.live_service_title,
     "description": watchData.live_service_description,
     "uploadDate": new Date().toISOString(),
-    "contentUrl": "https://tot123.netlify.app/watch"
+    "contentUrl": "https://stg.tot.co.ke/watch"
   };
 
   return (

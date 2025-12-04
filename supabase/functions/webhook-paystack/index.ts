@@ -136,7 +136,7 @@ async function sendCriticalAlert(
           'X-Postmark-Server-Token': postmarkApiKey,
         },
         body: JSON.stringify({
-          From: 'alerts@tot123.netlify.app',
+          From: 'alerts@stg.tot.co.ke',
           To: admin.email,
           Subject: subject,
           HtmlBody: htmlBody,

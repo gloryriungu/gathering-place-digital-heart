@@ -56,9 +56,10 @@ const handler = async (req: Request): Promise<Response> => {
 
             console.log(`Email sent successfully to ${recipient}`);
             return { recipient, success: true, data };
-          } catch (error) {
+          } catch (error: unknown) {
             console.error(`Error sending email to ${recipient}:`, error);
-            return { recipient, success: false, error: error.message };
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            return { recipient, success: false, error: errorMessage };
           }
         })
       );
@@ -112,10 +113,11 @@ const handler = async (req: Request): Promise<Response> => {
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in send-email function:", error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

@@ -152,9 +152,10 @@ This is an automated reminder. Please do not reply to this email.
 
     console.log(`Reminder sent successfully to ${reminder.member_email}`);
     return { success: true, data };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(`Error sending reminder to ${reminder.member_email}:`, error);
-    return { success: false, error: error.message };
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, error: errorMessage };
   }
 };
 
@@ -276,10 +277,11 @@ const handler = async (req: Request): Promise<Response> => {
       }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in send-session-reminders function:", error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },

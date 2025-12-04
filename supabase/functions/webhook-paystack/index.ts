@@ -214,21 +214,19 @@ serve(async (req) => {
           .eq('id', logId);
       }
 
-      // Send critical alert for missing signature
+      // Send critical alert for missing signature (fire-and-forget)
       const adminEmails = await getAdminEmails(supabaseClient);
-      EdgeRuntime.waitUntil(
-        sendCriticalAlert(
-          adminEmails,
-          '🚨 Critical: Paystack Webhook Security Alert - Missing Signature',
-          'Security Alert: Missing Webhook Signature',
-          {
-            event_type: event?.event || 'Unknown',
-            reference: event?.data?.reference || null,
-            ip_address: ipAddress,
-            error_message: 'Webhook received without required signature header. This could indicate a security issue or misconfiguration.'
-          }
-        )
-      );
+      sendCriticalAlert(
+        adminEmails,
+        '🚨 Critical: Paystack Webhook Security Alert - Missing Signature',
+        'Security Alert: Missing Webhook Signature',
+        {
+          event_type: event?.event || 'Unknown',
+          reference: event?.data?.reference || null,
+          ip_address: ipAddress,
+          error_message: 'Webhook received without required signature header. This could indicate a security issue or misconfiguration.'
+        }
+      ).catch(err => console.error('Failed to send alert:', err));
       
       return new Response('Unauthorized', { status: 401 });
     }
@@ -252,21 +250,19 @@ serve(async (req) => {
           .eq('id', logId);
       }
 
-      // Send critical alert for invalid signature
+      // Send critical alert for invalid signature (fire-and-forget)
       const adminEmails = await getAdminEmails(supabaseClient);
-      EdgeRuntime.waitUntil(
-        sendCriticalAlert(
-          adminEmails,
-          '🚨 Critical: Paystack Webhook Security Alert - Invalid Signature',
-          'Security Alert: Invalid Webhook Signature',
-          {
-            event_type: event?.event || 'Unknown',
-            reference: event?.data?.reference || null,
-            ip_address: ipAddress,
-            error_message: 'Webhook signature verification failed. This could indicate a spoofing attempt or incorrect secret key configuration.'
-          }
-        )
-      );
+      sendCriticalAlert(
+        adminEmails,
+        '🚨 Critical: Paystack Webhook Security Alert - Invalid Signature',
+        'Security Alert: Invalid Webhook Signature',
+        {
+          event_type: event?.event || 'Unknown',
+          reference: event?.data?.reference || null,
+          ip_address: ipAddress,
+          error_message: 'Webhook signature verification failed. This could indicate a spoofing attempt or incorrect secret key configuration.'
+        }
+      ).catch(err => console.error('Failed to send alert:', err));
       
       return new Response('Unauthorized', { status: 401 });
     }
@@ -306,21 +302,19 @@ serve(async (req) => {
           console.error('Error updating contribution:', error);
           processingError = error.message;
           
-          // Send alert for database update failure
+          // Send alert for database update failure (fire-and-forget)
           const adminEmails = await getAdminEmails(supabaseClient);
-          EdgeRuntime.waitUntil(
-            sendCriticalAlert(
-              adminEmails,
-              '⚠️ Webhook Processing Error: Database Update Failed',
-              'Processing Error: Failed to Update Contribution',
-              {
-                event_type: event.event,
-                reference: data.reference,
-                ip_address: ipAddress,
-                error_message: `Failed to update contribution record: ${error.message}`
-              }
-            )
-          );
+          sendCriticalAlert(
+            adminEmails,
+            '⚠️ Webhook Processing Error: Database Update Failed',
+            'Processing Error: Failed to Update Contribution',
+            {
+              event_type: event.event,
+              reference: data.reference,
+              ip_address: ipAddress,
+              error_message: `Failed to update contribution record: ${error.message}`
+            }
+          ).catch(err => console.error('Failed to send alert:', err));
         } else {
           console.log('Contribution updated successfully:', data.reference);
         }
@@ -344,21 +338,19 @@ serve(async (req) => {
           console.error('Error updating contribution:', error);
           processingError = error.message;
           
-          // Send alert for database update failure
+          // Send alert for database update failure (fire-and-forget)
           const adminEmails = await getAdminEmails(supabaseClient);
-          EdgeRuntime.waitUntil(
-            sendCriticalAlert(
-              adminEmails,
-              '⚠️ Webhook Processing Error: Database Update Failed',
-              'Processing Error: Failed to Update Contribution',
-              {
-                event_type: event.event,
-                reference: data.reference,
-                ip_address: ipAddress,
-                error_message: `Failed to update contribution record: ${error.message}`
-              }
-            )
-          );
+          sendCriticalAlert(
+            adminEmails,
+            '⚠️ Webhook Processing Error: Database Update Failed',
+            'Processing Error: Failed to Update Contribution',
+            {
+              event_type: event.event,
+              reference: data.reference,
+              ip_address: ipAddress,
+              error_message: `Failed to update contribution record: ${error.message}`
+            }
+          ).catch(err => console.error('Failed to send alert:', err));
         }
         break;
       }
@@ -386,13 +378,11 @@ serve(async (req) => {
       headers: { 'Content-Type': 'application/json' }
     });
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error in webhook-paystack:', error);
     
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorStack = error instanceof Error ? error.stack : '';
     
     // Log the error
     if (logId) {
@@ -400,30 +390,28 @@ serve(async (req) => {
         .from('paystack_webhook_logs')
         .update({
           processing_status: 'failed',
-          processing_error: error.message,
+          processing_error: errorMessage,
           processed_at: new Date().toISOString()
         })
         .eq('id', logId);
     }
 
-    // Send critical alert for unexpected errors
+    // Send critical alert for unexpected errors (fire-and-forget)
     const adminEmails = await getAdminEmails(supabaseClient);
-    EdgeRuntime.waitUntil(
-      sendCriticalAlert(
-        adminEmails,
-        '🚨 Critical: Webhook System Error',
-        'System Error: Webhook Processing Failed',
-        {
-          event_type: 'system_error',
-          reference: null,
-          ip_address: null,
-          error_message: `Unexpected error in webhook processing: ${error.message}\n\nStack trace: ${error.stack}`
-        }
-      )
-    );
+    sendCriticalAlert(
+      adminEmails,
+      '🚨 Critical: Webhook System Error',
+      'System Error: Webhook Processing Failed',
+      {
+        event_type: 'system_error',
+        reference: null,
+        ip_address: null,
+        error_message: `Unexpected error in webhook processing: ${errorMessage}\n\nStack trace: ${errorStack}`
+      }
+    ).catch(err => console.error('Failed to send alert:', err));
     
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }

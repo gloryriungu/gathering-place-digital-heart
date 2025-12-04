@@ -185,7 +185,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, userData: any) => {
     try {
-      const redirectUrl = `${window.location.origin}/`;
+      const redirectUrl = 'https://stg.tot.co.ke/';
       
       const { error } = await supabase.auth.signUp({
         email,
@@ -283,46 +283,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInWithGoogle = async (): Promise<{ error: any }> => {
     try {
-      // Create manual popup to completely bypass iframe restrictions
-      const redirectUrl = `${window.location.origin}/`;
-      const supabaseUrl = 'https://zkbeoqskfeyqtyjtpufj.supabase.co';
-      
-      const oauthUrl = `${supabaseUrl}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectUrl)}`;
-      
-      // Open popup window
-      const popup = window.open(
-        oauthUrl,
-        'google-auth',
-        'width=500,height=600,scrollbars=yes,resizable=yes'
-      );
-      
-      if (!popup) {
+      // Use direct OAuth redirect instead of popup to avoid opening additional pages
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: 'https://stg.tot.co.ke/dashboard',
+        }
+      });
+
+      if (error) {
         toast({
           variant: "destructive",
-          title: "Popup Blocked",
-          description: "Please allow popups for this site to sign in with Google"
+          title: "Google Sign-In Error",
+          description: error.message
         });
-        return { error: new Error("Popup blocked") };
+        return { error };
       }
-      
-      // Listen for popup close or success
-      return new Promise((resolve) => {
-        const checkClosed = setInterval(() => {
-          if (popup.closed) {
-            clearInterval(checkClosed);
-            // Check if user was signed in after popup closed
-            setTimeout(() => {
-              supabase.auth.getSession().then(({ data: { session } }) => {
-                if (session) {
-                  resolve({ error: null });
-                } else {
-                  resolve({ error: new Error("Authentication cancelled") });
-                }
-              });
-            }, 1000);
-          }
-        }, 1000);
-      });
+
+      return { error: null };
     } catch (error: any) {
       const errorMessage = error instanceof Error ? error.message : 'Google sign-in failed';
       toast({

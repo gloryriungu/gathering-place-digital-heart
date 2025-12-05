@@ -34,26 +34,33 @@ const Auth = () => {
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
   const [resetPasswordMode, setResetPasswordMode] = useState(false);
 
-  // Check for password reset mode from URL
+  // Check for password reset mode from URL - must be synchronous to prevent race conditions
+  const isRecoveryMode = searchParams.get('type') === 'recovery' || 
+                          searchParams.get('access_token') !== null ||
+                          window.location.hash.includes('type=recovery');
+
+  // Set resetPasswordMode state based on URL
   useEffect(() => {
-    const type = searchParams.get('type');
-    const accessToken = searchParams.get('access_token');
-    
-    if (type === 'recovery' || accessToken) {
+    if (isRecoveryMode) {
       setResetPasswordMode(true);
     }
-  }, [searchParams]);
+  }, [isRecoveryMode]);
 
-  // Redirect authenticated users
+  // Redirect authenticated users - but NOT if in recovery mode
   useEffect(() => {
-    if (isAuthenticated && !resetPasswordMode) {
+    // Skip redirect if this is a password recovery flow
+    if (isRecoveryMode || resetPasswordMode) {
+      return;
+    }
+    
+    if (isAuthenticated) {
       if (needsProfileCompletion) {
         navigate('/auth/complete-profile');
       } else {
         navigate('/dashboard');
       }
     }
-  }, [isAuthenticated, needsProfileCompletion, navigate, resetPasswordMode]);
+  }, [isAuthenticated, needsProfileCompletion, navigate, resetPasswordMode, isRecoveryMode]);
 
   // Login form state
   const [loginForm, setLoginForm] = useState({

@@ -475,13 +475,15 @@ const Auth = () => {
                           )}
                         </Button>
                       </div>
+                    </div>
+                    <div className="flex justify-end">
                       <Button
                         type="button"
                         variant="link"
-                        className="px-0 h-auto text-sm text-muted-foreground hover:text-primary"
+                        className="px-0 h-auto text-sm text-primary hover:text-primary/80 font-medium"
                         onClick={() => setForgotPasswordMode(true)}
                       >
-                        Forgot your password?
+                        Forgot Password?
                       </Button>
                     </div>
 

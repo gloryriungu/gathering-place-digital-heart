@@ -3,6 +3,38 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+// Check for recovery mode IMMEDIATELY on script load (before React)
+const RECOVERY_STORAGE_KEY = 'password_recovery_mode';
+
+const checkUrlForRecovery = (): boolean => {
+  const params = new URLSearchParams(window.location.search);
+  const hash = window.location.hash;
+  
+  // Check search params
+  if (params.get('type') === 'recovery') return true;
+  
+  // Check hash for recovery type or access_token (Supabase puts tokens in hash)
+  if (hash) {
+    const hashParams = new URLSearchParams(hash.substring(1));
+    if (hashParams.get('type') === 'recovery') return true;
+    // If there's an access_token in hash AND we came from a recovery link
+    if (hashParams.get('access_token') && window.location.pathname === '/auth') {
+      // Check if there's type=recovery in either place
+      if (params.get('type') === 'recovery' || hashParams.get('type') === 'recovery') {
+        return true;
+      }
+    }
+  }
+  
+  return false;
+};
+
+// Check on script load and persist to sessionStorage
+const urlHasRecovery = checkUrlForRecovery();
+if (urlHasRecovery) {
+  sessionStorage.setItem(RECOVERY_STORAGE_KEY, 'true');
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -36,17 +68,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(() => {
-    // Check URL on initial load for recovery mode
-    const params = new URLSearchParams(window.location.search);
-    const hash = window.location.hash;
-    return params.get('type') === 'recovery' || 
-           hash.includes('type=recovery') || 
-           hash.includes('access_token');
+    // Check sessionStorage first (persists across Supabase redirects)
+    const stored = sessionStorage.getItem(RECOVERY_STORAGE_KEY);
+    if (stored === 'true') return true;
+    // Also check URL on initial load
+    return checkUrlForRecovery();
   });
   const { toast } = useToast();
 
   const clearPasswordRecovery = () => {
     setIsPasswordRecovery(false);
+    sessionStorage.removeItem(RECOVERY_STORAGE_KEY);
   };
 
   const fetchUserRole = async (userId: string) => {
@@ -139,8 +171,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Handle PASSWORD_RECOVERY event - set flag to prevent redirect
         if (event === 'PASSWORD_RECOVERY') {
-          console.log('Password recovery detected');
+          console.log('Password recovery detected via event');
           setIsPasswordRecovery(true);
+          sessionStorage.setItem(RECOVERY_STORAGE_KEY, 'true');
         }
         
         setSession(session);

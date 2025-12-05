@@ -24,7 +24,7 @@ const kenyaCounties = [
 ];
 
 const Auth = () => {
-  const { signIn, signUp, signInWithGoogle, isAuthenticated, needsProfileCompletion } = useAuth();
+  const { signIn, signUp, signInWithGoogle, isAuthenticated, needsProfileCompletion, isPasswordRecovery, clearPasswordRecovery } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -34,12 +34,13 @@ const Auth = () => {
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
   const [resetPasswordMode, setResetPasswordMode] = useState(false);
 
-  // Check for password reset mode from URL - must be synchronous to prevent race conditions
-  const isRecoveryMode = searchParams.get('type') === 'recovery' || 
+  // Check for password reset mode from URL OR from global auth state
+  const isRecoveryMode = isPasswordRecovery || 
+                          searchParams.get('type') === 'recovery' || 
                           searchParams.get('access_token') !== null ||
                           window.location.hash.includes('type=recovery');
 
-  // Set resetPasswordMode state based on URL
+  // Set resetPasswordMode state based on recovery detection
   useEffect(() => {
     if (isRecoveryMode) {
       setResetPasswordMode(true);
@@ -247,9 +248,12 @@ const Auth = () => {
           title: "Password Updated",
           description: "Your password has been successfully reset. You can now sign in.",
         });
+        // Clear recovery state
+        clearPasswordRecovery();
         setResetPasswordMode(false);
         setResetPasswordForm({ password: '', confirmPassword: '' });
-        // Clear URL params
+        // Sign out user and redirect to login
+        await supabase.auth.signOut();
         navigate('/auth', { replace: true });
       }
     } catch (error) {

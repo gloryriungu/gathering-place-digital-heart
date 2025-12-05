@@ -15,6 +15,8 @@ interface AuthContextType {
   refreshRole: () => Promise<void>;
   isAuthenticated: boolean;
   needsProfileCompletion: boolean;
+  isPasswordRecovery: boolean;
+  clearPasswordRecovery: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,7 +35,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(() => {
+    // Check URL on initial load for recovery mode
+    const params = new URLSearchParams(window.location.search);
+    const hash = window.location.hash;
+    return params.get('type') === 'recovery' || 
+           hash.includes('type=recovery') || 
+           hash.includes('access_token');
+  });
   const { toast } = useToast();
+
+  const clearPasswordRecovery = () => {
+    setIsPasswordRecovery(false);
+  };
 
   const fetchUserRole = async (userId: string) => {
     try {
@@ -120,7 +134,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
+        console.log('Auth event:', event);
+        
+        // Handle PASSWORD_RECOVERY event - set flag to prevent redirect
+        if (event === 'PASSWORD_RECOVERY') {
+          console.log('Password recovery detected');
+          setIsPasswordRecovery(true);
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -360,7 +382,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signOut,
     refreshRole,
     isAuthenticated: !!user,
-    needsProfileCompletion
+    needsProfileCompletion,
+    isPasswordRecovery,
+    clearPasswordRecovery
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

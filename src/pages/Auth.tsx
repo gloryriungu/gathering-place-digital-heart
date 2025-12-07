@@ -36,10 +36,11 @@ const Auth = () => {
   const [activeTab, setActiveTab] = useState("login");
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
   
-  // Initialize resetPasswordMode from sessionStorage or global state immediately
+  // Initialize from sessionStorage - set by index.html BEFORE any JS loads
   const [resetPasswordMode, setResetPasswordMode] = useState(() => {
-    const stored = sessionStorage.getItem(RECOVERY_STORAGE_KEY);
-    return stored === 'true' || isPasswordRecovery;
+    const stored = sessionStorage.getItem(RECOVERY_STORAGE_KEY) === 'true';
+    console.log('[Auth] Recovery mode on mount:', stored || isPasswordRecovery);
+    return stored || isPasswordRecovery;
   });
 
   // Also update resetPasswordMode when isPasswordRecovery changes

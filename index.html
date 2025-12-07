@@ -11,9 +11,19 @@
       (function() {
         var hash = window.location.hash || '';
         var search = window.location.search || '';
-        if (hash.indexOf('type=recovery') !== -1 || search.indexOf('type=recovery') !== -1) {
+        var href = window.location.href || '';
+        
+        // Check all possible locations for type=recovery (including URL-encoded)
+        var isRecovery = 
+          hash.indexOf('type=recovery') !== -1 || 
+          search.indexOf('type=recovery') !== -1 ||
+          href.indexOf('type=recovery') !== -1 ||
+          hash.indexOf('type%3Drecovery') !== -1 ||
+          search.indexOf('type%3Drecovery') !== -1;
+        
+        if (isRecovery) {
           sessionStorage.setItem('password_recovery_mode', 'true');
-          console.log('[Recovery Detection] Password recovery mode detected and saved to sessionStorage');
+          console.log('[Recovery Detection] Password recovery mode detected - hash:', hash.substring(0, 50));
         }
       })();
     </script>

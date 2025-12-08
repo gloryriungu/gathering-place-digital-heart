@@ -240,16 +240,45 @@ const Auth = () => {
     setIsLoading(true);
 
     try {
+      // First check if we have an active session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        toast({
+          title: "Session Expired",
+          description: "Your reset link has expired. Please request a new password reset.",
+          variant: "destructive"
+        });
+        // Clear recovery state and show forgot password form
+        clearPasswordRecovery();
+        setResetPasswordMode(false);
+        setForgotPasswordMode(true);
+        setIsLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.updateUser({
         password: resetPasswordForm.password
       });
 
       if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive"
-        });
+        // Check if it's a session-related error
+        if (error.message.includes('session') || error.message.includes('Session')) {
+          toast({
+            title: "Session Expired",
+            description: "Your reset link has expired. Please request a new password reset.",
+            variant: "destructive"
+          });
+          clearPasswordRecovery();
+          setResetPasswordMode(false);
+          setForgotPasswordMode(true);
+        } else {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive"
+          });
+        }
       } else {
         toast({
           title: "Password Updated",
@@ -267,7 +296,7 @@ const Auth = () => {
       console.error('Reset password error:', error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred",
+        description: "An unexpected error occurred. Please try requesting a new reset link.",
         variant: "destructive"
       });
     } finally {

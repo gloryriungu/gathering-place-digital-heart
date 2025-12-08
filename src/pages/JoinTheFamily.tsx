@@ -70,14 +70,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Heart, Users, MapPin, Phone, Mail, Baby, Plus, Trash2 } from "lucide-react";
+import { Heart, Users, MapPin, Phone, Mail, Baby, Plus, Trash2, Lock } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const JoinTheFamily = () => {
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -104,6 +106,50 @@ const JoinTheFamily = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Show auth required card if not authenticated
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <Navigation />
+        <div className="container mx-auto px-4 py-24">
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-6">
+              <div className="bg-white/10 p-4 rounded-full">
+                <Heart className="h-12 w-12 text-white" />
+              </div>
+            </div>
+            <h1 className="text-5xl font-bold text-white mb-4">JOIN THE FAMILY</h1>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              We're excited to welcome you into our church family!
+            </p>
+          </div>
+          
+          <Card className="max-w-md mx-auto bg-white/95 backdrop-blur-sm">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                <Lock className="h-6 w-6" />
+              </div>
+              <CardTitle>Sign In Required</CardTitle>
+              <CardDescription>
+                To submit your application to join our family, you need to be signed in. 
+                This allows us to track your application and keep you updated on its status.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button className="w-full" onClick={() => navigate("/auth")}>
+                Sign In to Continue
+              </Button>
+              <p className="text-center text-sm text-muted-foreground">
+                Don't have an account? You can create one when you sign in.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

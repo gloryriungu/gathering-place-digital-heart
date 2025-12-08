@@ -14,7 +14,8 @@ import {
   Crown, 
   FileText, 
   GraduationCap, 
-  Heart 
+  Heart,
+  Lock
 } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
@@ -22,6 +23,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 import { usePrerequisiteGuard } from "@/hooks/usePrerequisiteCheck";
+import { useNavigate } from "react-router-dom";
 
 interface ServeDepartment {
   id: string;
@@ -34,13 +36,58 @@ interface ServeDepartment {
 }
 
 const ServeWithUs = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { hasAccess, checkAccess } = usePrerequisiteGuard("serve departments");
   const [departments, setDepartments] = useState<ServeDepartment[]>([]);
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  // Show auth required card if not authenticated
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <Navigation />
+        <div className="container mx-auto px-4 py-24">
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-6">
+              <div className="bg-white/10 p-4 rounded-full">
+                <Users className="h-12 w-12 text-white" />
+              </div>
+            </div>
+            <h1 className="text-5xl font-bold text-white mb-4">SERVE WITH US</h1>
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
+              Find your place in ministry! Every member is a minister.
+            </p>
+          </div>
+          
+          <Card className="max-w-md mx-auto bg-white/95 backdrop-blur-sm">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                <Lock className="h-6 w-6" />
+              </div>
+              <CardTitle>Sign In Required</CardTitle>
+              <CardDescription>
+                To apply for serve departments, you need to be signed in. 
+                This allows us to track your application and contact you with next steps.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button className="w-full" onClick={() => navigate("/auth")}>
+                Sign In to Continue
+              </Button>
+              <p className="text-center text-sm text-muted-foreground">
+                Don't have an account? You can create one when you sign in.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   useEffect(() => {
     fetchDepartments();

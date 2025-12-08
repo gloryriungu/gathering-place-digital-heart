@@ -3,12 +3,14 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart, Users, Calendar, Phone, Mail, MapPin, Clock } from "lucide-react";
+import { Heart, Users, Calendar, Phone, Mail, MapPin, Clock, Lock } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { usePrerequisiteGuard } from "@/hooks/usePrerequisiteCheck";
 import CounselingBookingForm from "@/components/counseling/CounselingBookingForm";
 import UpcomingSessions from "@/components/counseling/UpcomingSessions";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 interface PageContent {
   hero?: { title: string; subtitle: string; image?: string };
@@ -19,10 +21,56 @@ interface PageContent {
 }
 
 const CounselingMentalHealth = () => {
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
   const [content, setContent] = useState<PageContent>({});
   const [loading, setLoading] = useState(true);
   const { checkAccess } = usePrerequisiteGuard("counseling booking");
+
+  // Show auth required card if not authenticated
+  if (!authLoading && !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container mx-auto px-4 py-24">
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-6">
+              <div className="bg-primary/10 p-4 rounded-full">
+                <Heart className="h-12 w-12 text-primary" />
+              </div>
+            </div>
+            <h1 className="text-5xl font-bold text-foreground mb-4">Counseling & Mental Health</h1>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              We believe in caring for the whole person - mind, body, and spirit.
+            </p>
+          </div>
+          
+          <Card className="max-w-md mx-auto">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
+                <Lock className="h-6 w-6" />
+              </div>
+              <CardTitle>Sign In Required</CardTitle>
+              <CardDescription>
+                To book a counseling session, you need to be signed in. 
+                This ensures your sessions are confidential and allows us to track your appointments.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button className="w-full" onClick={() => navigate("/auth")}>
+                Sign In to Continue
+              </Button>
+              <p className="text-center text-sm text-muted-foreground">
+                Don't have an account? You can create one when you sign in.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   useEffect(() => {
     fetchPageContent();

@@ -103,7 +103,7 @@ serve(async (req) => {
       amount: amountInKobo,
       currency: 'KES',
       reference: contribution.id,
-      callback_url: `${req.headers.get('origin')}/give/verify`,
+      callback_url: 'https://stg.tot.co.ke/give/verify',
       metadata: {
         contribution_id: contribution.id,
         contribution_type: contribution_type || 'offering',

@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart3, Users, Star, MessageSquare, Share2, HelpCircle, FileText, Mail, User, Webhook, Calendar, Settings } from "lucide-react";
+import { BarChart3, Users, Star, MessageSquare, Share2, HelpCircle, FileText, Mail, User, Webhook, Calendar, Settings, MapPin } from "lucide-react";
 
 // Marketing management components
 import { AboutUsManager } from "@/components/marketing/AboutUsManager";
@@ -25,6 +25,7 @@ import { SuppressionListManager } from "@/components/marketing/SuppressionListMa
 import { PaystackWebhookLogs } from "@/components/accounts/PaystackWebhookLogs";
 import { GivePageManager } from "@/components/marketing/GivePageManager";
 import { CounselingPageManager } from "@/components/marketing/CounselingPageManager";
+import { VisitUsPageManager } from "@/components/marketing/VisitUsPageManager";
 
 const MarketingDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -34,6 +35,7 @@ const MarketingDashboard = () => {
     { value: "overview", label: "Overview", icon: Calendar },
     { value: "give-page", label: "Give Page", icon: FileText },
     { value: "counseling-page", label: "Counseling Page", icon: MessageSquare },
+    { value: "visit-us", label: "Visit Us Page", icon: MapPin },
     { value: "subscribers", label: "Subscribers", icon: Users },
     { value: "campaigns", label: "Email Campaigns", icon: Mail },
     { value: "about", label: "About Us", icon: FileText },
@@ -61,6 +63,13 @@ const MarketingDashboard = () => {
       description: "Manage Counseling & Mental Health page sections and messaging",
       icon: MessageSquare,
       color: "text-teal-600"
+    },
+    {
+      id: "visit-us",
+      title: "Visit Us Page",
+      description: "Manage service times, location, map coordinates, and visitor info",
+      icon: MapPin,
+      color: "text-orange-600"
     },
     {
       id: "subscribers",
@@ -205,6 +214,10 @@ const MarketingDashboard = () => {
 
                   <TabsContent value="counseling-page">
                     <CounselingPageManager />
+                  </TabsContent>
+
+                  <TabsContent value="visit-us">
+                    <VisitUsPageManager />
                   </TabsContent>
 
                   <TabsContent value="campaigns">

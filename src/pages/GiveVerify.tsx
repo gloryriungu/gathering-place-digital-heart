@@ -7,16 +7,36 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { formatAmount } from "@/lib/paystack";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const GiveVerify = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [status, setStatus] = useState<'verifying' | 'success' | 'failed'>('verifying');
   const [transactionData, setTransactionData] = useState<any>(null);
+  const [sessionRefreshed, setSessionRefreshed] = useState(false);
+
+  // Refresh session on mount to restore authentication after Paystack redirect
+  useEffect(() => {
+    const refreshSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log('Session refreshed on GiveVerify:', session ? 'authenticated' : 'not authenticated');
+        setSessionRefreshed(true);
+      } catch (error) {
+        console.error('Error refreshing session:', error);
+        setSessionRefreshed(true);
+      }
+    };
+    refreshSession();
+  }, []);
 
   useEffect(() => {
-    verifyPayment();
-  }, []);
+    if (sessionRefreshed) {
+      verifyPayment();
+    }
+  }, [sessionRefreshed]);
 
   const verifyPayment = async () => {
     const reference = searchParams.get('reference');

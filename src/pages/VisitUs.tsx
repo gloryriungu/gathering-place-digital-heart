@@ -230,11 +230,11 @@ const VisitUs = () => {
                 />
                 <Marker position={[content.map_latitude, content.map_longitude]}>
                   <Popup>
-                    <div className="text-center">
+                    <span>
                       <strong>TOT International</strong>
                       <br />
                       {content.address_line1}
-                    </div>
+                    </span>
                   </Popup>
                 </Marker>
               </MapContainer>

@@ -11,27 +11,46 @@ import UpcomingSessions from "@/components/counseling/UpcomingSessions";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
-
 interface PageContent {
-  hero?: { title: string; subtitle: string; image?: string };
-  about?: { title: string; description: string };
-  services?: { title: string; description: string };
-  quote?: { text: string; author: string };
-  cta?: { title: string; description: string; buttonText: string };
+  hero?: {
+    title: string;
+    subtitle: string;
+    image?: string;
+  };
+  about?: {
+    title: string;
+    description: string;
+  };
+  services?: {
+    title: string;
+    description: string;
+  };
+  quote?: {
+    text: string;
+    author: string;
+  };
+  cta?: {
+    title: string;
+    description: string;
+    buttonText: string;
+  };
 }
-
 const CounselingMentalHealth = () => {
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const {
+    isAuthenticated,
+    loading: authLoading
+  } = useAuth();
   const navigate = useNavigate();
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
   const [content, setContent] = useState<PageContent>({});
   const [loading, setLoading] = useState(true);
-  const { checkAccess } = usePrerequisiteGuard("counseling booking");
+  const {
+    checkAccess
+  } = usePrerequisiteGuard("counseling booking");
 
   // Show auth required card if not authenticated
   if (!authLoading && !isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container mx-auto px-4 py-24">
           <div className="text-center mb-12">
@@ -68,30 +87,23 @@ const CounselingMentalHealth = () => {
           </Card>
         </div>
         <Footer />
-      </div>
-    );
+      </div>;
   }
-
   useEffect(() => {
     fetchPageContent();
   }, []);
-
   const fetchPageContent = async () => {
     try {
-      const { data, error } = await supabase
-        .from('page_content')
-        .select('*')
-        .eq('page_name', 'counseling')
-        .eq('is_published', true);
-
+      const {
+        data,
+        error
+      } = await supabase.from('page_content').select('*').eq('page_name', 'counseling').eq('is_published', true);
       if (error) throw error;
-
       const contentObj: PageContent = {};
-      data?.forEach((item) => {
+      data?.forEach(item => {
         const parsedContent = JSON.parse(item.content);
         contentObj[item.section_name as keyof PageContent] = parsedContent;
       });
-
       setContent(contentObj);
     } catch (error) {
       console.error('Error fetching page content:', error);
@@ -99,16 +111,13 @@ const CounselingMentalHealth = () => {
       setLoading(false);
     }
   };
-
   const handleBookingClick = async () => {
     const hasAccess = await checkAccess();
     if (hasAccess) {
       setBookingDialogOpen(true);
     }
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navigation />
       
       {/* Hero Section */}
@@ -140,8 +149,10 @@ const CounselingMentalHealth = () => {
           </Dialog>
           
           <Button variant="outline" size="lg" onClick={() => {
-            document.getElementById('services-section')?.scrollIntoView({ behavior: 'smooth' });
-          }}>
+          document.getElementById('services-section')?.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }}>
             Learn More
           </Button>
         </div>
@@ -160,11 +171,9 @@ const CounselingMentalHealth = () => {
           <h2 className="text-3xl font-bold text-center mb-4">
             {content.services?.title || "Our Services"}
           </h2>
-          {content.services?.description && (
-            <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+          {content.services?.description && <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
               {content.services.description}
-            </p>
-          )}
+            </p>}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Card>
               <CardHeader>
@@ -225,87 +234,10 @@ const CounselingMentalHealth = () => {
 
       {/* Contact & Appointments */}
       <section className="py-16 px-4 bg-muted/50">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Get Started Today</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Schedule an Appointment</CardTitle>
-                <CardDescription>
-                  Ready to take the first step? Our caring team is here to help.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Phone className="h-5 w-5 text-primary" />
-                  <span>(555) 123-4567</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Mail className="h-5 w-5 text-primary" />
-                  <span>counseling@tentoftestimony.org</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <MapPin className="h-5 w-5 text-primary" />
-                  <span>123 Church Street, Springfield, IL 62701</span>
-                </div>
-                <Dialog open={bookingDialogOpen} onOpenChange={setBookingDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="w-full mt-4" onClick={handleBookingClick}>
-                      <Clock className="mr-2 h-4 w-4" />
-                      Book Appointment Online
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Book Counseling Session</DialogTitle>
-                      <DialogDescription>
-                        Select a date, time, and pastor to schedule your counseling appointment
-                      </DialogDescription>
-                    </DialogHeader>
-                    <CounselingBookingForm onSuccess={() => setBookingDialogOpen(false)} />
-                  </DialogContent>
-                </Dialog>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Office Hours</CardTitle>
-                <CardDescription>
-                  Our counseling center is open throughout the week to serve you.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Monday - Thursday</span>
-                    <span>9:00 AM - 7:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Friday</span>
-                    <span>9:00 AM - 5:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Saturday</span>
-                    <span>10:00 AM - 4:00 PM</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Sunday</span>
-                    <span>By Appointment</span>
-                  </div>
-                </div>
-                <p className="text-sm text-muted-foreground mt-4">
-                  Emergency support available 24/7 through our crisis hotline.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+        
       </section>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default CounselingMentalHealth;

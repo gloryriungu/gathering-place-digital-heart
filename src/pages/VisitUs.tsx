@@ -39,6 +39,7 @@ interface VisitUsContent {
   map_latitude: number;
   map_longitude: number;
   map_zoom: number;
+  directions_url: string;
   what_to_expect: WhatToExpect[];
   cta_title: string;
   cta_description: string;
@@ -65,6 +66,7 @@ const defaultContent: VisitUsContent = {
   map_latitude: -1.2921,
   map_longitude: 36.8219,
   map_zoom: 15,
+  directions_url: "https://maps.app.goo.gl/GtZ4PFYSktNGNbeA7",
   what_to_expect: [
     { title: "Warm Welcome", description: "Our friendly ushers will greet you and help you find the perfect seat." },
     { title: "Parking", description: "Free parking is available on-site with dedicated spaces for visitors." },
@@ -158,8 +160,7 @@ const VisitUs = () => {
   };
 
   const handleGetDirections = () => {
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${content.map_latitude},${content.map_longitude}`;
-    window.open(url, '_blank');
+    window.open(content.directions_url, '_blank');
   };
 
   const handleContact = () => {

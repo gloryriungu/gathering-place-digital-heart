@@ -27,6 +27,7 @@ interface VisitUsContent {
   map_latitude: string;
   map_longitude: string;
   map_zoom: string;
+  directions_url: string;
   what_to_expect: Array<{ title: string; description: string }>;
   cta_title: string;
   cta_description: string;
@@ -54,6 +55,7 @@ export const VisitUsPageManager = () => {
     map_latitude: "-1.2921",
     map_longitude: "36.8219",
     map_zoom: "15",
+    directions_url: "https://maps.app.goo.gl/GtZ4PFYSktNGNbeA7",
     what_to_expect: [
       { title: "Warm Welcome", description: "Our friendly ushers will greet you and help you find the perfect seat." },
       { title: "Parking", description: "Free parking is available on-site with dedicated spaces for visitors." },
@@ -126,6 +128,7 @@ export const VisitUsPageManager = () => {
         { section_name: 'map_latitude', content: content.map_latitude, content_type: 'text' },
         { section_name: 'map_longitude', content: content.map_longitude, content_type: 'text' },
         { section_name: 'map_zoom', content: content.map_zoom, content_type: 'text' },
+        { section_name: 'directions_url', content: content.directions_url, content_type: 'text' },
         { section_name: 'what_to_expect', content: JSON.stringify(content.what_to_expect), content_type: 'json' },
         { section_name: 'cta_title', content: content.cta_title, content_type: 'text' },
         { section_name: 'cta_description', content: content.cta_description, content_type: 'text' }
@@ -429,6 +432,18 @@ export const VisitUsPageManager = () => {
                   placeholder="15"
                 />
               </div>
+            </div>
+            <div className="mt-4">
+              <Label htmlFor="directions_url">Google Maps Directions URL</Label>
+              <Input
+                id="directions_url"
+                value={content.directions_url}
+                onChange={(e) => setContent(prev => ({ ...prev, directions_url: e.target.value }))}
+                placeholder="https://maps.app.goo.gl/..."
+              />
+              <p className="text-sm text-muted-foreground mt-1">
+                This URL will be used for the "Get Directions" button. Get a shareable link from Google Maps.
+              </p>
             </div>
             <Alert>
               <AlertCircle className="h-4 w-4" />

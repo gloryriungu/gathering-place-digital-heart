@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Clock, Phone, Mail, Users, Car, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -79,6 +78,40 @@ const iconMap: Record<string, any> = {
   "Warm Welcome": Users,
   "Parking": Car,
   "Service Duration": Clock
+};
+
+// Vanilla Leaflet Map Component
+const LeafletMap = ({ lat, lng, zoom, addressLine1 }: { lat: number; lng: number; zoom: number; addressLine1: string }) => {
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
+
+  useEffect(() => {
+    if (!mapContainerRef.current || mapRef.current) return;
+
+    // Initialize map
+    mapRef.current = L.map(mapContainerRef.current, {
+      scrollWheelZoom: false
+    }).setView([lat, lng], zoom);
+
+    // Add tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(mapRef.current);
+
+    // Add marker with popup
+    const marker = L.marker([lat, lng]).addTo(mapRef.current);
+    marker.bindPopup(`<div style="text-align: center;"><strong>TOT International</strong><br/>${addressLine1}</div>`);
+
+    // Cleanup
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+      }
+    };
+  }, [lat, lng, zoom, addressLine1]);
+
+  return <div ref={mapContainerRef} style={{ height: '100%', width: '100%' }} />;
 };
 
 const VisitUs = () => {
@@ -218,26 +251,12 @@ const VisitUs = () => {
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Map */}
             <div className="h-[400px] rounded-xl overflow-hidden shadow-lg border border-border">
-              <MapContainer
-                center={[content.map_latitude, content.map_longitude]}
+              <LeafletMap
+                lat={content.map_latitude}
+                lng={content.map_longitude}
                 zoom={content.map_zoom}
-                style={{ height: '100%', width: '100%' }}
-                scrollWheelZoom={false}
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <Marker position={[content.map_latitude, content.map_longitude]}>
-                  <Popup>
-                    <div className="text-center">
-                      <strong>TOT International</strong>
-                      <br />
-                      {content.address_line1}
-                    </div>
-                  </Popup>
-                </Marker>
-              </MapContainer>
+                addressLine1={content.address_line1}
+              />
             </div>
 
             {/* Contact Info */}

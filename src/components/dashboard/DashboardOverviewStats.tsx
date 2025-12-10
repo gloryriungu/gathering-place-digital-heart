@@ -1,39 +1,95 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, UserCheck, DollarSign, Calendar } from "lucide-react";
+import { Heart, UserCheck, Calendar, ClipboardCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth/AuthProvider";
 
-interface DashboardStats {
-  total_members: number;
-  weekly_attendance: number;
-  monthly_contributions: number;
+interface UserStats {
+  my_giving: number;
+  my_attendance: number;
+  my_registrations: number;
   upcoming_events: number;
 }
 
 export const DashboardOverviewStats = () => {
-  const [stats, setStats] = useState<DashboardStats>({
-    total_members: 0,
-    weekly_attendance: 0,
-    monthly_contributions: 0,
+  const { user } = useAuth();
+  const [stats, setStats] = useState<UserStats>({
+    my_giving: 0,
+    my_attendance: 0,
+    my_registrations: 0,
     upcoming_events: 0
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDashboardStats();
-  }, []);
+    if (user) {
+      fetchUserStats();
+    }
+  }, [user]);
 
-  const fetchDashboardStats = async () => {
+  const fetchUserStats = async () => {
     try {
-      const { data, error } = await supabase.rpc('get_dashboard_stats');
+      const userEmail = user?.email;
       
-      if (error) throw error;
+      // Fetch user's contributions this month
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
       
-      if (data && data.length > 0) {
-        setStats(data[0]);
+      const { data: contributions } = await supabase
+        .from('contributions')
+        .select('amount')
+        .eq('donor_email', userEmail)
+        .gte('contribution_date', startOfMonth.toISOString().split('T')[0])
+        .eq('transaction_status', 'success');
+      
+      const myGiving = contributions?.reduce((sum, c) => sum + Number(c.amount), 0) || 0;
+
+      // Fetch user's attendance this year
+      const startOfYear = new Date();
+      startOfYear.setMonth(0, 1);
+      startOfYear.setHours(0, 0, 0, 0);
+      
+      const { data: member } = await supabase
+        .from('members')
+        .select('id')
+        .eq('user_id', user?.id)
+        .single();
+
+      let myAttendance = 0;
+      if (member) {
+        const { count } = await supabase
+          .from('attendance_records')
+          .select('*', { count: 'exact', head: true })
+          .eq('member_id', member.id)
+          .gte('service_date', startOfYear.toISOString().split('T')[0]);
+        
+        myAttendance = count || 0;
       }
+
+      // Fetch user's event registrations
+      const { count: registrations } = await supabase
+        .from('event_registrations')
+        .select('*', { count: 'exact', head: true })
+        .or(`user_id.eq.${user?.id},email.eq.${userEmail}`);
+
+      // Fetch upcoming events count
+      const today = new Date().toISOString().split('T')[0];
+      const { count: upcomingEvents } = await supabase
+        .from('media_content')
+        .select('*', { count: 'exact', head: true })
+        .eq('content_type', 'event')
+        .eq('status', 'published')
+        .gte('publish_date', today);
+
+      setStats({
+        my_giving: myGiving,
+        my_attendance: myAttendance,
+        my_registrations: registrations || 0,
+        upcoming_events: upcomingEvents || 0
+      });
     } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
+      console.error('Error fetching user stats:', error);
     } finally {
       setLoading(false);
     }
@@ -44,11 +100,6 @@ export const DashboardOverviewStats = () => {
       style: 'currency',
       currency: 'KES'
     }).format(amount);
-  };
-
-  const getAttendanceRate = () => {
-    if (stats.total_members === 0) return 0;
-    return Math.round((stats.weekly_attendance / stats.total_members) * 100);
   };
 
   if (loading) {
@@ -74,34 +125,34 @@ export const DashboardOverviewStats = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-          <Users className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium">My Giving</CardTitle>
+          <Heart className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.total_members.toLocaleString()}</div>
-          <p className="text-xs text-muted-foreground">Active members</p>
+          <div className="text-2xl font-bold">{formatCurrency(stats.my_giving)}</div>
+          <p className="text-xs text-muted-foreground">This month</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">This Week's Attendance</CardTitle>
+          <CardTitle className="text-sm font-medium">My Attendance</CardTitle>
           <UserCheck className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{stats.weekly_attendance}</div>
-          <p className="text-xs text-muted-foreground">{getAttendanceRate()}% attendance rate</p>
+          <div className="text-2xl font-bold">{stats.my_attendance}</div>
+          <p className="text-xs text-muted-foreground">Services this year</p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Monthly Contributions</CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
+          <CardTitle className="text-sm font-medium">My Registrations</CardTitle>
+          <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(Number(stats.monthly_contributions))}</div>
-          <p className="text-xs text-muted-foreground">This month</p>
+          <div className="text-2xl font-bold">{stats.my_registrations}</div>
+          <p className="text-xs text-muted-foreground">Events registered</p>
         </CardContent>
       </Card>
 
@@ -112,7 +163,7 @@ export const DashboardOverviewStats = () => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats.upcoming_events}</div>
-          <p className="text-xs text-muted-foreground">This month</p>
+          <p className="text-xs text-muted-foreground">Don't miss out</p>
         </CardContent>
       </Card>
     </div>

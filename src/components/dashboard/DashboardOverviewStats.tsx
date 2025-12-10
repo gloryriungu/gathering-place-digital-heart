@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart, UserCheck, Calendar, ClipboardCheck } from "lucide-react";
+import { Heart, UserCheck, Calendar, ClipboardCheck, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { Button } from "@/components/ui/button";
 
 interface UserStats {
   my_giving: number;
@@ -10,6 +11,8 @@ interface UserStats {
   my_registrations: number;
   upcoming_events: number;
 }
+
+const STATS_HIDDEN_KEY = "dashboard_stats_hidden";
 
 export const DashboardOverviewStats = () => {
   const { user } = useAuth();
@@ -20,6 +23,15 @@ export const DashboardOverviewStats = () => {
     upcoming_events: 0
   });
   const [loading, setLoading] = useState(true);
+  const [isHidden, setIsHidden] = useState(() => {
+    return localStorage.getItem(STATS_HIDDEN_KEY) === "true";
+  });
+
+  const toggleVisibility = () => {
+    const newValue = !isHidden;
+    setIsHidden(newValue);
+    localStorage.setItem(STATS_HIDDEN_KEY, String(newValue));
+  };
 
   useEffect(() => {
     if (user) {
@@ -122,50 +134,63 @@ export const DashboardOverviewStats = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">My Giving</CardTitle>
-          <Heart className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(stats.my_giving)}</div>
-          <p className="text-xs text-muted-foreground">This month</p>
-        </CardContent>
-      </Card>
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleVisibility}
+          className="text-muted-foreground hover:text-foreground"
+        >
+          {isHidden ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+          {isHidden ? "Show Stats" : "Hide Stats"}
+        </Button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">My Giving</CardTitle>
+            <Heart className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{isHidden ? "••••••" : formatCurrency(stats.my_giving)}</div>
+            <p className="text-xs text-muted-foreground">This month</p>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">My Attendance</CardTitle>
-          <UserCheck className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats.my_attendance}</div>
-          <p className="text-xs text-muted-foreground">Services this year</p>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">My Attendance</CardTitle>
+            <UserCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{isHidden ? "••" : stats.my_attendance}</div>
+            <p className="text-xs text-muted-foreground">Services this year</p>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">My Registrations</CardTitle>
-          <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats.my_registrations}</div>
-          <p className="text-xs text-muted-foreground">Events registered</p>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">My Registrations</CardTitle>
+            <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{isHidden ? "••" : stats.my_registrations}</div>
+            <p className="text-xs text-muted-foreground">Events registered</p>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
-          <Calendar className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{stats.upcoming_events}</div>
-          <p className="text-xs text-muted-foreground">Don't miss out</p>
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Upcoming Events</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{isHidden ? "••" : stats.upcoming_events}</div>
+            <p className="text-xs text-muted-foreground">Don't miss out</p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

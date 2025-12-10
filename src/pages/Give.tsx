@@ -243,14 +243,10 @@ const Give = () => {
                       <span className="text-sm font-semibold text-muted-foreground">
                         Any Amount
                       </span>
-                      <Button 
-                        size="sm" 
-                        className="group-hover:bg-primary group-hover:text-primary-foreground"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleGiveClick(type.type);
-                        }}
-                      >
+                      <Button size="sm" className="group-hover:bg-primary group-hover:text-primary-foreground" onClick={e => {
+                    e.stopPropagation();
+                    handleGiveClick(type.type);
+                  }}>
                         Give {type.title}
                       </Button>
                     </div>
@@ -380,33 +376,7 @@ const Give = () => {
 
         {/* Testimonials Section */}
         <section className="py-20 bg-muted/30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-                Stories of Faithful Giving
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                Hear from partners experiencing God's faithfulness through generous giving
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-3 gap-6">
-              {testimonials.map((testimonial, index) => <Card key={index} className="p-6">
-                  <div className="mb-4">
-                    <svg className="h-8 w-8 text-primary/20" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                    </svg>
-                  </div>
-                  <p className="text-muted-foreground mb-4 italic">
-                    "{testimonial.quote}"
-                  </p>
-                  <div className="border-t pt-4">
-                    <p className="font-bold text-foreground">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                  </div>
-                </Card>)}
-            </div>
-          </div>
+          
         </section>
 
         {/* Scripture Section */}

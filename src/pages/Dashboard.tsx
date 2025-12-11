@@ -99,6 +99,9 @@ import { NewsletterSignup } from "@/components/shared/NewsletterSignup";
 import { JoinFamilyForm } from "@/components/forms/JoinFamilyForm";
 import { MinistriesManager } from "@/components/admin/MinistriesManager";
 import { ServeApplicationsManager } from "@/components/admin/ServeApplicationsManager";
+import { ApplyToMinistry } from "@/components/dashboard/ApplyToMinistry";
+import { ApplyToServe } from "@/components/dashboard/ApplyToServe";
+import { BookCounseling } from "@/components/dashboard/BookCounseling";
 import { DepartmentInventory } from "@/components/inventory/DepartmentInventory";
 import { AllDepartmentsInventory } from "@/components/inventory/AllDepartmentsInventory";
 import { RequisitionManager } from "@/components/requisitions/RequisitionManager";
@@ -566,16 +569,17 @@ const Dashboard = () => {
               <BudgetProposals userRole={userRole} canCreate={true} />
             </TabsContent>
 
-            <TabsContent value="counseling-book">
-              <PastorAvailability isPastor={false} />
-            </TabsContent>
 
             <TabsContent value="apply-ministry">
-              <MinistriesManager />
+              <ApplyToMinistry />
             </TabsContent>
 
             <TabsContent value="apply-serve">
-              <ServeApplicationsManager />
+              <ApplyToServe />
+            </TabsContent>
+
+            <TabsContent value="counseling-book">
+              <BookCounseling />
             </TabsContent>
 
             <TabsContent value="newsletter">

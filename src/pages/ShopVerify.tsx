@@ -3,14 +3,25 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle2, XCircle, Loader2, ShoppingBag } from "lucide-react";
+import { CheckCircle2, XCircle, Loader2, ShoppingBag, Download, BookOpen } from "lucide-react";
 import { formatAmount } from "@/lib/paystack";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+
+interface DigitalPurchase {
+  id: string;
+  access_token: string;
+  product_title: string;
+  file_path: string;
+}
 
 export default function ShopVerify() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [status, setStatus] = useState<'verifying' | 'success' | 'failed'>('verifying');
   const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [digitalPurchases, setDigitalPurchases] = useState<DigitalPurchase[]>([]);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const reference = searchParams.get('reference');
 
   useEffect(() => {
@@ -38,6 +49,8 @@ export default function ShopVerify() {
       // Check if already completed
       if (order.transaction_status === 'completed') {
         setStatus('success');
+        // Fetch existing digital purchases
+        await fetchDigitalPurchases(order.id);
         return;
       }
 
@@ -51,12 +64,63 @@ export default function ShopVerify() {
       if (data?.success && data?.data?.status === 'success') {
         setStatus('success');
         setOrderDetails(data.data.order);
+        if (data.data.digital_purchases?.length > 0) {
+          setDigitalPurchases(data.data.digital_purchases);
+        }
       } else {
         setStatus('failed');
       }
     } catch (error) {
       console.error('Verification error:', error);
       setStatus('failed');
+    }
+  };
+
+  const fetchDigitalPurchases = async (orderId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('digital_purchases')
+        .select('*, media_content:product_id(title)')
+        .eq('order_id', orderId);
+
+      if (!error && data) {
+        setDigitalPurchases(data.map(p => ({
+          id: p.id,
+          access_token: p.access_token,
+          product_title: (p.media_content as any)?.title || 'Digital Product',
+          file_path: ''
+        })));
+      }
+    } catch (error) {
+      console.error('Failed to fetch digital purchases:', error);
+    }
+  };
+
+  const handleDownload = async (purchase: DigitalPurchase) => {
+    setDownloadingId(purchase.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('deliver-digital-product', {
+        body: {
+          action: 'get_download_url',
+          accessToken: purchase.access_token
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.error) {
+        toast.error(data.error);
+        return;
+      }
+
+      // Open download URL
+      window.open(data.download_url, '_blank');
+      toast.success(`Downloading ${data.product_title}`);
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Failed to generate download link');
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -109,6 +173,40 @@ export default function ShopVerify() {
                 </div>
               )}
 
+              {/* Digital Downloads Section */}
+              {digitalPurchases.length > 0 && (
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 space-y-3 text-left">
+                  <div className="flex items-center gap-2 text-primary">
+                    <BookOpen className="h-5 w-5" />
+                    <h4 className="font-semibold">Your Digital Downloads</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Click to download your purchased digital content
+                  </p>
+                  <div className="space-y-2">
+                    {digitalPurchases.map((purchase) => (
+                      <Button
+                        key={purchase.id}
+                        variant="outline"
+                        className="w-full justify-between"
+                        onClick={() => handleDownload(purchase)}
+                        disabled={downloadingId === purchase.id}
+                      >
+                        <span className="truncate">{purchase.product_title}</span>
+                        {downloadingId === purchase.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin ml-2" />
+                        ) : (
+                          <Download className="h-4 w-4 ml-2" />
+                        )}
+                      </Button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    You can also access your downloads from your dashboard
+                  </p>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Button onClick={() => navigate('/shop')} className="w-full">
                   Continue Shopping
@@ -118,7 +216,7 @@ export default function ShopVerify() {
                   onClick={() => navigate('/dashboard')} 
                   className="w-full"
                 >
-                  View Order History
+                  {digitalPurchases.length > 0 ? 'View My Downloads' : 'View Order History'}
                 </Button>
               </div>
             </div>

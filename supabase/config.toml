@@ -23,3 +23,12 @@ verify_jwt = false
 
 [functions.send-session-reminders]
 verify_jwt = false
+
+[functions.initialize-shop-payment]
+verify_jwt = false
+
+[functions.verify-shop-payment]
+verify_jwt = false
+
+[functions.deliver-digital-product]
+verify_jwt = false

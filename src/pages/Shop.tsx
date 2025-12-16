@@ -23,6 +23,7 @@ interface Product {
   category: string;
   stock?: number;
   featured?: boolean;
+  isDigital?: boolean;
 }
 interface CartItem extends Product {
   quantity: number;
@@ -202,7 +203,8 @@ const Shop = () => {
             image: item.image_url || "/placeholder.svg",
             category: contentData?.category || "General",
             stock: contentData?.stock || 0,
-            featured: contentData?.featured || false
+            featured: contentData?.featured || false,
+            isDigital: contentData?.is_digital || false
           };
         }) || [];
         setProducts(formattedProducts);
@@ -492,6 +494,11 @@ const Shop = () => {
                       <Button variant="secondary" size="icon" className="absolute top-2 right-2" onClick={() => toggleWishlist(product.id)}>
                         <Heart className={`h-4 w-4 ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : ''}`} />
                       </Button>
+                      {product.isDigital && (
+                        <Badge className="absolute top-2 left-2 bg-primary">
+                          Digital Download
+                        </Badge>
+                      )}
                     </CardHeader>
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-2">
@@ -504,10 +511,13 @@ const Shop = () => {
                       <p className="text-2xl font-bold text-primary">
                         KSh {product.price}
                       </p>
+                      {product.isDigital && (
+                        <p className="text-xs text-muted-foreground mt-1">Instant download after purchase</p>
+                      )}
                     </CardContent>
                     <CardFooter className="p-4 pt-0">
-                      <Button className="w-full" onClick={() => addToCart(product)} disabled={product.stock === 0}>
-                        {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+                      <Button className="w-full" onClick={() => addToCart(product)} disabled={!product.isDigital && product.stock === 0}>
+                        {!product.isDigital && product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
                       </Button>
                     </CardFooter>
                   </Card>)}

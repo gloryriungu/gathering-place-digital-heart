@@ -549,6 +549,63 @@ export type Database = {
         }
         Relationships: []
       }
+      digital_purchases: {
+        Row: {
+          access_token: string | null
+          created_at: string
+          customer_email: string
+          download_count: number | null
+          download_expires_at: string | null
+          id: string
+          max_downloads: number | null
+          order_id: string | null
+          product_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string
+          customer_email: string
+          download_count?: number | null
+          download_expires_at?: string | null
+          id?: string
+          max_downloads?: number | null
+          order_id?: string | null
+          product_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string
+          customer_email?: string
+          download_count?: number | null
+          download_expires_at?: string | null
+          id?: string
+          max_downloads?: number | null
+          order_id?: string | null
+          product_id?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "digital_purchases_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "shop_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "digital_purchases_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "media_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_analytics: {
         Row: {
           bounced_at: string | null

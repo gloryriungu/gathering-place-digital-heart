@@ -7,11 +7,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ShoppingBag, Plus, Edit, Trash2, DollarSign } from "lucide-react";
+import { ShoppingBag, Plus, Edit, Trash2, DollarSign, BookOpen, Upload, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CategoryManager } from "./CategoryManager";
+import { Switch } from "@/components/ui/switch";
 
 interface ProductData {
   id: string;
@@ -37,6 +38,7 @@ export const ShopManager = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductData | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadingDigital, setUploadingDigital] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -45,7 +47,10 @@ export const ShopManager = () => {
     category: "",
     stock: "",
     featured: false,
-    image: null as File | null
+    image: null as File | null,
+    isDigital: false,
+    digitalFile: null as File | null,
+    digitalFilePath: ""
   });
 
   useEffect(() => {
@@ -95,7 +100,10 @@ export const ShopManager = () => {
       category: "",
       stock: "",
       featured: false,
-      image: null
+      image: null,
+      isDigital: false,
+      digitalFile: null,
+      digitalFilePath: ""
     });
     setEditingProduct(null);
   };
@@ -110,7 +118,10 @@ export const ShopManager = () => {
       category: contentData?.category || "",
       stock: contentData?.stock?.toString() || "",
       featured: contentData?.featured || false,
-      image: null
+      image: null,
+      isDigital: contentData?.is_digital || false,
+      digitalFile: null,
+      digitalFilePath: contentData?.digital_file_path || ""
     });
     setIsCreateDialogOpen(true);
   };
@@ -142,9 +153,37 @@ export const ShopManager = () => {
     }
   };
 
+  const handleDigitalFileUpload = async (file: File): Promise<string | null> => {
+    try {
+      setUploadingDigital(true);
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `ebooks/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('digital-products')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      return filePath;
+    } catch (error) {
+      console.error('Error uploading digital file:', error);
+      toast.error('Failed to upload digital file');
+      return null;
+    } finally {
+      setUploadingDigital(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!formData.title || !formData.price) {
       toast.error('Please fill in required fields');
+      return;
+    }
+
+    if (formData.isDigital && !formData.digitalFilePath && !formData.digitalFile) {
+      toast.error('Please upload a digital file for digital products');
       return;
     }
 
@@ -165,11 +204,22 @@ export const ShopManager = () => {
         }
       }
 
+      // Handle digital file upload
+      let digitalFilePath = formData.digitalFilePath;
+      if (formData.isDigital && formData.digitalFile) {
+        const uploadedPath = await handleDigitalFileUpload(formData.digitalFile);
+        if (uploadedPath) {
+          digitalFilePath = uploadedPath;
+        }
+      }
+
       const contentData = {
         price: parseFloat(formData.price),
         category: formData.category,
-        stock: parseInt(formData.stock) || 0,
-        featured: formData.featured
+        stock: formData.isDigital ? 999 : (parseInt(formData.stock) || 0),
+        featured: formData.featured,
+        is_digital: formData.isDigital,
+        digital_file_path: formData.isDigital ? digitalFilePath : null
       };
 
       if (editingProduct) {
@@ -327,16 +377,18 @@ export const ShopManager = () => {
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="stock">Stock Quantity</Label>
-                      <Input
-                        id="stock"
-                        type="number"
-                        value={formData.stock}
-                        onChange={(e) => setFormData(prev => ({ ...prev, stock: e.target.value }))}
-                        placeholder="0"
-                      />
-                    </div>
+                    {!formData.isDigital && (
+                      <div>
+                        <Label htmlFor="stock">Stock Quantity</Label>
+                        <Input
+                          id="stock"
+                          type="number"
+                          value={formData.stock}
+                          onChange={(e) => setFormData(prev => ({ ...prev, stock: e.target.value }))}
+                          placeholder="0"
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-4">
@@ -369,6 +421,50 @@ export const ShopManager = () => {
                       <Label htmlFor="featured">Featured Product</Label>
                     </div>
 
+                    {/* Digital Product Toggle */}
+                    <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/50">
+                      <div className="flex items-center gap-2">
+                        <BookOpen className="h-4 w-4 text-primary" />
+                        <div>
+                          <Label htmlFor="isDigital" className="cursor-pointer">Digital Product</Label>
+                          <p className="text-xs text-muted-foreground">Enable for ebooks/downloadable content</p>
+                        </div>
+                      </div>
+                      <Switch
+                        id="isDigital"
+                        checked={formData.isDigital}
+                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isDigital: checked }))}
+                      />
+                    </div>
+
+                    {/* Digital File Upload */}
+                    {formData.isDigital && (
+                      <div className="space-y-2 p-3 border rounded-lg border-dashed border-primary/50 bg-primary/5">
+                        <Label htmlFor="digitalFile" className="flex items-center gap-2">
+                          <FileText className="h-4 w-4" />
+                          Digital File (PDF, EPUB) *
+                        </Label>
+                        <Input
+                          id="digitalFile"
+                          type="file"
+                          accept=".pdf,.epub,.mobi"
+                          onChange={(e) => setFormData(prev => ({ 
+                            ...prev, 
+                            digitalFile: e.target.files?.[0] || null 
+                          }))}
+                        />
+                        {formData.digitalFilePath && !formData.digitalFile && (
+                          <p className="text-xs text-green-600 flex items-center gap-1">
+                            <FileText className="h-3 w-3" />
+                            File already uploaded: {formData.digitalFilePath.split('/').pop()}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          Max 5 downloads per purchase, 30-day access
+                        </p>
+                      </div>
+                    )}
+
                     <div>
                       <Label htmlFor="image">Product Image</Label>
                       <div className="mt-2">
@@ -399,8 +495,8 @@ export const ShopManager = () => {
                   <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={handleSave} disabled={saving || uploading}>
-                    {saving ? 'Saving...' : uploading ? 'Uploading...' : 'Save Product'}
+                  <Button onClick={handleSave} disabled={saving || uploading || uploadingDigital}>
+                    {saving ? 'Saving...' : uploading ? 'Uploading Image...' : uploadingDigital ? 'Uploading File...' : 'Save Product'}
                   </Button>
                 </div>
               </DialogContent>
@@ -425,11 +521,19 @@ export const ShopManager = () => {
                         alt={product.title}
                         className="w-full h-full object-cover"
                       />
-                      {(product.content_data as any)?.featured && (
-                        <Badge className="absolute top-2 left-2 bg-yellow-500">
-                          Featured
-                        </Badge>
-                      )}
+                      <div className="absolute top-2 left-2 flex flex-col gap-1">
+                        {(product.content_data as any)?.featured && (
+                          <Badge className="bg-yellow-500">
+                            Featured
+                          </Badge>
+                        )}
+                        {(product.content_data as any)?.is_digital && (
+                          <Badge className="bg-primary">
+                            <BookOpen className="h-3 w-3 mr-1" />
+                            Digital
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   )}
                   <CardHeader className="pb-3">
@@ -446,9 +550,16 @@ export const ShopManager = () => {
                         <DollarSign className="h-4 w-4 text-green-600" />
                         <span className="font-bold text-lg">KSh {(product.content_data as any)?.price || 0}</span>
                       </div>
-                      <Badge variant="outline">
-                        Stock: {(product.content_data as any)?.stock || 0}
-                      </Badge>
+                      {(product.content_data as any)?.is_digital ? (
+                        <Badge variant="outline" className="text-primary">
+                          <BookOpen className="h-3 w-3 mr-1" />
+                          Instant Download
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline">
+                          Stock: {(product.content_data as any)?.stock || 0}
+                        </Badge>
+                      )}
                     </div>
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {product.description}

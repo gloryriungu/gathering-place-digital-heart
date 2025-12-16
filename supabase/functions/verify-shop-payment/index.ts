@@ -96,6 +96,42 @@ serve(async (req) => {
 
     console.log('Order updated successfully:', updatedOrder.id);
 
+    // Grant digital product access if payment successful
+    let digitalPurchases = [];
+    let hasDigitalProducts = false;
+    
+    if (transactionStatus === 'completed') {
+      try {
+        // Call deliver-digital-product to grant access
+        const deliverResponse = await fetch(
+          `${Deno.env.get('SUPABASE_URL')}/functions/v1/deliver-digital-product`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
+            },
+            body: JSON.stringify({
+              action: 'grant_access',
+              orderId: order.id,
+              customerEmail: order.customer_email,
+              userId: order.user_id
+            })
+          }
+        );
+
+        const deliverData = await deliverResponse.json();
+        if (deliverData.success) {
+          digitalPurchases = deliverData.digital_purchases || [];
+          hasDigitalProducts = deliverData.has_digital_products || false;
+          console.log('Digital access granted:', digitalPurchases.length, 'items');
+        }
+      } catch (deliverError) {
+        console.error('Failed to grant digital access:', deliverError);
+        // Don't fail the whole request, just log the error
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -106,7 +142,9 @@ serve(async (req) => {
           reference: verifyData.data.reference,
           paid_at: verifyData.data.paid_at,
           channel: verifyData.data.channel,
-          order: updatedOrder
+          order: updatedOrder,
+          digital_purchases: digitalPurchases,
+          has_digital_products: hasDigitalProducts
         }
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

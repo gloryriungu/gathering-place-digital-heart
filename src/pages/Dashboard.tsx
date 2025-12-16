@@ -125,6 +125,7 @@ import { ProgramApplicationsManager } from "@/components/pastor/ProgramApplicati
 import { ProgramResourcesEditor } from "@/components/pastor/ProgramResourcesEditor";
 import { ProgramQuestionsEditor } from "@/components/pastor/ProgramQuestionsEditor";
 import { CandidateProgressViewer } from "@/components/pastor/CandidateProgressViewer";
+import { MyDownloads } from "@/components/dashboard/MyDownloads";
 
 const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
@@ -199,6 +200,7 @@ const Dashboard = () => {
     const baseTabs = [
       { value: "overview", label: "Overview", icon: Calendar },
       { value: "give", label: "Give", icon: Heart },
+      { value: "my-downloads", label: "My Downloads", icon: BookOpen },
       { value: "recurring-giving", label: "Recurring Giving", icon: Calendar },
       { value: "payment-methods", label: "Payment Methods", icon: CreditCard },
       { value: "profile", label: "Profile", icon: Users },
@@ -504,6 +506,10 @@ const Dashboard = () => {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="my-downloads">
+              <MyDownloads />
             </TabsContent>
 
             <TabsContent value="recurring-giving">

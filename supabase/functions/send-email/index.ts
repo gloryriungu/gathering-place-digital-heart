@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { Resend } from "npm:resend@4.0.0";
 
-const POSTMARK_API_KEY = Deno.env.get("POSTMARK_API_KEY");
-const POSTMARK_API_URL = "https://api.postmarkapp.com/email";
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -13,6 +13,7 @@ interface EmailRequest {
   subject: string;
   htmlBody: string;
   textBody?: string;
+  from?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -21,7 +22,8 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { to, subject, htmlBody, textBody }: EmailRequest = await req.json();
+    const { to, subject, htmlBody, textBody, from }: EmailRequest = await req.json();
+    const fromAddress = from || "Mountain of Blessings <onboarding@resend.dev>";
 
     console.log("Sending email to:", to);
 
@@ -30,28 +32,17 @@ const handler = async (req: Request): Promise<Response> => {
       const results = await Promise.all(
         to.map(async (recipient) => {
           try {
-            const response = await fetch(POSTMARK_API_URL, {
-              method: "POST",
-              headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                "X-Postmark-Server-Token": POSTMARK_API_KEY!,
-              },
-              body: JSON.stringify({
-                From: "1040458@cuea.edu",
-                To: recipient,
-                Subject: subject,
-                HtmlBody: htmlBody,
-                TextBody: textBody || htmlBody.replace(/<[^>]*>/g, ""),
-                MessageStream: "outbound",
-              }),
+            const { data, error } = await resend.emails.send({
+              from: fromAddress,
+              to: [recipient],
+              subject: subject,
+              html: htmlBody,
+              text: textBody || htmlBody.replace(/<[^>]*>/g, ""),
             });
 
-            const data = await response.json();
-            
-            if (!response.ok) {
-              console.error(`Failed to send email to ${recipient}:`, data);
-              return { recipient, success: false, error: data };
+            if (error) {
+              console.error(`Failed to send email to ${recipient}:`, error);
+              return { recipient, success: false, error };
             }
 
             console.log(`Email sent successfully to ${recipient}`);
@@ -74,31 +65,20 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     // Handle single email
-    const response = await fetch(POSTMARK_API_URL, {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "X-Postmark-Server-Token": POSTMARK_API_KEY!,
-      },
-      body: JSON.stringify({
-        From: "1040458@cuea.edu",
-        To: to,
-        Subject: subject,
-        HtmlBody: htmlBody,
-        TextBody: textBody || htmlBody.replace(/<[^>]*>/g, ""),
-        MessageStream: "outbound",
-      }),
+    const { data, error } = await resend.emails.send({
+      from: fromAddress,
+      to: [to],
+      subject: subject,
+      html: htmlBody,
+      text: textBody || htmlBody.replace(/<[^>]*>/g, ""),
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error("Postmark API error:", data);
+    if (error) {
+      console.error("Resend API error:", error);
       return new Response(
-        JSON.stringify({ error: data }),
+        JSON.stringify({ error }),
         {
-          status: response.status,
+          status: 400,
           headers: { "Content-Type": "application/json", ...corsHeaders },
         }
       );

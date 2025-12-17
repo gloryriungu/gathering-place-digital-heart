@@ -1,8 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.53.0";
+import { Resend } from "npm:resend@4.0.0";
 
-const POSTMARK_API_KEY = Deno.env.get("POSTMARK_API_KEY");
-const POSTMARK_API_URL = "https://api.postmarkapp.com/email";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
@@ -48,7 +47,7 @@ const formatSessionType = (type: string) => {
   ).join(' ');
 };
 
-const sendReminderEmail = async (reminder: SessionReminder) => {
+const sendReminderEmail = async (resend: Resend, reminder: SessionReminder) => {
   const htmlBody = `
     <!DOCTYPE html>
     <html>
@@ -126,28 +125,17 @@ This is an automated reminder. Please do not reply to this email.
   `;
 
   try {
-    const response = await fetch(POSTMARK_API_URL, {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "X-Postmark-Server-Token": POSTMARK_API_KEY!,
-      },
-      body: JSON.stringify({
-        From: "1040458@cuea.edu",
-        To: reminder.member_email,
-        Subject: "Reminder: Your Counseling Session Tomorrow",
-        HtmlBody: htmlBody,
-        TextBody: textBody,
-        MessageStream: "outbound",
-      }),
+    const { data, error } = await resend.emails.send({
+      from: "Mountain of Blessings <onboarding@resend.dev>",
+      to: [reminder.member_email],
+      subject: "Reminder: Your Counseling Session Tomorrow",
+      html: htmlBody,
+      text: textBody,
     });
 
-    const data = await response.json();
-    
-    if (!response.ok) {
-      console.error(`Failed to send reminder to ${reminder.member_email}:`, data);
-      return { success: false, error: data };
+    if (error) {
+      console.error(`Failed to send reminder to ${reminder.member_email}:`, error);
+      return { success: false, error };
     }
 
     console.log(`Reminder sent successfully to ${reminder.member_email}`);
@@ -166,6 +154,7 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
     // Calculate the date range for tomorrow (24 hours from now)
     const tomorrow = new Date();
@@ -255,7 +244,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Send all reminders
     const results = await Promise.all(
-      reminders.map(reminder => sendReminderEmail(reminder))
+      reminders.map(reminder => sendReminderEmail(resend, reminder))
     );
 
     const successCount = results.filter(r => r.success).length;

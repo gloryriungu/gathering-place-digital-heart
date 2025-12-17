@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.53.0";
+import { Resend } from "npm:resend@4.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,9 +19,10 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const postmarkKey = Deno.env.get('POSTMARK_API_KEY')!;
+    const resendApiKey = Deno.env.get('RESEND_API_KEY')!;
     
     const supabase = createClient(supabaseUrl, supabaseKey);
+    const resend = new Resend(resendApiKey);
 
     const { campaign_id }: SendCampaignRequest = await req.json();
 
@@ -83,29 +85,18 @@ const handler = async (req: Request): Promise<Response> => {
           .replace(/\{\{first_name\}\}/g, subscriber.first_name || 'there')
           .replace(/\{\{last_name\}\}/g, subscriber.last_name || '');
 
-        // Send via Postmark
-        const response = await fetch('https://api.postmarkapp.com/email', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'X-Postmark-Server-Token': postmarkKey,
-          },
-          body: JSON.stringify({
-            From: 'noreply@yourchurch.org',
-            To: subscriber.email,
-            Subject: campaign.subject,
-            HtmlBody: personalizedHtml,
-            TextBody: campaign.text_content || undefined,
-            MessageStream: 'outbound',
-          }),
+        // Send via Resend
+        const { data, error } = await resend.emails.send({
+          from: 'Mountain of Blessings <onboarding@resend.dev>',
+          to: [subscriber.email],
+          subject: campaign.subject,
+          html: personalizedHtml,
+          text: campaign.text_content || undefined,
         });
 
-        if (!response.ok) {
-          throw new Error(`Postmark error: ${await response.text()}`);
+        if (error) {
+          throw new Error(`Resend error: ${JSON.stringify(error)}`);
         }
-
-        const result = await response.json();
 
         // Record analytics
         await supabase.from('email_analytics').insert({
@@ -121,7 +112,7 @@ const handler = async (req: Request): Promise<Response> => {
           .eq('email', subscriber.email);
 
         successCount++;
-        console.log(`Sent to ${subscriber.email}: ${result.MessageID}`);
+        console.log(`Sent to ${subscriber.email}: ${data?.id}`);
 
       } catch (error: any) {
         console.error(`Failed to send to ${subscriber.email}:`, error);

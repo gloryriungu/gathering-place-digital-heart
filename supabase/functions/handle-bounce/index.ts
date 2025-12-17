@@ -6,15 +6,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface PostmarkBounceWebhook {
-  RecordType: string;
-  MessageID: string;
-  Type: string; // HardBounce, Transient, Blocked, SpamComplaint
-  TypeCode: number;
-  Email: string;
-  BouncedAt: string;
-  Description: string;
-  Details: string;
+// Resend webhook event types
+interface ResendBounceWebhook {
+  type: string; // "email.bounced", "email.complained", "email.delivered", etc.
+  created_at: string;
+  data: {
+    email_id: string;
+    from: string;
+    to: string[];
+    subject: string;
+    created_at: string;
+    bounce?: {
+      message: string;
+    };
+  };
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -27,35 +32,47 @@ const handler = async (req: Request): Promise<Response> => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const bounceData: PostmarkBounceWebhook = await req.json();
+    const webhookData: ResendBounceWebhook = await req.json();
     
-    console.log('Received bounce webhook:', bounceData);
+    console.log('Received Resend webhook:', webhookData);
 
-    // Map Postmark bounce types to our types
+    // Only process bounce and complaint events
+    if (!['email.bounced', 'email.complained'].includes(webhookData.type)) {
+      console.log(`Ignoring event type: ${webhookData.type}`);
+      return new Response(
+        JSON.stringify({ success: true, message: 'Event type ignored' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Map Resend event types to our bounce types
     let bounceType = 'soft';
-    if (bounceData.Type === 'HardBounce' || bounceData.TypeCode >= 400) {
+    if (webhookData.type === 'email.bounced') {
       bounceType = 'hard';
-    } else if (bounceData.Type === 'SpamComplaint') {
+    } else if (webhookData.type === 'email.complained') {
       bounceType = 'spam_complaint';
     }
 
-    // Insert bounce record (this will trigger the handle_email_bounce function)
-    const { error: bounceError } = await supabase
-      .from('email_bounces')
-      .insert({
-        email: bounceData.Email.toLowerCase(),
-        bounce_type: bounceType,
-        bounce_reason: bounceData.Description || bounceData.Details,
-        occurred_at: bounceData.BouncedAt,
-        message_id: bounceData.MessageID,
-      });
+    // Process each recipient
+    for (const email of webhookData.data.to) {
+      // Insert bounce record (this will trigger the handle_email_bounce function)
+      const { error: bounceError } = await supabase
+        .from('email_bounces')
+        .insert({
+          email: email.toLowerCase(),
+          bounce_type: bounceType,
+          bounce_reason: webhookData.data.bounce?.message || `Resend ${webhookData.type}`,
+          occurred_at: webhookData.created_at,
+          message_id: webhookData.data.email_id,
+        });
 
-    if (bounceError) {
-      console.error('Error inserting bounce:', bounceError);
-      throw bounceError;
+      if (bounceError) {
+        console.error('Error inserting bounce:', bounceError);
+        throw bounceError;
+      }
+
+      console.log(`Successfully processed ${bounceType} bounce for ${email}`);
     }
-
-    console.log(`Successfully processed ${bounceType} bounce for ${bounceData.Email}`);
 
     return new Response(
       JSON.stringify({ success: true, message: 'Bounce processed' }),

@@ -87,7 +87,7 @@ export const Footer = () => {
             <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
               <p className="text-gray-400 text-sm">© 2025 TOT International. All rights reserved.</p>
               <p className="text-gray-500 text-xs mt-1">
-                Website by <span className="text-gray-400 hover:text-white transition-colors">NafArro Solutions</span>
+                Created by <a href="https://nafarrosolutions.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors underline">nafarrosolutions.com</a>
               </p>
             </div>
             <div className="flex space-x-6 text-sm">

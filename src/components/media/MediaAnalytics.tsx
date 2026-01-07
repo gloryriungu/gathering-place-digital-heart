@@ -305,39 +305,39 @@ export const MediaAnalytics = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <div className="bg-blue-100 p-2 rounded-full">
-                        <Video className="h-4 w-4 text-blue-600" />
+                      <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full">
+                        <Eye className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div>
-                        <p className="font-medium">Live Streams</p>
-                        <p className="text-sm text-muted-foreground">Average viewers</p>
-                      </div>
-                    </div>
-                    <span className="text-2xl font-bold">248</span>
-                  </div>
-                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-green-100 p-2 rounded-full">
-                        <Play className="h-4 w-4 text-green-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium">Sermon Views</p>
+                        <p className="font-medium">Page Views</p>
                         <p className="text-sm text-muted-foreground">Total this period</p>
                       </div>
                     </div>
-                    <span className="text-2xl font-bold">1,842</span>
+                    <span className="text-2xl font-bold">{totalPageViews.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-3">
-                      <div className="bg-purple-100 p-2 rounded-full">
-                        <Clock className="h-4 w-4 text-purple-600" />
+                      <div className="bg-green-100 dark:bg-green-900/30 p-2 rounded-full">
+                        <Calendar className="h-4 w-4 text-green-600 dark:text-green-400" />
                       </div>
                       <div>
-                        <p className="font-medium">Avg. Watch Time</p>
-                        <p className="text-sm text-muted-foreground">Per session</p>
+                        <p className="font-medium">Event Registrations</p>
+                        <p className="text-sm text-muted-foreground">Total this period</p>
                       </div>
                     </div>
-                    <span className="text-2xl font-bold">24 min</span>
+                    <span className="text-2xl font-bold">{totalRegistrations.toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-full">
+                        <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <div>
+                        <p className="font-medium">New Subscribers</p>
+                        <p className="text-sm text-muted-foreground">Newsletter signups</p>
+                      </div>
+                    </div>
+                    <span className="text-2xl font-bold">{newSubscribers.toLocaleString()}</span>
                   </div>
                 </div>
               </CardContent>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -43,7 +43,7 @@ export const GivingForm = ({ open, onOpenChange, defaultContributionType }: Givi
   const presetAmounts = [500, 1000, 2000, 5000, 10000];
 
   // Load user data and saved payment methods
-  useEffect(() => {
+  useState(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         setUser(user);

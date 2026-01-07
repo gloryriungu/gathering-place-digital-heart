@@ -10,6 +10,7 @@ import { HeroContentManager } from "@/components/media/HeroContentManager";
 import { AnnouncementsManager } from "@/components/media/AnnouncementsManager";
 import { WatchPageManager } from "@/components/media/WatchPageManager";
 import { EventRegistrationsManager } from "@/components/media/EventRegistrationsManager";
+import { MediaAnalytics } from "@/components/media/MediaAnalytics";
 import { DepartmentInventory } from "@/components/inventory/DepartmentInventory";
 import { RequisitionManager } from "@/components/requisitions/RequisitionManager";
 import { UserProfile } from "@/components/dashboard/UserProfile";
@@ -31,6 +32,7 @@ const MediaDashboard = () => {
     { value: "hero", label: "Homepage", icon: Home },
     { value: "announcements", label: "Announcements", icon: Megaphone },
     { value: "watch", label: "Watch Page", icon: Play },
+    { value: "analytics", label: "Analytics", icon: BarChart3 },
     { value: "requisitions", label: "Requisitions", icon: FileText },
     { value: "inventory", label: "Inventory", icon: BarChart3 },
     { value: "profile", label: "Profile", icon: User },
@@ -203,13 +205,13 @@ const MediaDashboard = () => {
                         </CardContent>
                       </Card>
 
-                      <Card className="hover:shadow-xl transition-all duration-300 border-0 shadow-lg hover:-translate-y-1">
+                      <Card className="hover:shadow-xl transition-all duration-300 border-0 shadow-lg hover:-translate-y-1 cursor-pointer" onClick={() => setActiveTab("analytics")}>
                         <CardHeader className="pb-4">
                           <div className="flex items-center justify-between">
                             <div className="bg-indigo-100 p-3 rounded-full">
                               <BarChart3 className="w-6 h-6 text-indigo-600" />
                             </div>
-                            <Badge variant="secondary" className="bg-indigo-50 text-indigo-700">Coming Soon</Badge>
+                            <Badge variant="secondary" className="bg-indigo-50 text-indigo-700">Insights</Badge>
                           </div>
                           <CardTitle className="text-xl">Analytics</CardTitle>
                           <CardDescription>Content performance metrics</CardDescription>
@@ -249,6 +251,10 @@ const MediaDashboard = () => {
 
                   <TabsContent value="watch">
                     <WatchPageManager />
+                  </TabsContent>
+
+                  <TabsContent value="analytics">
+                    <MediaAnalytics />
                   </TabsContent>
 
                   <TabsContent value="requisitions">

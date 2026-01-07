@@ -112,11 +112,12 @@ const Index = memo(() => {
       
       <Footer />
       
-      {/* AI Assistant */}
+      {/* AI Assistant - Temporarily disabled
       <AIAssistant 
         welcomeMessage="Welcome to TOT Int! I can help you with questions, generate assessments, and create content. What would you like to know?"
         apiEndpoint="https://web-production-61663.up.railway.app/process/"
       />
+      */}
     </div>
   );
 });

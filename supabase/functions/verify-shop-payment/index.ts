@@ -102,25 +102,28 @@ serve(async (req) => {
     
     if (transactionStatus === 'completed') {
       try {
+        console.log('Calling deliver-digital-product for order:', order.id);
         // Call deliver-digital-product to grant access
-        const deliverResponse = await fetch(
-          `${Deno.env.get('SUPABASE_URL')}/functions/v1/deliver-digital-product`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${Deno.env.get('SUPABASE_ANON_KEY')}`
-            },
-            body: JSON.stringify({
-              action: 'grant_access',
-              orderId: order.id,
-              customerEmail: order.customer_email,
-              userId: order.user_id
-            })
-          }
-        );
+        const deliverUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/deliver-digital-product`;
+        console.log('Deliver URL:', deliverUrl);
+        
+        const deliverResponse = await fetch(deliverUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+          },
+          body: JSON.stringify({
+            action: 'grant_access',
+            orderId: order.id,
+            customerEmail: order.customer_email,
+            userId: order.user_id
+          })
+        });
 
+        console.log('Deliver response status:', deliverResponse.status);
         const deliverData = await deliverResponse.json();
+        console.log('Deliver response data:', JSON.stringify(deliverData));
         if (deliverData.success) {
           digitalPurchases = deliverData.digital_purchases || [];
           hasDigitalProducts = deliverData.has_digital_products || false;

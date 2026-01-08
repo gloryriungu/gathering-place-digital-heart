@@ -46,10 +46,13 @@ serve(async (req) => {
       const digitalProducts: any[] = [];
 
       for (const item of orderItems) {
+        const productId = item.product_id || item.id;
+        console.log('Looking up product:', productId);
+        
         const { data: product } = await supabaseClient
           .from('media_content')
           .select('*')
-          .eq('id', item.id)
+          .eq('id', productId)
           .single();
 
         if (product) {
@@ -173,12 +176,14 @@ serve(async (req) => {
             </html>
           `;
 
+          console.log('Sending email to:', order.customer_email);
           const emailResponse = await resend.emails.send({
-            from: "TOT Store <onboarding@resend.dev>",
+            from: "TOT Store <no-reply@tot.co.ke>",
             to: [order.customer_email],
             subject: `Your Digital Purchase is Ready - Order #${order.order_number}`,
             html: emailHtml,
           });
+          console.log('Resend API response:', JSON.stringify(emailResponse));
 
           console.log('Email sent successfully:', emailResponse);
         } catch (emailError) {

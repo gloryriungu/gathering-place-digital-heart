@@ -261,9 +261,19 @@ const Shop = () => {
     category: "Accessories"
   }];
   const displayProducts = products.length > 0 ? products : defaultProducts;
+  // Helper to normalize category name to slug format
+  const normalizeCategoryToSlug = (category: string) => {
+    return category.toLowerCase()
+      .replace(/&/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  };
+
   const filteredProducts = displayProducts.filter(product => {
     // Filter by category
-    const matchesCategory = selectedCategory === 'all' || product.category.toLowerCase().replace(/\s+/g, '-') === selectedCategory;
+    const productSlug = normalizeCategoryToSlug(product.category);
+    const matchesCategory = selectedCategory === 'all' || productSlug === selectedCategory;
 
     // Filter by search term
     const matchesSearch = !searchTerm || product.name.toLowerCase().includes(searchTerm.toLowerCase()) || product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -272,7 +282,7 @@ const Shop = () => {
   const getCategoryCount = (categorySlug: string) => {
     if (categorySlug === 'all') return displayProducts.length;
     return displayProducts.filter(product => {
-      const slug = product.category.toLowerCase().replace(/\s+/g, '-');
+      const slug = normalizeCategoryToSlug(product.category);
       return slug === categorySlug;
     }).length;
   };

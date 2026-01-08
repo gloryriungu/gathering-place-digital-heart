@@ -332,7 +332,7 @@ export const ShopManager = () => {
                   Add Product
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl">
+              <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
                     {editingProduct ? 'Edit Product' : 'Create New Product'}

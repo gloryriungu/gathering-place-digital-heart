@@ -1,10 +1,13 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -67,6 +70,9 @@ serve(async (req) => {
         const expiresAt = new Date();
         expiresAt.setDate(expiresAt.getDate() + 30);
 
+        // Generate unique access token
+        const accessTokenGenerated = crypto.randomUUID();
+
         const { data: purchase, error: purchaseError } = await supabaseClient
           .from('digital_purchases')
           .insert({
@@ -75,7 +81,8 @@ serve(async (req) => {
             order_id: orderId,
             customer_email: order.customer_email,
             max_downloads: 5,
-            download_expires_at: expiresAt.toISOString()
+            download_expires_at: expiresAt.toISOString(),
+            access_token: accessTokenGenerated
           })
           .select()
           .single();
@@ -92,6 +99,93 @@ serve(async (req) => {
       }
 
       console.log('Digital access granted for products:', purchaseRecords.length);
+
+      // Send email with download links if there are digital products
+      if (purchaseRecords.length > 0 && order.customer_email) {
+        try {
+          const baseUrl = Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.lovableproject.com') || '';
+          const siteUrl = baseUrl.includes('lovableproject') ? baseUrl : 'https://your-site-url.com';
+          
+          // Build product list HTML
+          const productListHtml = purchaseRecords.map(purchase => `
+            <tr>
+              <td style="padding: 12px; border-bottom: 1px solid #e5e5e5;">
+                <strong>${purchase.product_title}</strong>
+              </td>
+              <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: center;">
+                5 downloads
+              </td>
+              <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: center;">
+                30 days
+              </td>
+            </tr>
+          `).join('');
+
+          const emailHtml = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #1a1a1a; margin-bottom: 10px;">🎉 Your Digital Purchase is Ready!</h1>
+                <p style="color: #666; font-size: 16px;">Thank you for your purchase, ${order.customer_name}!</p>
+              </div>
+              
+              <div style="background-color: #f8f9fa; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                <h2 style="color: #1a1a1a; margin-top: 0; font-size: 18px;">Order #${order.order_number}</h2>
+                <p style="margin-bottom: 0; color: #666;">Your digital products are now available for download.</p>
+              </div>
+              
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+                <thead>
+                  <tr style="background-color: #f0f0f0;">
+                    <th style="padding: 12px; text-align: left; font-weight: 600;">Product</th>
+                    <th style="padding: 12px; text-align: center; font-weight: 600;">Downloads</th>
+                    <th style="padding: 12px; text-align: center; font-weight: 600;">Access</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${productListHtml}
+                </tbody>
+              </table>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${siteUrl}/shop-verify?reference=${order.paystack_reference || order.transaction_reference}" 
+                   style="display: inline-block; background-color: #0070f3; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+                  Download Your Products
+                </a>
+              </div>
+              
+              <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
+                <p style="margin: 0; color: #856404; font-size: 14px;">
+                  <strong>⚠️ Important:</strong> Each product can be downloaded up to 5 times within 30 days of purchase. Please save your files after downloading.
+                </p>
+              </div>
+              
+              <div style="border-top: 1px solid #e5e5e5; padding-top: 20px; margin-top: 20px; text-align: center; color: #666; font-size: 14px;">
+                <p>If you have any questions about your purchase, please contact our support team.</p>
+                <p style="margin-bottom: 0;">Thank you for supporting our ministry!</p>
+              </div>
+            </body>
+            </html>
+          `;
+
+          const emailResponse = await resend.emails.send({
+            from: "TOT Store <onboarding@resend.dev>",
+            to: [order.customer_email],
+            subject: `Your Digital Purchase is Ready - Order #${order.order_number}`,
+            html: emailHtml,
+          });
+
+          console.log('Email sent successfully:', emailResponse);
+        } catch (emailError) {
+          console.error('Failed to send email:', emailError);
+          // Don't fail the whole request if email fails
+        }
+      }
 
       return new Response(
         JSON.stringify({

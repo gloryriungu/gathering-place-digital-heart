@@ -1,5 +1,5 @@
 /**
- * MAIN USER DASHBOARD - ROLE-BASED PORTAL - v2
+ * MAIN USER DASHBOARD - ROLE-BASED PORTAL - v2.1
  * 
  * LANGUAGE/FRAMEWORK: TypeScript + React (TSX)
  * - TypeScript: Strong typing for complex role-based logic

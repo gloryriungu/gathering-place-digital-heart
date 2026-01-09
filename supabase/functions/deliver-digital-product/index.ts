@@ -106,8 +106,7 @@ serve(async (req) => {
       // Send email with download links if there are digital products
       if (purchaseRecords.length > 0 && order.customer_email) {
         try {
-          const baseUrl = Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '.lovableproject.com') || '';
-          const siteUrl = baseUrl.includes('lovableproject') ? baseUrl : 'https://your-site-url.com';
+          const siteUrl = 'https://stg.tot.co.ke';
           
           // Build product list HTML
           const productListHtml = purchaseRecords.map(purchase => `

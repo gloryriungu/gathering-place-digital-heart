@@ -99,26 +99,56 @@ export default function ShopVerify() {
   const handleDownload = async (purchase: DigitalPurchase) => {
     setDownloadingId(purchase.id);
     try {
-      const { data, error } = await supabase.functions.invoke('deliver-digital-product', {
-        body: {
-          action: 'get_download_url',
-          accessToken: purchase.access_token
+      // Use fetch directly to get blob response
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/deliver-digital-product`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            action: 'download_file',
+            accessToken: purchase.access_token
+          })
         }
-      });
+      );
 
-      if (error) throw error;
-
-      if (data.error) {
-        toast.error(data.error);
+      // Check if response is JSON (error) or blob (file)
+      const contentType = response.headers.get('Content-Type');
+      
+      if (contentType?.includes('application/json')) {
+        const errorData = await response.json();
+        toast.error(errorData.error || 'Failed to download');
         return;
       }
 
-      // Open download URL
-      window.open(data.download_url, '_blank');
-      toast.success(`Downloading ${data.product_title}`);
+      if (!response.ok) {
+        toast.error('Failed to download file');
+        return;
+      }
+
+      // Get filename from header or use product title
+      const filename = response.headers.get('X-Filename') || `${purchase.product_title}.pdf`;
+
+      // Create blob and trigger download
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      toast.success(`Downloaded ${purchase.product_title}`);
     } catch (error) {
       console.error('Download error:', error);
-      toast.error('Failed to generate download link');
+      toast.error('Failed to download file');
     } finally {
       setDownloadingId(null);
     }

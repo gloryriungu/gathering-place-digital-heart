@@ -155,7 +155,7 @@ serve(async (req) => {
               </table>
               
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${siteUrl}/shop-verify?reference=${order.paystack_reference || order.transaction_reference}" 
+                <a href="${siteUrl}/shop/verify?reference=${order.paystack_reference || order.transaction_reference}"
                    style="display: inline-block; background-color: #0070f3; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
                   Download Your Products
                 </a>

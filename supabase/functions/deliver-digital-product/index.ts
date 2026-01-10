@@ -284,6 +284,94 @@ serve(async (req) => {
       );
     }
 
+    // Action: download_file - Stream file directly to client (avoids browser blocking)
+    if (action === 'download_file') {
+      console.log('Downloading file:', { accessToken });
+
+      // Get digital purchase record
+      const { data: purchase, error: purchaseError } = await supabaseClient
+        .from('digital_purchases')
+        .select('*, media_content:product_id(*)')
+        .eq('access_token', accessToken)
+        .single();
+
+      if (purchaseError || !purchase) {
+        console.error('Digital purchase not found:', purchaseError);
+        return new Response(
+          JSON.stringify({ error: 'Access not found or expired' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Check if download limit reached
+      if (purchase.download_count >= purchase.max_downloads) {
+        return new Response(
+          JSON.stringify({ error: 'Download limit reached' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Check if access expired
+      if (purchase.download_expires_at && new Date(purchase.download_expires_at) < new Date()) {
+        return new Response(
+          JSON.stringify({ error: 'Download access has expired' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const product = purchase.media_content as any;
+      const contentData = product?.content_data as any;
+      const filePath = contentData?.digital_file_path;
+
+      if (!filePath) {
+        return new Response(
+          JSON.stringify({ error: 'Digital file not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Download the file from storage
+      const { data: fileData, error: fileError } = await supabaseClient
+        .storage
+        .from('digital-products')
+        .download(filePath);
+
+      if (fileError || !fileData) {
+        console.error('Failed to download file from storage:', fileError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to download file' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Increment download count
+      await supabaseClient
+        .from('digital_purchases')
+        .update({ 
+          download_count: purchase.download_count + 1,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', purchase.id);
+
+      // Determine filename from path or product title
+      const fileExtension = filePath.split('.').pop() || 'pdf';
+      const safeTitle = (product.title || 'download').replace(/[^a-zA-Z0-9\s-]/g, '').trim();
+      const filename = `${safeTitle}.${fileExtension}`;
+
+      console.log('File download successful:', filename);
+
+      // Return the file as a downloadable response
+      return new Response(fileData, {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/octet-stream',
+          'Content-Disposition': `attachment; filename="${filename}"`,
+          'X-Filename': filename,
+          'X-Downloads-Remaining': String(purchase.max_downloads - purchase.download_count - 1),
+        }
+      });
+    }
+
     // Action: get_user_downloads - Get all digital purchases for a user
     if (action === 'get_user_downloads') {
       console.log('Getting user downloads:', { customerEmail, userId });

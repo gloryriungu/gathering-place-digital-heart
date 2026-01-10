@@ -78,16 +78,19 @@ export default function ShopVerify() {
 
   const fetchDigitalPurchases = async (orderId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('digital_purchases')
-        .select('*, media_content:product_id(title)')
-        .eq('order_id', orderId);
+      // Use edge function to fetch digital purchases (bypasses RLS issues for guest users)
+      const { data, error } = await supabase.functions.invoke('deliver-digital-product', {
+        body: { 
+          action: 'get_order_downloads',
+          orderId 
+        }
+      });
 
-      if (!error && data) {
-        setDigitalPurchases(data.map(p => ({
+      if (!error && data?.downloads) {
+        setDigitalPurchases(data.downloads.map((p: any) => ({
           id: p.id,
           access_token: p.access_token,
-          product_title: (p.media_content as any)?.title || 'Digital Product',
+          product_title: p.media_content?.title || 'Digital Product',
           file_path: ''
         })));
       }

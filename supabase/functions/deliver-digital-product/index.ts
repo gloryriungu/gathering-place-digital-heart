@@ -410,6 +410,40 @@ serve(async (req) => {
       );
     }
 
+    // Action: get_order_downloads - Get digital purchases for a specific order
+    if (action === 'get_order_downloads') {
+      console.log('Getting order downloads:', { orderId });
+
+      if (!orderId) {
+        return new Response(
+          JSON.stringify({ error: 'Order ID required' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const { data: purchases, error } = await supabaseClient
+        .from('digital_purchases')
+        .select('*, media_content:product_id(id, title, description, image_url)')
+        .eq('order_id', orderId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Failed to fetch order downloads:', error);
+        return new Response(
+          JSON.stringify({ error: 'Failed to fetch downloads' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          downloads: purchases || []
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     return new Response(
       JSON.stringify({ error: 'Invalid action' }),
       { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

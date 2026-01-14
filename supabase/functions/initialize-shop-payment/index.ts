@@ -33,9 +33,17 @@ serve(async (req) => {
       );
     }
 
-    if (total_amount < 10) {
+    if (!Array.isArray(items) || items.length === 0) {
       return new Response(
-        JSON.stringify({ error: 'Minimum order amount is KES 10' }),
+        JSON.stringify({ error: 'At least one item is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate amount is a positive number
+    if (typeof total_amount !== 'number' || total_amount < 10 || total_amount > 1000000) {
+      return new Response(
+        JSON.stringify({ error: 'Amount must be between KES 10 and KES 1,000,000' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -47,11 +55,75 @@ serve(async (req) => {
       );
     }
 
-    // Initialize Supabase client
+    // Initialize Supabase client early to validate product prices
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
+
+    // SERVER-SIDE PRICE VALIDATION: Verify prices match actual product prices in database
+    let calculatedTotal = 0;
+    for (const item of items) {
+      if (!item.product_id || !item.quantity || item.quantity < 1) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid item in cart' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Fetch actual product price from database
+      const { data: product, error: productError } = await supabaseClient
+        .from('media_content')
+        .select('id, title, content_data')
+        .eq('id', item.product_id)
+        .single();
+
+      if (productError || !product) {
+        console.error('Product not found:', item.product_id);
+        return new Response(
+          JSON.stringify({ error: `Product not found: ${item.product_id}` }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const actualPrice = (product.content_data as any)?.price || 0;
+      const itemTotal = actualPrice * item.quantity;
+      calculatedTotal += itemTotal;
+
+      // Validate that client-sent price matches actual price
+      if (item.price !== undefined && Math.abs(item.price - actualPrice) > 0.01) {
+        console.warn('Price mismatch detected:', { 
+          product_id: item.product_id, 
+          sent_price: item.price, 
+          actual_price: actualPrice 
+        });
+        return new Response(
+          JSON.stringify({ error: 'Price mismatch detected. Please refresh and try again.' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Check stock availability for physical products
+      const stock = (product.content_data as any)?.stock;
+      if (stock !== undefined && stock !== null && stock < item.quantity) {
+        return new Response(
+          JSON.stringify({ error: `Insufficient stock for ${product.title}` }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
+    // Validate that total amount matches calculated total
+    if (Math.abs(calculatedTotal - total_amount) > 0.01) {
+      console.warn('Total mismatch detected:', { 
+        sent_total: total_amount, 
+        calculated_total: calculatedTotal 
+      });
+      return new Response(
+        JSON.stringify({ error: 'Total amount mismatch. Please refresh and try again.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Generate order number
     const { data: orderNumberData, error: orderNumberError } = await supabaseClient

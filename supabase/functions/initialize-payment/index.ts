@@ -33,9 +33,24 @@ serve(async (req) => {
       );
     }
 
+    // Validate amount is a positive number within acceptable range
+    if (typeof amount !== 'number' || !Number.isFinite(amount)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid amount' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     if (amount < 10) {
       return new Response(
         JSON.stringify({ error: 'Minimum amount is KES 10' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (amount > 1000000) {
+      return new Response(
+        JSON.stringify({ error: 'Maximum amount is KES 1,000,000' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

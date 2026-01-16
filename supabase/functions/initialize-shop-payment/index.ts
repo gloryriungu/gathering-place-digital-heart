@@ -6,9 +6,108 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute window
+const MAX_REQUESTS_PER_WINDOW = 5; // Max 5 payment attempts per minute per IP
+const ENDPOINT_NAME = 'initialize-shop-payment';
+
+// Rate limiting function
+async function checkRateLimit(
+  supabase: ReturnType<typeof createClient>,
+  identifier: string
+): Promise<{ allowed: boolean; retryAfter?: number }> {
+  const now = new Date();
+  const windowStart = new Date(now.getTime() - RATE_LIMIT_WINDOW_MS);
+
+  // Check existing requests in the current window
+  const { data: existingRequests, error: fetchError } = await supabase
+    .from('rate_limit_tracking')
+    .select('id, request_count, window_start')
+    .eq('identifier', identifier)
+    .eq('endpoint', ENDPOINT_NAME)
+    .gte('window_start', windowStart.toISOString())
+    .order('window_start', { ascending: false })
+    .limit(1);
+
+  if (fetchError) {
+    console.error('Rate limit check error:', fetchError);
+    // Allow request on error to avoid blocking legitimate traffic
+    return { allowed: true };
+  }
+
+  if (existingRequests && existingRequests.length > 0) {
+    const record = existingRequests[0];
+    if (record.request_count >= MAX_REQUESTS_PER_WINDOW) {
+      const windowEnd = new Date(new Date(record.window_start).getTime() + RATE_LIMIT_WINDOW_MS);
+      const retryAfter = Math.ceil((windowEnd.getTime() - now.getTime()) / 1000);
+      console.warn(`Rate limit exceeded for ${identifier}`);
+      return { allowed: false, retryAfter: Math.max(retryAfter, 1) };
+    }
+
+    // Increment the counter
+    await supabase
+      .from('rate_limit_tracking')
+      .update({ request_count: record.request_count + 1 })
+      .eq('id', record.id);
+  } else {
+    // Create new rate limit record
+    await supabase
+      .from('rate_limit_tracking')
+      .insert({
+        identifier,
+        endpoint: ENDPOINT_NAME,
+        request_count: 1,
+        window_start: now.toISOString()
+      });
+  }
+
+  return { allowed: true };
+}
+
+// Get client IP from request headers
+function getClientIP(req: Request): string {
+  const forwardedFor = req.headers.get('x-forwarded-for');
+  if (forwardedFor) {
+    return forwardedFor.split(',')[0].trim();
+  }
+  const realIP = req.headers.get('x-real-ip');
+  if (realIP) {
+    return realIP;
+  }
+  return 'unknown';
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Initialize Supabase client early for rate limiting
+  const supabaseClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  );
+
+  // Check rate limit
+  const clientIP = getClientIP(req);
+  const rateLimitResult = await checkRateLimit(supabaseClient, clientIP);
+  
+  if (!rateLimitResult.allowed) {
+    console.warn(`Rate limit blocked request from IP: ${clientIP}`);
+    return new Response(
+      JSON.stringify({ 
+        error: 'Too many payment attempts. Please wait before trying again.',
+        retry_after: rateLimitResult.retryAfter
+      }),
+      { 
+        status: 429, 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json',
+          'Retry-After': String(rateLimitResult.retryAfter)
+        } 
+      }
+    );
   }
 
   try {
@@ -54,12 +153,6 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    // Initialize Supabase client early to validate product prices
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
 
     // SERVER-SIDE PRICE VALIDATION: Verify prices match actual product prices in database
     let calculatedTotal = 0;

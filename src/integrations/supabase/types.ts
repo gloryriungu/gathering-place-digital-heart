@@ -1704,6 +1704,33 @@ export type Database = {
           },
         ]
       }
+      rate_limit_tracking: {
+        Row: {
+          created_at: string
+          endpoint: string
+          id: string
+          identifier: string
+          request_count: number
+          window_start: string
+        }
+        Insert: {
+          created_at?: string
+          endpoint: string
+          id?: string
+          identifier: string
+          request_count?: number
+          window_start?: string
+        }
+        Update: {
+          created_at?: string
+          endpoint?: string
+          id?: string
+          identifier?: string
+          request_count?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
       recurring_contributions: {
         Row: {
           amount: number
@@ -2430,6 +2457,7 @@ export type Database = {
     }
     Functions: {
       can_view_all_activity: { Args: { _user_id: string }; Returns: boolean }
+      cleanup_rate_limit_records: { Args: never; Returns: undefined }
       generate_member_number: { Args: never; Returns: string }
       generate_order_number: { Args: never; Returns: string }
       generate_ticket_number: { Args: never; Returns: string }

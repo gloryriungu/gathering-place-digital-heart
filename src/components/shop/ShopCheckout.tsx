@@ -53,9 +53,18 @@ export const ShopCheckout = ({ open, onOpenChange, cartItems, onCheckoutComplete
               setPhone(data.phone || "");
             }
           });
+      } else if (open) {
+        // If dialog opens without authenticated user, redirect to auth
+        toast({
+          title: "Sign In Required",
+          description: "Please sign in to complete your purchase",
+          variant: "destructive"
+        });
+        onOpenChange(false);
+        navigate('/auth?returnTo=/shop');
       }
     });
-  }, []);
+  }, [open, navigate, toast, onOpenChange]);
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const total = subtotal;

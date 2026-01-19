@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ShopCheckout } from "@/components/shop/ShopCheckout";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+
+const CART_STORAGE_KEY = 'shop_cart';
 interface Product {
   id: string;
   name: string;
@@ -35,11 +37,14 @@ interface Category {
   icon?: string;
 }
 const Shop = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    // Initialize cart from localStorage
+    const savedCart = localStorage.getItem(CART_STORAGE_KEY);
+    return savedCart ? JSON.parse(savedCart) : [];
+  });
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
@@ -49,6 +54,11 @@ const Shop = () => {
   const [loading, setLoading] = useState(true);
   const [wishlistItems, setWishlistItems] = useState<Set<string>>(new Set());
   const [user, setUser] = useState<any>(null);
+
+  // Persist cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+  }, [cart]);
   useEffect(() => {
     checkAuth();
     fetchCategories();
@@ -322,12 +332,27 @@ const Shop = () => {
   };
   const handleCheckoutComplete = () => {
     setCart([]);
+    localStorage.removeItem(CART_STORAGE_KEY);
     setIsCartOpen(false);
     setIsCheckoutOpen(false);
     toast({
       title: "Order Placed Successfully!",
       description: "Thank you for your purchase"
     });
+  };
+
+  const handleProceedToCheckout = () => {
+    if (!user) {
+      toast({
+        title: "Sign In Required",
+        description: "Please sign in to complete your purchase",
+        variant: "destructive"
+      });
+      navigate('/auth?returnTo=/shop');
+      return;
+    }
+    setIsCartOpen(false);
+    setIsCheckoutOpen(true);
   };
   const socialLinks = [{
     icon: Facebook,
@@ -457,10 +482,7 @@ const Shop = () => {
                           <span>Total:</span>
                           <span>KSh {getTotalPrice().toFixed(2)}</span>
                         </div>
-                        <Button className="w-full" size="lg" onClick={() => {
-                      setIsCartOpen(false);
-                      setIsCheckoutOpen(true);
-                    }}>
+                        <Button className="w-full" size="lg" onClick={handleProceedToCheckout}>
                           Proceed to Checkout
                         </Button>
                       </div>
@@ -535,6 +557,36 @@ const Shop = () => {
           </div>
         </section>
       </main>
+
+      {/* Floating Checkout Bar - Mobile */}
+      {cart.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg p-4 z-50 md:hidden">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="font-semibold">{getTotalItems()} item{getTotalItems() !== 1 ? 's' : ''}</span>
+              <span className="text-primary font-bold ml-2">KSh {getTotalPrice().toFixed(2)}</span>
+            </div>
+            <Button onClick={handleProceedToCheckout} className="gap-2">
+              <ShoppingCart className="h-4 w-4" />
+              Checkout
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Checkout Button - Desktop */}
+      {cart.length > 0 && (
+        <div className="hidden md:block fixed bottom-6 right-6 z-50">
+          <Button 
+            size="lg" 
+            className="shadow-lg gap-2"
+            onClick={handleProceedToCheckout}
+          >
+            <ShoppingCart className="h-4 w-4" />
+            Checkout ({getTotalItems()}) - KSh {getTotalPrice().toFixed(2)}
+          </Button>
+        </div>
+      )}
 
       <Footer />
     </div>;

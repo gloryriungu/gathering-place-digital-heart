@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import CookieConsent from "@/components/CookieConsent";
 import { Suspense, lazy } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HelmetProvider } from 'react-helmet-async';
@@ -81,6 +82,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <WhatsAppButton />
+            <CookieConsent />
             <BrowserRouter>
           <Suspense fallback={<PageLoader />}>
             <Routes>

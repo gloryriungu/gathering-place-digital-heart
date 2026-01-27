@@ -432,6 +432,96 @@ export type Database = {
           },
         ]
       }
+      cookie_consents: {
+        Row: {
+          analytics_consent: boolean
+          consent_given: boolean
+          consent_type: string
+          created_at: string
+          functional_consent: boolean
+          id: string
+          ip_address: string | null
+          marketing_consent: boolean
+          session_id: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          analytics_consent?: boolean
+          consent_given?: boolean
+          consent_type: string
+          created_at?: string
+          functional_consent?: boolean
+          id?: string
+          ip_address?: string | null
+          marketing_consent?: boolean
+          session_id: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          analytics_consent?: boolean
+          consent_given?: boolean
+          consent_type?: string
+          created_at?: string
+          functional_consent?: boolean
+          id?: string
+          ip_address?: string | null
+          marketing_consent?: boolean
+          session_id?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      cookie_settings: {
+        Row: {
+          button_accept_text: string
+          button_customize_text: string
+          button_reject_text: string
+          created_at: string
+          id: string
+          is_active: boolean
+          policy_text: string
+          popup_description: string
+          popup_title: string
+          show_detailed_options: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          button_accept_text?: string
+          button_customize_text?: string
+          button_reject_text?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          policy_text?: string
+          popup_description?: string
+          popup_title?: string
+          show_detailed_options?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          button_accept_text?: string
+          button_customize_text?: string
+          button_reject_text?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          policy_text?: string
+          popup_description?: string
+          popup_title?: string
+          show_detailed_options?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       counseling_sessions: {
         Row: {
           created_at: string

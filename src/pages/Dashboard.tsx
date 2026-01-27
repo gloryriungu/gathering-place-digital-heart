@@ -78,7 +78,8 @@ import {
   Activity,
   Ticket,
   Mail,
-  CreditCard
+  CreditCard,
+  Cookie
 } from "lucide-react";
 import { AttendanceTracker } from "@/components/dashboard/AttendanceTracker";
 import { FinancialContributions } from "@/components/dashboard/FinancialContributions";
@@ -126,6 +127,7 @@ import { ProgramResourcesEditor } from "@/components/pastor/ProgramResourcesEdit
 import { ProgramQuestionsEditor } from "@/components/pastor/ProgramQuestionsEditor";
 import { CandidateProgressViewer } from "@/components/pastor/CandidateProgressViewer";
 import { MyDownloads } from "@/components/dashboard/MyDownloads";
+import { CookieConsentManager } from "@/components/admin/CookieConsentManager";
 
 const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
@@ -289,6 +291,7 @@ const Dashboard = () => {
         { value: "ticketing", label: "Support Tickets", icon: Ticket },
         { value: "monitoring", label: "System Monitor", icon: Monitor },
         { value: "security", label: "Security", icon: Shield },
+        { value: "cookie-consent", label: "Cookie Consent", icon: Cookie },
         { value: "tab-management", label: "Tab Management", icon: Settings },
         { value: "requisitions", label: "Requisitions", icon: FileText },
         { value: "inventory", label: "All Inventory", icon: Settings },
@@ -466,6 +469,10 @@ const Dashboard = () => {
 
             <TabsContent value="security">
               <ITSecurity />
+            </TabsContent>
+
+            <TabsContent value="cookie-consent">
+              <CookieConsentManager />
             </TabsContent>
 
             <TabsContent value="tab-management">

@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BarChart3, Users, Star, MessageSquare, Share2, HelpCircle, FileText, Mail, User, Webhook, Calendar, Settings, MapPin } from "lucide-react";
+import { BarChart3, Users, Star, MessageSquare, Share2, HelpCircle, FileText, Mail, User, Webhook, Calendar, Settings, MapPin, Cookie } from "lucide-react";
 
 // Marketing management components
 import { AboutUsManager } from "@/components/marketing/AboutUsManager";
@@ -26,6 +26,7 @@ import { PaystackWebhookLogs } from "@/components/accounts/PaystackWebhookLogs";
 import { GivePageManager } from "@/components/marketing/GivePageManager";
 import { CounselingPageManager } from "@/components/marketing/CounselingPageManager";
 import { VisitUsPageManager } from "@/components/marketing/VisitUsPageManager";
+import { CookieConsentManager } from "@/components/admin/CookieConsentManager";
 
 const MarketingDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -43,6 +44,7 @@ const MarketingDashboard = () => {
     { value: "social", label: "Social Media", icon: Share2 },
     { value: "testimonials", label: "Testimonials", icon: Star },
     { value: "faq", label: "FAQ", icon: HelpCircle },
+    { value: "cookie-consent", label: "Cookie Consent", icon: Cookie },
     { value: "webhooks", label: "Webhooks", icon: Webhook },
     { value: "requisitions", label: "Requisitions", icon: FileText },
     { value: "inventory", label: "Inventory", icon: Settings },
@@ -245,6 +247,10 @@ const MarketingDashboard = () => {
 
                   <TabsContent value="faq">
                     <FAQManager />
+                  </TabsContent>
+
+                  <TabsContent value="cookie-consent">
+                    <CookieConsentManager />
                   </TabsContent>
 
                   <TabsContent value="webhooks">

@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Download, BookOpen, Clock, AlertCircle, Loader2 } from "lucide-react";
+import { Download, BookOpen, Clock, AlertCircle, Loader2, ShoppingBag } from "lucide-react";
 import { format } from "date-fns";
+import { EmbeddedShop } from "@/components/shop/EmbeddedShop";
 
 interface DigitalPurchase {
   id: string;
@@ -27,6 +28,7 @@ export const MyDownloads = () => {
   const [downloads, setDownloads] = useState<DigitalPurchase[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [showShop, setShowShop] = useState(false);
 
   useEffect(() => {
     fetchDownloads();
@@ -146,6 +148,11 @@ export const MyDownloads = () => {
     );
   }
 
+  // Show embedded shop when Browse Shop is clicked
+  if (showShop) {
+    return <EmbeddedShop onClose={() => setShowShop(false)} />;
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -165,7 +172,8 @@ export const MyDownloads = () => {
             <p className="mt-2 text-muted-foreground">
               Purchase digital books from our shop to access them here
             </p>
-            <Button className="mt-4" onClick={() => window.location.href = '/shop'}>
+            <Button className="mt-4" onClick={() => setShowShop(true)}>
+              <ShoppingBag className="h-4 w-4 mr-2" />
               Browse Shop
             </Button>
           </div>

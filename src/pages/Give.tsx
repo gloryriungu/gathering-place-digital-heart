@@ -146,7 +146,7 @@ const Give = () => {
                 <Button onClick={() => handleGiveClick()} size="lg" className="bg-background text-foreground hover:bg-background/90 font-bold text-lg px-8 py-6">
                   Give Now
                 </Button>
-                <Button variant="outline" size="lg" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary font-bold text-lg px-8 py-6" onClick={() => document.getElementById('impact')?.scrollIntoView({
+                <Button variant="outline" size="lg" className="border-primary-foreground hover:bg-primary-foreground font-bold text-lg px-8 py-6 text-secondary-foreground" onClick={() => document.getElementById('impact')?.scrollIntoView({
                 behavior: 'smooth'
               })}>
                   See Your Impact

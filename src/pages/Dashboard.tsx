@@ -84,7 +84,7 @@ import {
 import { AttendanceTracker } from "@/components/dashboard/AttendanceTracker";
 import { FinancialContributions } from "@/components/dashboard/FinancialContributions";
 import { ReportsOverview } from "@/components/dashboard/ReportsOverview";
-import { MyGiving } from "@/components/dashboard/MyGiving";
+import { ConsolidatedGiving } from "@/components/giving/ConsolidatedGiving";
 import { MyEvents } from "@/components/dashboard/MyEvents";
 import { SundaySchoolDashboard } from "@/components/dashboard/SundaySchoolDashboard";
 import { TeacherInterface } from "@/components/dashboard/TeacherInterface";
@@ -114,9 +114,6 @@ import { DemographicsAnalytics } from "@/components/founder/DemographicsAnalytic
 import { BudgetProposals } from "@/components/budget/BudgetProposals";
 import { DepartmentTabManager } from "@/components/admin/DepartmentTabManager";
 import { UserProfile } from "@/components/dashboard/UserProfile";
-import { GivingForm } from "@/components/giving/GivingForm";
-import { SavedPaymentMethods } from "@/components/giving/SavedPaymentMethods";
-import { RecurringGivingManager } from "@/components/giving/RecurringGivingManager";
 import { ApplicationStatus } from "@/components/dashboard/ApplicationStatus";
 import { ActivityLogVisibilityManager } from "@/components/admin/ActivityLogVisibilityManager";
 import CounselingSessionsManagement from "@/components/dashboard/CounselingSessionsManagement";
@@ -133,7 +130,6 @@ const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState<string>("user");
-  const [showGivingForm, setShowGivingForm] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   useInactivityLogout();
 
@@ -203,8 +199,6 @@ const Dashboard = () => {
       { value: "overview", label: "Overview", icon: Calendar },
       { value: "give", label: "Give", icon: Heart },
       { value: "my-downloads", label: "My Downloads", icon: BookOpen },
-      { value: "recurring-giving", label: "Recurring Giving", icon: Calendar },
-      { value: "payment-methods", label: "Payment Methods", icon: CreditCard },
       { value: "profile", label: "Profile", icon: Users },
       { value: "newsletter", label: "Newsletter", icon: Mail },
       { value: "counseling", label: "Counseling Sessions", icon: Users },
@@ -297,7 +291,6 @@ const Dashboard = () => {
         { value: "inventory", label: "All Inventory", icon: Settings },
       ],
       user: [
-        { value: "giving", label: "My Giving", icon: Heart },
         { value: "events", label: "Events", icon: Calendar },
         { value: "join-family", label: "Join Family", icon: Heart },
         { value: "apply-ministry", label: "Apply to Ministry", icon: Users },
@@ -435,8 +428,8 @@ const Dashboard = () => {
               <ReportsOverview />
             </TabsContent>
 
-            <TabsContent value="giving">
-              <MyGiving />
+            <TabsContent value="give">
+              <ConsolidatedGiving />
             </TabsContent>
 
             <TabsContent value="events">
@@ -483,48 +476,8 @@ const Dashboard = () => {
               <UserProfile />
             </TabsContent>
 
-            <TabsContent value="give">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Ready to Give?</CardTitle>
-                  <CardDescription>Join us in partnership as we advance God's kingdom through your generous giving.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <p className="text-muted-foreground">
-                    Every seed you sow makes an eternal difference. Your faithful giving enables us to fulfill our mission of raising champions for Christ.
-                  </p>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <Button 
-                      size="lg" 
-                      className="bg-primary text-primary-foreground hover:bg-primary/90 font-bold px-8"
-                      onClick={() => setShowGivingForm(true)}
-                    >
-                      <Heart className="h-5 w-5 mr-2" />
-                      GIVE NOW
-                    </Button>
-                    <Button 
-                      size="lg" 
-                      variant="outline" 
-                      className="border-2 font-bold px-8"
-                      onClick={() => navigate('/giving-history')}
-                    >
-                      VIEW GIVING HISTORY
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
             <TabsContent value="my-downloads">
               <MyDownloads />
-            </TabsContent>
-
-            <TabsContent value="recurring-giving">
-              <RecurringGivingManager />
-            </TabsContent>
-
-            <TabsContent value="payment-methods">
-              <SavedPaymentMethods />
             </TabsContent>
 
             <TabsContent value="join-family">
@@ -708,8 +661,6 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-        
-        <GivingForm open={showGivingForm} onOpenChange={setShowGivingForm} />
       </SidebarProvider>
     </>
   );

@@ -1,207 +1,68 @@
 
 
-# Cookie Consent System Implementation Plan
+# Footer Content Management for Marketing
 
 ## Overview
 
-This plan implements a professional cookie consent popup for website visitors along with an admin management interface for IT and Marketing roles to view consent analytics and customize the cookie policy.
+Allow Marketing team to edit footer content (church description, contact info, service times, and bottom bar links) through the Marketing Dashboard, using the existing `page_content` CMS table.
 
-## Components to Create
+## What Changes
 
-### 1. Database Schema
+### 1. New Component: Footer Manager
+**File: `src/components/marketing/FooterManager.tsx`**
 
-**New Table: `cookie_consents`**
-- `id` (uuid, primary key)
-- `user_id` (uuid, nullable - for authenticated users)
-- `session_id` (text - for anonymous visitors)
-- `ip_address` (text, nullable)
-- `user_agent` (text, nullable)
-- `consent_given` (boolean)
-- `consent_type` (enum: 'all' | 'essential' | 'rejected')
-- `analytics_consent` (boolean)
-- `marketing_consent` (boolean)
-- `functional_consent` (boolean)
-- `created_at` (timestamp)
-- `updated_at` (timestamp)
+A form-based editor with editable fields for all footer sections:
+- **Church Info**: Church name, tagline/description
+- **Contact Info**: Phone number, email address, location text
+- **Service Times**: Editable list of service days/times (add/remove entries)
+- **Bottom Bar**: Copyright text, Privacy Policy URL, Terms of Service URL, Contact Us URL
 
-**New Table: `cookie_settings`**
-- `id` (uuid, primary key)
-- `policy_text` (text - the cookie policy content)
-- `popup_title` (text)
-- `popup_description` (text)
-- `show_detailed_options` (boolean - whether to show granular cookie options)
-- `button_accept_text` (text)
-- `button_reject_text` (text)
-- `button_customize_text` (text)
-- `is_active` (boolean)
-- `updated_by` (uuid)
-- `created_at` (timestamp)
-- `updated_at` (timestamp)
+Data is stored in the `page_content` table with `page_name = 'footer'` and individual `section_name` keys (e.g., `footer_church_name`, `footer_phone`, `footer_service_times` as JSON, etc.).
 
-### 2. Cookie Consent Banner Component
+### 2. Update Footer Component
+**File: `src/components/Footer.tsx`**
 
-**File: `src/components/CookieConsent.tsx`**
+Modify to fetch content from `page_content` table (page_name = 'footer') on mount, with current hardcoded values as fallback defaults. Service times will be parsed from a JSON string stored in the database.
 
-A professional, accessible popup that:
-- Displays at the bottom of the screen for first-time visitors
-- Checks localStorage for existing consent
-- Offers three options: Accept All, Reject All, Customize
-- Customize expands to show granular options:
-  - Essential cookies (always on, cannot disable)
-  - Analytics cookies (optional)
-  - Marketing cookies (optional)
-  - Functional cookies (optional)
-- Saves consent to database for logged-in users
-- Saves consent to localStorage for anonymous visitors
-- Stores session_id for anonymous tracking in database
-- Smooth animations using existing animation utilities
-- Responsive design that works on mobile and desktop
-- Follows existing dark/light theme
+### 3. Add to Marketing Dashboard
+**File: `src/pages/MarketingDashboard.tsx`**
 
-### 3. Cookie Consent Manager Component (Admin)
+- Add a "Footer" menu item with an icon in the sidebar
+- Add a card on the overview page
+- Add a `TabsContent` rendering the new `FooterManager`
 
-**File: `src/components/admin/CookieConsentManager.tsx`**
+### 4. Seed Default Footer Content (Migration)
 
-Management interface for IT and Marketing roles with:
-
-**Analytics Tab:**
-- Total consents given (all time)
-- Consent breakdown by type (Accept All, Essential Only, Rejected)
-- Consent rate (percentage who accepted)
-- Trend chart showing consents over time
-- Breakdown by cookie category (Analytics, Marketing, Functional)
-
-**Consent Records Tab:**
-- Searchable, paginated table of all consent records
-- Columns: Date, User (if logged in) or Session ID, Consent Type, Details
-- Filter by date range, consent type
-- Export to CSV functionality
-
-**Settings Tab:**
-- Edit popup title and description
-- Customize button text
-- Toggle whether to show detailed options
-- Edit cookie policy text (rich text)
-- Preview functionality
-- Save changes with audit trail
-
-### 4. Integration Points
-
-**App.tsx:**
-- Add `CookieConsent` component at the root level, rendering after AuthProvider
-- Component self-manages visibility based on localStorage/database state
-
-**Dashboard.tsx:**
-- Add "Cookie Consent" tab for IT role under their existing menu items
-- Add "Cookie Consent" tab for Marketing role (or add to Marketing Dashboard)
-
-**MarketingDashboard.tsx:**
-- Add "Cookie Consent" menu item and tab content
-- Use the shared CookieConsentManager component
+Insert default values into `page_content` matching current hardcoded content so existing footer appearance is preserved immediately.
 
 ## Technical Details
 
-### Cookie Consent Banner Logic
+### Database Records (page_content table)
 
-```text
-On mount:
-1. Check localStorage for 'cookie_consent' key
-2. If found and valid, do not show banner
-3. If not found:
-   - Fetch cookie_settings from database to get custom text
-   - Show banner with appropriate options
-   
-On consent:
-1. Save to localStorage (for immediate effect)
-2. If user is authenticated, save to cookie_consents table
-3. If anonymous, generate session_id and save to database
-4. Log analytics event
-5. Close banner with animation
-```
+No schema changes needed -- reuses the existing `page_content` table. New rows inserted:
 
-### Data Flow for Consent Records
+| page_name | section_name | content | content_type |
+|-----------|-------------|---------|-------------|
+| footer | church_name | TOT INTERNATIONAL | text |
+| footer | church_description | Raising champions for Christ... | text |
+| footer | phone | +254 700 000 000 | text |
+| footer | email | info@tot.co.ke | text |
+| footer | location | Nairobi, Kenya\nEast Africa | text |
+| footer | service_times | (JSON array of day/times) | json |
+| footer | privacy_policy_url | # | text |
+| footer | terms_url | # | text |
+| footer | contact_url | # | text |
+| footer | copyright_text | 2025 TOT International... | text |
 
-```text
-User visits site
-       |
-       v
-Cookie banner appears (if no prior consent)
-       |
-       v
-User makes selection
-       |
-       v
-+------------------+------------------+
-|                  |                  |
-v                  v                  v
-Accept All     Essential Only    Customize
-       |              |               |
-       +-------+------+---------------+
-               |
-               v
-Save to localStorage + database
-               |
-               v
-IT/Marketing can view in dashboard
-```
+### Files to Create
+- `src/components/marketing/FooterManager.tsx`
 
-### RLS Policies
+### Files to Modify
+- `src/components/Footer.tsx` (fetch from DB, use fallback defaults)
+- `src/pages/MarketingDashboard.tsx` (add menu item and tab)
 
-**cookie_consents table:**
-- SELECT: Allow IT, Marketing, Admin, Founder roles (using has_role function)
-- INSERT: Allow public (for anonymous users) and authenticated
-- UPDATE: Allow users to update their own consent
+### Migration
+- Seed default footer content into `page_content` table
 
-**cookie_settings table:**
-- SELECT: Allow public (for displaying the banner)
-- INSERT/UPDATE/DELETE: Allow IT, Marketing, Admin roles only
-
-## Files to Create
-
-1. `src/components/CookieConsent.tsx` - The visitor-facing consent banner
-2. `src/components/admin/CookieConsentManager.tsx` - Admin management interface
-3. Database migration for tables and RLS policies
-
-## Files to Modify
-
-1. `src/App.tsx` - Add CookieConsent component
-2. `src/pages/Dashboard.tsx` - Add Cookie Consent tab for IT role
-3. `src/pages/MarketingDashboard.tsx` - Add Cookie Consent tab and menu item
-4. `src/integrations/supabase/types.ts` - Will be auto-updated after migration
-
-## User Experience
-
-### For Visitors
-1. First visit: See professional cookie consent popup at bottom of page
-2. Choose to Accept All, Reject All, or Customize preferences
-3. If Customize: See detailed breakdown of cookie types with toggles
-4. After selection: Banner closes smoothly, preference is remembered
-5. Return visits: No banner shown (preference stored)
-
-### For IT/Marketing Staff
-1. Navigate to Dashboard or Marketing Dashboard
-2. Click "Cookie Consent" in the sidebar menu
-3. View analytics: consent rates, trends, breakdowns
-4. View individual consent records with search/filter
-5. Edit cookie banner text and settings
-6. Preview changes before saving
-7. Export data for reporting
-
----
-
-## Technical Notes
-
-### Session ID Generation
-For anonymous users, generate a UUID-based session ID stored in localStorage. This allows tracking consent even without authentication while respecting privacy.
-
-### Performance Considerations
-- Cookie settings will be cached in localStorage after first fetch
-- Banner only fetches settings when it needs to display
-- Admin analytics queries will use appropriate indexes
-
-### Accessibility
-- Banner will include proper ARIA labels
-- Keyboard navigation support
-- Focus management when banner appears
-- Color contrast following WCAG guidelines
+The copyright attribution line ("Created by nafarrosolutions.com") will remain hardcoded and non-editable per project requirements.
 

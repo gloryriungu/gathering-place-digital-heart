@@ -13,19 +13,16 @@ delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png'
 });
-
 interface ServiceTime {
   name: string;
   time: string;
 }
-
 interface WhatToExpect {
   title: string;
   description: string;
 }
-
 interface VisitUsContent {
   hero_title: string;
   hero_subtitle: string;
@@ -44,20 +41,29 @@ interface VisitUsContent {
   cta_title: string;
   cta_description: string;
 }
-
 const defaultContent: VisitUsContent = {
   hero_title: "VISIT TOT INTERNATIONAL",
   hero_subtitle: "We would love to meet you! Join us for an unforgettable worship experience.",
-  sunday_services: [
-    { name: "First Service", time: "7:00 AM - 9:00 AM" },
-    { name: "Second Service", time: "9:30 AM - 11:30 AM" },
-    { name: "Third Service", time: "12:00 PM - 2:00 PM" }
-  ],
-  weekday_services: [
-    { name: "Tuesday Prayer", time: "6:00 PM - 8:00 PM" },
-    { name: "Thursday Bible Study", time: "6:00 PM - 8:00 PM" },
-    { name: "Saturday Youth", time: "4:00 PM - 6:00 PM" }
-  ],
+  sunday_services: [{
+    name: "First Service",
+    time: "7:00 AM - 9:00 AM"
+  }, {
+    name: "Second Service",
+    time: "9:30 AM - 11:30 AM"
+  }, {
+    name: "Third Service",
+    time: "12:00 PM - 2:00 PM"
+  }],
+  weekday_services: [{
+    name: "Tuesday Prayer",
+    time: "6:00 PM - 8:00 PM"
+  }, {
+    name: "Thursday Bible Study",
+    time: "6:00 PM - 8:00 PM"
+  }, {
+    name: "Saturday Youth",
+    time: "4:00 PM - 6:00 PM"
+  }],
   address_line1: "123 Church Street",
   address_line2: "Nairobi, Kenya",
   address_line3: "00100",
@@ -67,15 +73,19 @@ const defaultContent: VisitUsContent = {
   map_longitude: 36.8219,
   map_zoom: 15,
   directions_url: "https://maps.app.goo.gl/GtZ4PFYSktNGNbeA7",
-  what_to_expect: [
-    { title: "Warm Welcome", description: "Our friendly ushers will greet you and help you find the perfect seat." },
-    { title: "Parking", description: "Free parking is available on-site with dedicated spaces for visitors." },
-    { title: "Service Duration", description: "Services typically last 1.5-2 hours with powerful worship and teaching." }
-  ],
+  what_to_expect: [{
+    title: "Warm Welcome",
+    description: "Our friendly ushers will greet you and help you find the perfect seat."
+  }, {
+    title: "Parking",
+    description: "Free parking is available on-site with dedicated spaces for visitors."
+  }, {
+    title: "Service Duration",
+    description: "Services typically last 1.5-2 hours with powerful worship and teaching."
+  }],
   cta_title: "Ready to Join Us?",
   cta_description: "Experience the presence of God and connect with our amazing community of believers."
 };
-
 const iconMap: Record<string, any> = {
   "Warm Welcome": Users,
   "Parking": Car,
@@ -83,10 +93,19 @@ const iconMap: Record<string, any> = {
 };
 
 // Vanilla Leaflet Map Component
-const LeafletMap = ({ lat, lng, zoom, addressLine1 }: { lat: number; lng: number; zoom: number; addressLine1: string }) => {
+const LeafletMap = ({
+  lat,
+  lng,
+  zoom,
+  addressLine1
+}: {
+  lat: number;
+  lng: number;
+  zoom: number;
+  addressLine1: string;
+}) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
-
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
@@ -112,26 +131,22 @@ const LeafletMap = ({ lat, lng, zoom, addressLine1 }: { lat: number; lng: number
       }
     };
   }, [lat, lng, zoom, addressLine1]);
-
-  return <div ref={mapContainerRef} style={{ height: '100%', width: '100%' }} />;
+  return <div ref={mapContainerRef} style={{
+    height: '100%',
+    width: '100%'
+  }} />;
 };
-
 const VisitUs = () => {
   const [content, setContent] = useState<VisitUsContent>(defaultContent);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     fetchContent();
   }, []);
-
   const fetchContent = async () => {
     try {
-      const { data } = await supabase
-        .from('page_content')
-        .select('*')
-        .eq('page_name', 'visit_us')
-        .eq('is_published', true);
-
+      const {
+        data
+      } = await supabase.from('page_content').select('*').eq('page_name', 'visit_us').eq('is_published', true);
       if (data && data.length > 0) {
         const contentMap: any = {};
         data.forEach(item => {
@@ -147,9 +162,11 @@ const VisitUs = () => {
             contentMap[item.section_name] = item.content;
           }
         });
-        
         if (Object.keys(contentMap).length > 0) {
-          setContent(prev => ({ ...prev, ...contentMap }));
+          setContent(prev => ({
+            ...prev,
+            ...contentMap
+          }));
         }
       }
     } catch (error) {
@@ -158,25 +175,18 @@ const VisitUs = () => {
       setLoading(false);
     }
   };
-
   const handleGetDirections = () => {
     window.open(content.directions_url, '_blank');
   };
-
   const handleContact = () => {
     window.location.href = `mailto:${content.email}`;
   };
-
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+    return <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navigation />
       
       {/* Hero Section */}
@@ -214,12 +224,10 @@ const VisitUs = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                {content.sunday_services.map((service, index) => (
-                  <div key={index} className="flex justify-between items-center py-2 border-b border-border last:border-0">
+                {content.sunday_services.map((service, index) => <div key={index} className="flex justify-between items-center py-2 border-b border-border last:border-0">
                     <span className="font-semibold text-foreground">{service.name}</span>
                     <span className="text-muted-foreground">{service.time}</span>
-                  </div>
-                ))}
+                  </div>)}
               </CardContent>
             </Card>
 
@@ -231,12 +239,10 @@ const VisitUs = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                {content.weekday_services.map((service, index) => (
-                  <div key={index} className="flex justify-between items-center py-2 border-b border-border last:border-0">
+                {content.weekday_services.map((service, index) => <div key={index} className="flex justify-between items-center py-2 border-b border-border last:border-0">
                     <span className="font-semibold text-foreground">{service.name}</span>
                     <span className="text-muted-foreground">{service.time}</span>
-                  </div>
-                ))}
+                  </div>)}
               </CardContent>
             </Card>
           </div>
@@ -252,12 +258,7 @@ const VisitUs = () => {
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Map */}
             <div className="h-[400px] rounded-xl overflow-hidden shadow-lg border border-border">
-              <LeafletMap
-                lat={content.map_latitude}
-                lng={content.map_longitude}
-                zoom={content.map_zoom}
-                addressLine1={content.address_line1}
-              />
+              <LeafletMap lat={content.map_latitude} lng={content.map_longitude} zoom={content.map_zoom} addressLine1={content.address_line1} />
             </div>
 
             {/* Contact Info */}
@@ -320,9 +321,8 @@ const VisitUs = () => {
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {content.what_to_expect.map((item, index) => {
-              const IconComponent = iconMap[item.title] || Users;
-              return (
-                <Card key={index} className="border-0 shadow-lg bg-card hover:shadow-xl transition-shadow">
+            const IconComponent = iconMap[item.title] || Users;
+            return <Card key={index} className="border-0 shadow-lg bg-card hover:shadow-xl transition-shadow">
                   <CardContent className="p-6 text-center">
                     <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                       <IconComponent className="h-8 w-8 text-primary" />
@@ -330,9 +330,8 @@ const VisitUs = () => {
                     <h3 className="font-semibold text-lg mb-2 text-foreground">{item.title}</h3>
                     <p className="text-muted-foreground">{item.description}</p>
                   </CardContent>
-                </Card>
-              );
-            })}
+                </Card>;
+          })}
           </div>
         </div>
 
@@ -343,20 +342,11 @@ const VisitUs = () => {
             {content.cta_description}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              variant="secondary"
-              onClick={handleGetDirections}
-            >
+            <Button size="lg" variant="secondary" onClick={handleGetDirections}>
               <MapPin className="h-4 w-4 mr-2" />
               Get Directions
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10"
-              onClick={handleContact}
-            >
+            <Button size="lg" variant="outline" className="border-primary-foreground/30 hover:bg-primary-foreground/10 text-card-foreground" onClick={handleContact}>
               <Mail className="h-4 w-4 mr-2" />
               Contact Us
             </Button>
@@ -365,8 +355,6 @@ const VisitUs = () => {
       </div>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default VisitUs;

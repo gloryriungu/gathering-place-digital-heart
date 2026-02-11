@@ -53,6 +53,7 @@ const Watch = () => {
   const [loading, setLoading] = useState(true);
   const [isLive, setIsLive] = useState(false);
   const [liveStreamUrl, setLiveStreamUrl] = useState<string>('');
+  const [hasWatchPageData, setHasWatchPageData] = useState(false);
 
   useEffect(() => {
     fetchWatchPageData();
@@ -101,6 +102,7 @@ const Watch = () => {
       }
 
       if (data && data.length > 0) {
+        setHasWatchPageData(true);
         const content = data[0].content_data as any;
         setWatchData({
           hero_title: content?.hero_title || watchData.hero_title,
@@ -164,6 +166,7 @@ const Watch = () => {
         </section>
 
         {/* Live Service */}
+        {hasWatchPageData && (
         <section id="live-service-section" className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
@@ -215,8 +218,7 @@ const Watch = () => {
             </div>
           </div>
         </section>
-
-        {/* Recent Sermons */}
+        )}
         <section className="py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">

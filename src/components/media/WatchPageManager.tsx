@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Video, Save, RefreshCw } from "lucide-react";
+import { Video, Save, RefreshCw, Upload, X } from "lucide-react";
 
 interface WatchPageData {
   id?: string;
@@ -36,6 +36,9 @@ export const WatchPageManager = () => {
   const [formData, setFormData] = useState({
     hero_title: "WATCH ONLINE",
     hero_subtitle: "Experience the presence of God from anywhere in the world. Join our live services and be transformed by God's Word.",
+    hero_button_text: "WATCH NOW",
+    hero_button_url: "",
+    hero_poster_url: "",
     live_service_title: "Worship With Us Live",
     live_service_description: "Every Sunday at 9:00 AM & 11:00 AM EAT - Experience powerful worship, life-changing messages, and the presence of God.",
     service_times: "Sundays: 9:00 AM & 11:00 AM EAT\nWednesday: 7:00 PM Bible Study",
@@ -47,6 +50,8 @@ export const WatchPageManager = () => {
       video_url?: string;
     }>
   });
+  const [uploadingPoster, setUploadingPoster] = useState(false);
+  const posterInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchWatchPageData();
@@ -70,6 +75,9 @@ export const WatchPageManager = () => {
         setFormData({
           hero_title: watchContent.content_data.hero_title || formData.hero_title,
           hero_subtitle: watchContent.content_data.hero_subtitle || formData.hero_subtitle,
+          hero_button_text: watchContent.content_data.hero_button_text || formData.hero_button_text,
+          hero_button_url: watchContent.content_data.hero_button_url || "",
+          hero_poster_url: watchContent.content_data.hero_poster_url || "",
           live_service_title: watchContent.content_data.live_service_title || formData.live_service_title,
           live_service_description: watchContent.content_data.live_service_description || formData.live_service_description,
           service_times: watchContent.content_data.service_times || formData.service_times,
@@ -96,6 +104,9 @@ export const WatchPageManager = () => {
       const contentData = {
         hero_title: formData.hero_title,
         hero_subtitle: formData.hero_subtitle,
+        hero_button_text: formData.hero_button_text,
+        hero_button_url: formData.hero_button_url,
+        hero_poster_url: formData.hero_poster_url,
         live_service_title: formData.live_service_title,
         live_service_description: formData.live_service_description,
         service_times: formData.service_times,
@@ -227,6 +238,83 @@ export const WatchPageManager = () => {
                   onChange={(e) => setFormData(prev => ({ ...prev, hero_subtitle: e.target.value }))}
                   placeholder="Subtitle description"
                   rows={2}
+                />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="hero_button_text">Button Text</Label>
+                  <Input
+                    id="hero_button_text"
+                    value={formData.hero_button_text}
+                    onChange={(e) => setFormData(prev => ({ ...prev, hero_button_text: e.target.value }))}
+                    placeholder="e.g., WATCH NOW"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="hero_button_url">Button URL</Label>
+                  <Input
+                    id="hero_button_url"
+                    value={formData.hero_button_url}
+                    onChange={(e) => setFormData(prev => ({ ...prev, hero_button_url: e.target.value }))}
+                    placeholder="https://example.com or leave empty"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label>Background Poster</Label>
+                <p className="text-sm text-muted-foreground mb-2">Upload a background image so users know what the link leads to.</p>
+                {formData.hero_poster_url ? (
+                  <div className="relative rounded-lg overflow-hidden border">
+                    <img src={formData.hero_poster_url} alt="Hero poster" className="w-full h-48 object-cover" />
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 h-8 w-8"
+                      onClick={() => setFormData(prev => ({ ...prev, hero_poster_url: "" }))}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div
+                    className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
+                    onClick={() => posterInputRef.current?.click()}
+                  >
+                    <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      {uploadingPoster ? "Uploading..." : "Click to upload a poster image"}
+                    </p>
+                  </div>
+                )}
+                <input
+                  ref={posterInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setUploadingPoster(true);
+                    try {
+                      const fileExt = file.name.split('.').pop();
+                      const filePath = `watch-hero-${Date.now()}.${fileExt}`;
+                      const { error: uploadError } = await supabase.storage
+                        .from('hero-media')
+                        .upload(filePath, file);
+                      if (uploadError) throw uploadError;
+                      const { data: urlData } = supabase.storage
+                        .from('hero-media')
+                        .getPublicUrl(filePath);
+                      setFormData(prev => ({ ...prev, hero_poster_url: urlData.publicUrl }));
+                      toast.success('Poster uploaded');
+                    } catch (err) {
+                      console.error(err);
+                      toast.error('Failed to upload poster');
+                    } finally {
+                      setUploadingPoster(false);
+                      if (posterInputRef.current) posterInputRef.current.value = '';
+                    }
+                  }}
                 />
               </div>
             </div>

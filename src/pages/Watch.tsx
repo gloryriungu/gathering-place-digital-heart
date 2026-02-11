@@ -10,6 +10,9 @@ import { getYouTubeEmbedUrl } from "@/utils/youtube";
 interface WatchPageData {
   hero_title: string;
   hero_subtitle: string;
+  hero_button_text: string;
+  hero_button_url: string;
+  hero_poster_url: string;
   live_service_title: string;
   live_service_description: string;
   service_times: string;
@@ -24,8 +27,11 @@ interface WatchPageData {
 
 const Watch = () => {
   const [watchData, setWatchData] = useState<WatchPageData>({
-    hero_title: "WATCH ONLINE",
+    hero_title: "WATCH NOW",
     hero_subtitle: "Experience the presence of God from anywhere in the world. Join our live services and be transformed by God's Word.",
+    hero_button_text: "VIEW SCHEDULE",
+    hero_button_url: "",
+    hero_poster_url: "",
     live_service_title: "Worship With Us Live",
     live_service_description: "Every Sunday at 9:00 AM & 11:00 AM EAT - Experience powerful worship, life-changing messages, and the presence of God.",
     service_times: "Sundays: 9:00 AM & 11:00 AM EAT\nWednesday: 7:00 PM Bible Study",
@@ -107,6 +113,9 @@ const Watch = () => {
         setWatchData({
           hero_title: content?.hero_title || watchData.hero_title,
           hero_subtitle: content?.hero_subtitle || watchData.hero_subtitle,
+          hero_button_text: content?.hero_button_text || watchData.hero_button_text,
+          hero_button_url: content?.hero_button_url || "",
+          hero_poster_url: content?.hero_poster_url || "",
           live_service_title: content?.live_service_title || watchData.live_service_title,
           live_service_description: content?.live_service_description || watchData.live_service_description,
           service_times: content?.service_times || watchData.service_times,
@@ -141,26 +150,38 @@ const Watch = () => {
       <Navigation />
       <div className="pt-20">
         {/* Hero Section */}
-        <section className="relative bg-black text-white py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="relative bg-black text-white py-20 overflow-hidden">
+          {watchData.hero_poster_url && (
+            <div className="absolute inset-0">
+              <img 
+                src={watchData.hero_poster_url} 
+                alt="" 
+                className="w-full h-full object-cover opacity-40"
+              />
+              <div className="absolute inset-0 bg-black/50" />
+            </div>
+          )}
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <h1 className="text-4xl md:text-6xl font-black mb-6">{watchData.hero_title}</h1>
               <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-8">
                 {watchData.hero_subtitle}
               </p>
-              <Button 
-                className="bg-white text-black hover:bg-gray-100 font-bold text-lg px-8 py-4"
-                onClick={() => {
-                  if (isLive && liveStreamUrl) {
-                    window.open(liveStreamUrl, '_blank');
-                  } else {
-                    document.getElementById('live-service-section')?.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-              >
-                <Play className="mr-2 h-5 w-5" />
-                {isLive ? 'JOIN LIVE NOW' : 'VIEW SCHEDULE'}
-              </Button>
+              {watchData.hero_button_text && (
+                <Button 
+                  className="bg-white text-black hover:bg-gray-100 font-bold text-lg px-8 py-4"
+                  onClick={() => {
+                    if (watchData.hero_button_url) {
+                      window.open(watchData.hero_button_url, '_blank');
+                    } else {
+                      document.getElementById('live-service-section')?.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                >
+                  <Play className="mr-2 h-5 w-5" />
+                  {watchData.hero_button_text}
+                </Button>
+              )}
             </div>
           </div>
         </section>

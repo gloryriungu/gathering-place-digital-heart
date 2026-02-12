@@ -72,6 +72,19 @@ import { supabase } from "@/integrations/supabase/client";
 const Events = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
+
+  const toggleExpanded = (eventId: string) => {
+    setExpandedEvents(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(eventId)) {
+        newSet.delete(eventId);
+      } else {
+        newSet.add(eventId);
+      }
+      return newSet;
+    });
+  };
   useEffect(() => {
     fetchEvents();
 
@@ -233,7 +246,14 @@ const Events = () => {
                             </Badge>}
                         </div>
                         
-                        <p className="text-gray-700 mb-4 max-w-2xl">{event.description}</p>
+                        {(() => {
+                          const isExpanded = expandedEvents.has(event.id);
+                          const shouldTruncate = event.description && event.description.length > 100;
+                          const displayText = !shouldTruncate || isExpanded
+                            ? event.description
+                            : event.description.slice(0, 100) + '...';
+                          return <p className="text-gray-700 mb-4 max-w-2xl">{displayText}</p>;
+                        })()}
                         
                         <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-600">
                           {event.content_data.date && <div className="flex items-center gap-2">
@@ -254,7 +274,9 @@ const Events = () => {
                       <div className="flex flex-col gap-2 p-6 lg:p-0">
                         {event.content_data.enable_rsvp ? <Button asChild className="bg-black text-white hover:bg-gray-800">
                             <Link to={`/events/${event.id}/register`}>Register Now</Link>
-                          </Button> : <Button variant="outline">Learn More</Button>}
+                          </Button> : <Button variant="outline" onClick={() => toggleExpanded(event.id)}>
+                            {expandedEvents.has(event.id) ? 'Show Less' : 'Learn More'}
+                          </Button>}
                       </div>
                     </div>
                   </div>) : staticEvents.map((event, index) => <div key={index} className="bg-white border border-gray-200 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">

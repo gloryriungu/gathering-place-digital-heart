@@ -245,9 +245,11 @@ const UpcomingEvents = () => {
         </div>
 
         <div className="text-center">
-          <Button size="lg" className="bg-black text-white hover:bg-gray-800 font-bold px-8">
-            <Calendar className="h-5 w-5 mr-2" />
-            VIEW ALL EVENTS
+          <Button asChild size="lg" className="bg-black text-white hover:bg-gray-800 font-bold px-8">
+            <Link to="/events">
+              <Calendar className="h-5 w-5 mr-2" />
+              VIEW ALL EVENTS
+            </Link>
           </Button>
         </div>
       </div>

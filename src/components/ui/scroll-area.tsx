@@ -33,7 +33,7 @@ const ScrollBar = React.forwardRef<
       orientation === "vertical" &&
         "h-[calc(100%-4rem)] mt-16 w-2.5 border-l border-l-transparent p-[1px]",
       orientation === "horizontal" &&
-        "h-2.5 flex-col border-t border-t-transparent p-[1px]",
+        "h-2.5 w-[calc(100%-4rem)] ml-16 flex-col border-t border-t-transparent p-[1px]",
       className
     )}
     {...props}

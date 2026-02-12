@@ -395,7 +395,7 @@ const Shop = () => {
         </section>
 
         {/* Search and Category Filter */}
-        <section className="py-6 bg-muted/20 border-y">
+        <section className="bg-muted/20 border-y py-[10px]">
           <div className="max-w-7xl px-4 sm:px-6 mx-0 lg:px-[25px] py-[13px] my-0">
             {/* Search Bar */}
             <div className="mb-4">

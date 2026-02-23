@@ -419,7 +419,7 @@ const Shop = () => {
                     </Badge>
                   </Button>)}
               </div>
-              <ScrollBar orientation="horizontal" />
+              <ScrollBar orientation="horizontal" className="hidden" />
             </ScrollArea>
           </div>
         </section>

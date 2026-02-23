@@ -7,6 +7,8 @@ import { GivingForm } from "@/components/giving/GivingForm";
 import { useState } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { SEO } from "@/components/SEO";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 const Give = () => {
   const [showGivingForm, setShowGivingForm] = useState(false);
   const [selectedType, setSelectedType] = useState<string | undefined>(undefined);
@@ -91,7 +93,7 @@ const Give = () => {
     name: "Grace N.",
     role: "Missions Supporter"
   }];
-  const faqs = [{
+  const defaultFaqs = [{
     question: "How do I get a receipt for my contribution?",
     answer: "All contributions are automatically recorded in your giving history. Authenticated users can view and download receipts from their dashboard. Receipts are sent via email immediately after successful payment."
   }, {
@@ -110,6 +112,22 @@ const Give = () => {
     question: "How long does it take to process my payment?",
     answer: "M-Pesa payments are instant. Card payments are processed immediately, and you'll receive confirmation within seconds. Your contribution is recorded in real-time and you'll get instant email confirmation."
   }];
+
+  const { data: cmsFaqs } = useQuery({
+    queryKey: ['giving-faqs'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('faq_content')
+        .select('question, answer')
+        .eq('category', 'Giving & Finances')
+        .eq('is_published', true)
+        .order('display_order', { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const faqs = cmsFaqs && cmsFaqs.length > 0 ? cmsFaqs : defaultFaqs;
   return <div className="min-h-screen bg-background">
       <SEO title="Give - Partner with TOT International" description="Support missions, ministries, and community outreach through faithful giving. Multiple secure payment options available including M-Pesa and card payments." />
       <Navigation />

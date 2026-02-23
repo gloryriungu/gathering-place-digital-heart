@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { Play, Calendar, Clock } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Play, Calendar, Clock, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getYouTubeEmbedUrl } from "@/utils/youtube";
 
@@ -60,6 +61,9 @@ const Watch = () => {
   const [isLive, setIsLive] = useState(false);
   const [liveStreamUrl, setLiveStreamUrl] = useState<string>('');
   const [hasWatchPageData, setHasWatchPageData] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+  const [searchName, setSearchName] = useState("");
+  const [filterDate, setFilterDate] = useState("");
 
   useEffect(() => {
     fetchWatchPageData();
@@ -242,64 +246,136 @@ const Watch = () => {
         }
         <section className="py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
+            <div className="text-center mb-8">
               <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">Recent Messages</h2>
               <p className="text-lg text-gray-700 max-w-3xl mx-auto">
                 Catch up on powerful messages from Bishop Fred Akama and other anointed ministers.
               </p>
             </div>
+
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-8 max-w-2xl mx-auto">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  type="text"
+                  placeholder="Search by message name..."
+                  value={searchName}
+                  onChange={(e) => setSearchName(e.target.value)}
+                  className="pl-10 bg-white border-gray-300"
+                />
+              </div>
+              <Input
+                type="date"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                className="bg-white border-gray-300 sm:w-48"
+              />
+            </div>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {watchData.sermons.map((sermon, index) =>
-              <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                  <div className="aspect-video bg-black flex items-center justify-center">
-                    {sermon.video_url && getYouTubeEmbedUrl(sermon.video_url) ?
-                  <iframe
-                    width="100%"
-                    height="100%"
-                    src={getYouTubeEmbedUrl(sermon.video_url) || ''}
-                    title={sermon.title}
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    className="w-full h-full" /> :
+            {(() => {
+              // Sort by date descending (latest first)
+              const sorted = [...watchData.sermons].sort((a, b) => {
+                const dateA = new Date(a.date).getTime();
+                const dateB = new Date(b.date).getTime();
+                if (isNaN(dateA) && isNaN(dateB)) return 0;
+                if (isNaN(dateA)) return 1;
+                if (isNaN(dateB)) return -1;
+                return dateB - dateA;
+              });
 
+              // Filter by name
+              const filtered = sorted.filter((sermon) => {
+                const matchesName = searchName
+                  ? sermon.title.toLowerCase().includes(searchName.toLowerCase())
+                  : true;
+                const matchesDate = filterDate
+                  ? sermon.date && new Date(sermon.date).toISOString().slice(0, 10) === filterDate
+                  : true;
+                return matchesName && matchesDate;
+              });
 
-                  <Play className="h-12 w-12 text-white opacity-60" />
-                  }
+              const displayed = showAll ? filtered : filtered.slice(0, 9);
+              const hasMore = filtered.length > 9;
+
+              return (
+                <>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {displayed.map((sermon, index) => (
+                      <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div className="aspect-video bg-black flex items-center justify-center">
+                          {sermon.video_url && getYouTubeEmbedUrl(sermon.video_url) ? (
+                            <iframe
+                              width="100%"
+                              height="100%"
+                              src={getYouTubeEmbedUrl(sermon.video_url) || ''}
+                              title={sermon.title}
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                              className="w-full h-full"
+                            />
+                          ) : (
+                            <Play className="h-12 w-12 text-white opacity-60" />
+                          )}
+                        </div>
+                        <div className="p-6">
+                          <h3 className="text-xl font-bold text-black mb-2">{sermon.title}</h3>
+                          <p className="text-gray-700 mb-4">{sermon.description}</p>
+                          <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
+                            <span>{sermon.date}</span>
+                            <span>{sermon.duration}</span>
+                          </div>
+                          {sermon.video_url && (
+                            <Button
+                              className="w-full bg-black text-white hover:bg-gray-800"
+                              onClick={() => window.open(sermon.video_url, '_blank')}
+                            >
+                              <Play className="mr-2 h-4 w-4" />
+                              Watch Now
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-black mb-2">{sermon.title}</h3>
-                    <p className="text-gray-700 mb-4">{sermon.description}</p>
-                    <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
-                      <span>{sermon.date}</span>
-                      <span>{sermon.duration}</span>
-                    </div>
-                    {sermon.video_url &&
-                  <Button
-                    className="w-full bg-black text-white hover:bg-gray-800"
-                    onClick={() => window.open(sermon.video_url, '_blank')}>
 
-                        <Play className="mr-2 h-4 w-4" />
-                        Watch Now
+                  {displayed.length === 0 && (
+                    <p className="text-center text-gray-500 py-12">No messages found matching your filters.</p>
+                  )}
+
+                  {hasMore && !showAll && (
+                    <div className="text-center mt-12">
+                      <Button
+                        variant="outline"
+                        className="border-black text-black hover:bg-black hover:text-white"
+                        onClick={() => setShowAll(true)}
+                      >
+                        View All Messages
                       </Button>
-                  }
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            <div className="text-center mt-12">
-              <Button variant="outline" className="border-black text-black hover:bg-black hover:text-white">
-                View All Messages
-              </Button>
-            </div>
+                    </div>
+                  )}
+
+                  {showAll && hasMore && (
+                    <div className="text-center mt-12">
+                      <Button
+                        variant="outline"
+                        className="border-black text-black hover:bg-black hover:text-white"
+                        onClick={() => setShowAll(false)}
+                      >
+                        Show Less
+                      </Button>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </section>
       </div>
       <Footer />
-    </div>);
-
+    </div>
+  );
 };
 
 export default Watch;

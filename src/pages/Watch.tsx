@@ -154,7 +154,7 @@ const Watch = () => {
       <Navigation />
       <div className="pt-20">
         {/* Hero Section */}
-        <section className="relative bg-black text-white py-20 overflow-hidden">
+        <section className="relative bg-black text-white overflow-hidden min-h-[calc(100vh-5rem)] flex items-center">
           {watchData.hero_poster_url &&
           <div className="absolute inset-0">
               <img

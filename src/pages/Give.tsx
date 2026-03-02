@@ -116,14 +116,35 @@ const Give = () => {
   const { data: cmsFaqs } = useQuery({
     queryKey: ['giving-faqs'],
     queryFn: async () => {
+      // Fetch FAQ entries from page_content table (managed by GivePageManager)
       const { data, error } = await supabase
-        .from('faq_content')
-        .select('question, answer')
-        .eq('category', 'Giving & Finances')
+        .from('page_content')
+        .select('section_name, content, is_published')
+        .eq('page_name', 'give')
+        .like('section_name', 'faq_%')
         .eq('is_published', true)
-        .order('display_order', { ascending: true });
+        .order('section_name', { ascending: true });
       if (error) throw error;
-      return data;
+      
+      // Group by FAQ number: faq_1_question + faq_1_answer => { question, answer }
+      const faqMap: Record<string, { question?: string; answer?: string }> = {};
+      data?.forEach((item) => {
+        const match = item.section_name.match(/^faq_(\d+)_(question|answer)$/);
+        if (match) {
+          const num = match[1];
+          const type = match[2] as 'question' | 'answer';
+          if (!faqMap[num]) faqMap[num] = {};
+          faqMap[num][type] = item.content;
+        }
+      });
+      
+      // Convert to array, filter out incomplete entries
+      return Object.keys(faqMap)
+        .sort((a, b) => parseInt(a) - parseInt(b))
+        .map(num => faqMap[num])
+        .filter((faq): faq is { question: string; answer: string } => 
+          !!faq.question && !!faq.answer
+        );
     },
   });
 

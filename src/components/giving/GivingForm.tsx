@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -30,8 +30,15 @@ export const GivingForm = ({ open, onOpenChange, defaultContributionType }: Givi
   // Form data
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('mobile_money');
   const [amount, setAmount] = useState<string>("");
-  const [contributionType, setContributionType] = useState(defaultContributionType || "Tithe");
+  const [contributionType, setContributionType] = useState(defaultContributionType || "tithe");
   const [customContributionType, setCustomContributionType] = useState("");
+
+  // Sync contribution type when defaultContributionType prop changes
+  useEffect(() => {
+    if (defaultContributionType) {
+      setContributionType(defaultContributionType);
+    }
+  }, [defaultContributionType]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -351,7 +358,7 @@ export const GivingForm = ({ open, onOpenChange, defaultContributionType }: Givi
   const resetForm = () => {
     setStep('details');
     setAmount("");
-    setContributionType("offering");
+    setContributionType(defaultContributionType || "tithe");
     setCustomContributionType("");
     if (!user) {
       setName("");

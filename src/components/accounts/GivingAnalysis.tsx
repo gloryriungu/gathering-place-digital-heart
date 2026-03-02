@@ -11,7 +11,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, DollarSign, TrendingUp, Calendar, Filter } from "lucide-react";
+import { Plus, DollarSign, TrendingUp, Calendar, Filter, Trash2 } from "lucide-react";
+import { formatAmount } from "@/lib/paystack";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface Contribution {
   id: string;
@@ -20,6 +22,7 @@ interface Contribution {
   contribution_date: string;
   contribution_type: string;
   payment_method: string;
+  transaction_reference: string | null;
   notes: string | null;
   created_at: string;
 }
@@ -177,8 +180,9 @@ export const GivingAnalysis = () => {
     }
   };
 
-  const handleAddContribution = async (formData: FormData) => {
+    const handleAddContribution = async (formData: FormData) => {
     try {
+      const mpesaCode = formData.get('mpesa_code') as string;
       const { error } = await supabase
         .from('contributions')
         .insert({
@@ -186,6 +190,7 @@ export const GivingAnalysis = () => {
           contribution_date: formData.get('contribution_date') as string,
           contribution_type: formData.get('contribution_type') as string,
           payment_method: formData.get('payment_method') as string,
+          transaction_reference: mpesaCode || null,
           notes: formData.get('notes') as string || null
         });
 
@@ -285,6 +290,11 @@ export const GivingAnalysis = () => {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="mpesa_code">M-Pesa Transaction Code</Label>
+                <Input name="mpesa_code" placeholder="e.g. SLK4H7R2TQ" className="uppercase" />
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="notes">Notes</Label>
                 <Input name="notes" placeholder="Optional notes..." />
               </div>
@@ -304,7 +314,7 @@ export const GivingAnalysis = () => {
                 <DollarSign className="h-4 w-4 text-green-600" />
                 <span className="text-sm font-medium">This Week</span>
               </div>
-              <div className="text-2xl font-bold">${stats.totalThisWeek.toFixed(2)}</div>
+              <div className="text-2xl font-bold">{formatAmount(stats.totalThisWeek)}</div>
             </CardContent>
           </Card>
           
@@ -314,7 +324,7 @@ export const GivingAnalysis = () => {
                 <Calendar className="h-4 w-4 text-blue-600" />
                 <span className="text-sm font-medium">This Month</span>
               </div>
-              <div className="text-2xl font-bold">${stats.totalThisMonth.toFixed(2)}</div>
+              <div className="text-2xl font-bold">{formatAmount(stats.totalThisMonth)}</div>
             </CardContent>
           </Card>
           
@@ -324,7 +334,7 @@ export const GivingAnalysis = () => {
                 <TrendingUp className="h-4 w-4 text-purple-600" />
                 <span className="text-sm font-medium">Q1</span>
               </div>
-              <div className="text-2xl font-bold">${stats.totalQ1.toFixed(2)}</div>
+              <div className="text-2xl font-bold">{formatAmount(stats.totalQ1)}</div>
             </CardContent>
           </Card>
           
@@ -334,7 +344,7 @@ export const GivingAnalysis = () => {
                 <TrendingUp className="h-4 w-4 text-orange-600" />
                 <span className="text-sm font-medium">First Half</span>
               </div>
-              <div className="text-2xl font-bold">${stats.totalFirstHalf.toFixed(2)}</div>
+              <div className="text-2xl font-bold">{formatAmount(stats.totalFirstHalf)}</div>
             </CardContent>
           </Card>
           
@@ -344,7 +354,7 @@ export const GivingAnalysis = () => {
                 <TrendingUp className="h-4 w-4 text-red-600" />
                 <span className="text-sm font-medium">Whole Year</span>
               </div>
-              <div className="text-2xl font-bold">${stats.totalYear.toFixed(2)}</div>
+              <div className="text-2xl font-bold">{formatAmount(stats.totalYear)}</div>
             </CardContent>
           </Card>
         </div>
@@ -358,7 +368,7 @@ export const GivingAnalysis = () => {
               <CardTitle className="text-lg">Q1</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-xl font-bold">${stats.totalQ1.toFixed(2)}</div>
+              <div className="text-xl font-bold">{formatAmount(stats.totalQ1)}</div>
             </CardContent>
           </Card>
           
@@ -367,7 +377,7 @@ export const GivingAnalysis = () => {
               <CardTitle className="text-lg">Q2</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-xl font-bold">${stats.totalQ2.toFixed(2)}</div>
+              <div className="text-xl font-bold">{formatAmount(stats.totalQ2)}</div>
             </CardContent>
           </Card>
           
@@ -376,7 +386,7 @@ export const GivingAnalysis = () => {
               <CardTitle className="text-lg">Q3</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-xl font-bold">${stats.totalQ3.toFixed(2)}</div>
+              <div className="text-xl font-bold">{formatAmount(stats.totalQ3)}</div>
             </CardContent>
           </Card>
           
@@ -385,7 +395,7 @@ export const GivingAnalysis = () => {
               <CardTitle className="text-lg">Q4</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-xl font-bold">${stats.totalQ4.toFixed(2)}</div>
+              <div className="text-xl font-bold">{formatAmount(stats.totalQ4)}</div>
             </CardContent>
           </Card>
         </div>
@@ -458,7 +468,9 @@ export const GivingAnalysis = () => {
                 <TableHead>Amount</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Payment Method</TableHead>
+                <TableHead>M-Pesa Code</TableHead>
                 <TableHead>Notes</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -468,7 +480,7 @@ export const GivingAnalysis = () => {
                     {new Date(contribution.contribution_date).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="font-medium">
-                    ${contribution.amount.toFixed(2)}
+                    {formatAmount(contribution.amount)}
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className="capitalize">
@@ -478,7 +490,47 @@ export const GivingAnalysis = () => {
                   <TableCell className="capitalize">
                     {contribution.payment_method.replace('_', ' ')}
                   </TableCell>
+                  <TableCell>{contribution.transaction_reference || '-'}</TableCell>
                   <TableCell>{contribution.notes || '-'}</TableCell>
+                  <TableCell>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Contribution</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete this contribution record? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            onClick={async () => {
+                              try {
+                                const { error } = await supabase
+                                  .from('contributions')
+                                  .delete()
+                                  .eq('id', contribution.id);
+                                if (error) throw error;
+                                toast({ title: "Deleted", description: "Contribution record removed" });
+                                fetchContributions();
+                                calculateStats();
+                              } catch (error: any) {
+                                toast({ title: "Error", description: error.message, variant: "destructive" });
+                              }
+                            }}
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -17,43 +17,43 @@ const Give = () => {
     setShowGivingForm(true);
   };
   const contributionTypes = [{
-    type: "Tithe",
+    type: "tithe",
     title: "Tithe",
     description: "Honor God with your first fruits and faithful stewardship",
     icon: Heart,
     color: "text-red-600"
   }, {
-    type: "Offering",
+    type: "offering",
     title: "Offering",
     description: "Support ongoing ministry operations and programs",
     icon: Gift,
     color: "text-blue-600"
   }, {
-    type: "Seed",
+    type: "seed",
     title: "Seed",
     description: "Sow a seed of faith for your future harvest",
     icon: Sprout,
     color: "text-green-600"
   }, {
-    type: "Mission",
+    type: "mission",
     title: "Missions",
     description: "Partner in church planting across East Africa & beyond",
     icon: Globe,
     color: "text-purple-600"
   }, {
-    type: "Gift",
+    type: "gift",
     title: "Special Gift",
     description: "One-time special gift to bless the ministry",
     icon: Package,
     color: "text-orange-600"
   }, {
-    type: "Thanksgiving",
+    type: "thanksgiving",
     title: "Thanksgiving",
     description: "Express gratitude to God through generous giving",
     icon: HandHeart,
     color: "text-pink-600"
   }, {
-    type: "Others",
+    type: "others",
     title: "Custom Contribution",
     description: "Building fund, youth ministry, or specify your own",
     icon: Edit,

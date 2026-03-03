@@ -35,26 +35,7 @@ export default function ShopVerify() {
 
   const verifyPayment = async () => {
     try {
-      // Fetch order details
-      const { data: order, error: orderError } = await supabase
-        .from('shop_orders')
-        .select('*')
-        .eq('id', reference)
-        .single();
-
-      if (orderError) throw orderError;
-
-      setOrderDetails(order);
-
-      // Check if already completed
-      if (order.transaction_status === 'completed') {
-        setStatus('success');
-        // Fetch existing digital purchases
-        await fetchDigitalPurchases(order.id);
-        return;
-      }
-
-      // Verify with Paystack via edge function
+      // Verify with Paystack via edge function (bypasses RLS for guest users)
       const { data, error } = await supabase.functions.invoke('verify-shop-payment', {
         body: { reference }
       });
@@ -66,6 +47,15 @@ export default function ShopVerify() {
         setOrderDetails(data.data.order);
         if (data.data.digital_purchases?.length > 0) {
           setDigitalPurchases(data.data.digital_purchases);
+        }
+      } else if (data?.data?.order) {
+        // Order found but payment not yet successful - show order details anyway
+        setOrderDetails(data.data.order);
+        if (data.data.order.transaction_status === 'completed') {
+          setStatus('success');
+          await fetchDigitalPurchases(data.data.order.id);
+        } else {
+          setStatus('failed');
         }
       } else {
         setStatus('failed');

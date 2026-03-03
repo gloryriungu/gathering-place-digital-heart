@@ -210,73 +210,120 @@ export default function GivingHistory() {
       const pageHeight = doc.internal.pageSize.height;
       let yPos = 20;
 
+      // Helper: Draw watermark on current page
+      const drawWatermark = () => {
+        doc.saveGraphicsState();
+        doc.setGState(new (doc as any).GState({ opacity: 0.06 }));
+        doc.setFontSize(60);
+        doc.setTextColor(100, 100, 100);
+        // Diagonal watermark
+        const centerX = pageWidth / 2;
+        const centerY = pageHeight / 2;
+        doc.text('THE OVERCOMER TRIBE', centerX, centerY, {
+          align: 'center',
+          angle: 35,
+        });
+        doc.restoreGraphicsState();
+      };
+
+      // Draw watermark on first page
+      drawWatermark();
+
+      // Decorative top bar
+      doc.setFillColor(74, 144, 226);
+      doc.rect(0, 0, pageWidth, 4, 'F');
+
+      yPos = 20;
+
       // Header
-      doc.setFontSize(20);
+      doc.setFontSize(22);
       doc.setTextColor(44, 62, 80);
+      doc.setFont(undefined, 'bold');
       doc.text('Contribution Report', pageWidth / 2, yPos, { align: 'center' });
       
       yPos += 10;
-      doc.setFontSize(12);
-      doc.setTextColor(100, 100, 100);
+      doc.setFontSize(13);
+      doc.setTextColor(74, 144, 226);
+      doc.setFont(undefined, 'bold');
       doc.text('The Overcomer Tribe', pageWidth / 2, yPos, { align: 'center' });
       
-      yPos += 15;
+      yPos += 6;
+      doc.setFontSize(9);
+      doc.setTextColor(150, 150, 150);
+      doc.setFont(undefined, 'normal');
+      doc.text('Official Giving Statement', pageWidth / 2, yPos, { align: 'center' });
+
+      yPos += 10;
       doc.setDrawColor(74, 144, 226);
-      doc.setLineWidth(0.5);
+      doc.setLineWidth(0.8);
       doc.line(20, yPos, pageWidth - 20, yPos);
       
-      yPos += 15;
+      yPos += 12;
 
-      // User Information
-      doc.setFontSize(11);
+      // User Information Box
+      doc.setFillColor(248, 250, 252);
+      doc.roundedRect(20, yPos - 4, pageWidth - 40, 28, 3, 3, 'F');
+      doc.setDrawColor(226, 232, 240);
+      doc.setLineWidth(0.3);
+      doc.roundedRect(20, yPos - 4, pageWidth - 40, 28, 3, 3, 'S');
+
+      doc.setFontSize(10);
       doc.setTextColor(44, 62, 80);
       doc.setFont(undefined, 'bold');
-      doc.text('Report Generated For:', 20, yPos);
+      doc.text('Prepared For:', 25, yPos + 4);
       doc.setFont(undefined, 'normal');
-      doc.text(`${profile?.first_name || ''} ${profile?.last_name || ''}`, 70, yPos);
+      doc.text(`${profile?.first_name || ''} ${profile?.last_name || ''}`, 60, yPos + 4);
       
-      yPos += 7;
       doc.setFont(undefined, 'bold');
-      doc.text('Report Date:', 20, yPos);
+      doc.text('Date:', 25, yPos + 12);
       doc.setFont(undefined, 'normal');
-      doc.text(format(new Date(), 'PPP'), 70, yPos);
+      doc.text(format(new Date(), 'PPP'), 60, yPos + 12);
       
-      yPos += 7;
       doc.setFont(undefined, 'bold');
-      doc.text('Period:', 20, yPos);
+      doc.text('Period:', 25, yPos + 20);
       doc.setFont(undefined, 'normal');
       const periodText = filterStartDate && filterEndDate 
         ? `${format(new Date(filterStartDate), 'PP')} - ${format(new Date(filterEndDate), 'PP')}`
         : 'All Time';
-      doc.text(periodText, 70, yPos);
+      doc.text(periodText, 60, yPos + 20);
 
-      yPos += 15;
+      yPos += 36;
 
-      // Summary Statistics Box
+      // Summary Statistics Box with accent border
       doc.setFillColor(240, 248, 255);
-      doc.roundedRect(20, yPos, pageWidth - 40, 35, 3, 3, 'F');
+      doc.roundedRect(20, yPos, pageWidth - 40, 40, 3, 3, 'F');
+      doc.setDrawColor(74, 144, 226);
+      doc.setLineWidth(1);
+      doc.line(20, yPos, 20, yPos + 40); // Left accent border
       
       yPos += 10;
-      doc.setFontSize(10);
+      doc.setFontSize(11);
+      doc.setTextColor(74, 144, 226);
+      doc.setFont(undefined, 'bold');
+      doc.text('GIVING SUMMARY', 28, yPos);
+      
+      yPos += 8;
+      doc.setFontSize(9);
       doc.setTextColor(44, 62, 80);
       
       const summaryStartY = yPos;
       doc.setFont(undefined, 'bold');
-      doc.text('Total Contributions:', 25, yPos);
+      doc.text('Total Contributions:', 28, yPos);
       doc.setFont(undefined, 'normal');
       doc.text(stats.contributionCount.toString(), 75, yPos);
       
-      yPos += 8;
+      yPos += 7;
       doc.setFont(undefined, 'bold');
-      doc.text('This Month:', 25, yPos);
+      doc.text('This Month:', 28, yPos);
       doc.setFont(undefined, 'normal');
       doc.text(formatAmount(stats.totalThisMonth), 75, yPos);
       
-      yPos += 8;
+      yPos += 7;
       doc.setFont(undefined, 'bold');
-      doc.text('All Time Total:', 25, yPos);
+      doc.text('All Time Total:', 28, yPos);
       doc.setFont(undefined, 'normal');
       doc.setTextColor(34, 139, 34);
+      doc.setFont(undefined, 'bold');
       doc.text(formatAmount(stats.totalAllTime), 75, yPos);
 
       // Contribution by Type (right side)
@@ -289,18 +336,21 @@ export default function GivingHistory() {
         });
 
       let rightYPos = summaryStartY;
-      doc.setTextColor(44, 62, 80);
+      doc.setTextColor(74, 144, 226);
       doc.setFont(undefined, 'bold');
-      doc.text('By Type:', pageWidth / 2 + 10, rightYPos);
+      doc.text('BY TYPE', pageWidth / 2 + 10, rightYPos - 8);
       doc.setFont(undefined, 'normal');
+      doc.setTextColor(44, 62, 80);
       
       Object.entries(typeBreakdown).forEach(([type, amount]) => {
-        rightYPos += 8;
+        doc.setFont(undefined, 'normal');
         doc.text(`${type}:`, pageWidth / 2 + 10, rightYPos);
+        doc.setFont(undefined, 'bold');
         doc.text(formatAmount(amount), pageWidth / 2 + 50, rightYPos);
+        rightYPos += 7;
       });
 
-      yPos += 20;
+      yPos += 18;
 
       // Detailed Transactions Table
       doc.setFontSize(12);
@@ -347,12 +397,20 @@ export default function GivingHistory() {
         },
         margin: { left: 20, right: 20 },
         didDrawPage: (data: any) => {
+          // Watermark on every page
+          drawWatermark();
+          // Top bar on every page
+          doc.setFillColor(74, 144, 226);
+          doc.rect(0, 0, pageWidth, 4, 'F');
           // Footer on each page
-          const footerY = pageHeight - 15;
-          doc.setFontSize(8);
+          const footerY = pageHeight - 10;
+          doc.setDrawColor(226, 232, 240);
+          doc.setLineWidth(0.3);
+          doc.line(20, footerY - 5, pageWidth - 20, footerY - 5);
+          doc.setFontSize(7);
           doc.setTextColor(150, 150, 150);
           doc.text(
-            `Generated on ${format(new Date(), 'PPP')} | Page ${data.pageNumber}`,
+            `The Overcomer Tribe • Contribution Report • Generated ${format(new Date(), 'PPP')} • Page ${data.pageNumber}`,
             pageWidth / 2,
             footerY,
             { align: 'center' }

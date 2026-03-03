@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,152 +7,290 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { DollarSign, TrendingUp, Calendar, Download } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { DollarSign, TrendingUp, Calendar, Download, Trash2 } from "lucide-react";
+import { formatAmount, getContributionTypeLabel } from "@/lib/paystack";
+import { format } from "date-fns";
+import { toast } from "sonner";
 import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
-const mockContributions = [
-  { id: 1, date: "2024-01-07", type: "tithe", amount: 500, service: "Sunday Morning Service" },
-  { id: 2, date: "2024-01-07", type: "offering", amount: 150, service: "Evening Service" },
-  { id: 3, date: "2024-01-07", type: "gift1", amount: 200, service: "Wednesday Prayer Service" },
-  { id: 4, date: "2024-01-07", type: "gift2", amount: 100, service: "Friday Youth Service" },
+const contributionTypes = [
+  { value: "offering", label: "Offering" },
+  { value: "tithe", label: "Tithe" },
+  { value: "building_fund", label: "Building Fund" },
+  { value: "missions", label: "Missions" },
+  { value: "community_outreach", label: "Community Outreach" },
+  { value: "special_offering", label: "Special Offering" },
 ];
 
+const getTypeBadgeColor = (type: string) => {
+  const colors: Record<string, string> = {
+    tithe: "bg-green-100 text-green-800",
+    offering: "bg-blue-100 text-blue-800",
+    building_fund: "bg-purple-100 text-purple-800",
+    missions: "bg-orange-100 text-orange-800",
+    community_outreach: "bg-teal-100 text-teal-800",
+    special_offering: "bg-pink-100 text-pink-800",
+  };
+  return colors[type] || "bg-gray-100 text-gray-800";
+};
+
 export const FinancialContributions = () => {
-  const [contributions, setContributions] = useState(mockContributions);
+  const [contributions, setContributions] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [newContribution, setNewContribution] = useState({
     type: "offering",
     amount: "",
     service: "",
-    date: new Date().toISOString().split('T')[0]
+    date: new Date().toISOString().split('T')[0],
+    mpesaCode: "",
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const contributionTypes = [
-    { value: "offering", label: "Offering", color: "bg-blue-100 text-blue-800" },
-    { value: "tithe", label: "Tithe", color: "bg-green-100 text-green-800" },
-    { value: "gift1", label: "Gift 1", color: "bg-purple-100 text-purple-800" },
-    { value: "gift2", label: "Gift 2", color: "bg-orange-100 text-orange-800" },
-  ];
+  useEffect(() => {
+    loadContributions();
 
-  const addContribution = () => {
-    if (newContribution.amount && newContribution.service) {
-      const contribution = {
-        id: Date.now(),
-        ...newContribution,
-        amount: parseFloat(newContribution.amount)
-      };
-      setContributions(prev => [contribution, ...prev]);
-      setNewContribution({
-        type: "offering",
-        amount: "",
-        service: "",
-        date: new Date().toISOString().split('T')[0]
-      });
+    const channel = supabase
+      .channel('financial-contributions-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'contributions' }, () => {
+        loadContributions();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  const loadContributions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('contributions')
+        .select('*')
+        .order('contribution_date', { ascending: false })
+        .limit(200);
+
+      if (error) throw error;
+      setContributions(data || []);
+    } catch (error) {
+      console.error('Error loading contributions:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const getTotalByType = (type: string) => {
-    return contributions
-      .filter(c => c.type === type)
-      .reduce((sum, c) => sum + c.amount, 0);
-  };
+  const completed = contributions.filter(c => c.transaction_status === 'completed');
 
   const getDailyTotal = () => {
     const today = new Date().toISOString().split('T')[0];
-    return contributions
-      .filter(c => c.date === today)
-      .reduce((sum, c) => sum + c.amount, 0);
+    return completed.filter(c => c.contribution_date?.startsWith(today)).reduce((sum, c) => sum + c.amount, 0);
   };
 
   const getWeeklyTotal = () => {
-    const today = new Date();
-    const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-    return contributions
-      .filter(c => new Date(c.date) >= weekAgo)
-      .reduce((sum, c) => sum + c.amount, 0);
+    const weekAgo = new Date(Date.now() - 7 * 86400000);
+    return completed.filter(c => new Date(c.contribution_date) >= weekAgo).reduce((sum, c) => sum + c.amount, 0);
   };
 
   const getMonthlyTotal = () => {
-    const today = new Date();
-    const currentMonth = today.getMonth();
-    const currentYear = today.getFullYear();
-    return contributions
-      .filter(c => {
-        const date = new Date(c.date);
-        return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
-      })
-      .reduce((sum, c) => sum + c.amount, 0);
+    const now = new Date();
+    return completed.filter(c => {
+      const d = new Date(c.contribution_date);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }).reduce((sum, c) => sum + c.amount, 0);
   };
 
-  const exportData = (period: string) => {
-    let filteredData = contributions;
-    const today = new Date();
+  const getTotalByType = (type: string) =>
+    completed.filter(c => c.contribution_type === type).reduce((sum, c) => sum + c.amount, 0);
+
+  const addContribution = async () => {
+    if (!newContribution.amount || !newContribution.service) {
+      toast.error("Please fill in amount and service name");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { toast.error("Not authenticated"); return; }
+
+      const { error } = await supabase.from('contributions').insert({
+        amount: parseFloat(newContribution.amount),
+        contribution_type: newContribution.type,
+        contribution_date: newContribution.date,
+        notes: newContribution.service,
+        transaction_reference: newContribution.mpesaCode || null,
+        payment_method: newContribution.mpesaCode ? 'mpesa' : 'manual',
+        transaction_status: 'completed',
+        donor_name: user.user_metadata?.first_name
+          ? `${user.user_metadata.first_name} ${user.user_metadata.last_name || ''}`
+          : user.email,
+        donor_email: user.email,
+      });
+
+      if (error) throw error;
+
+      toast.success("Contribution recorded successfully");
+      setNewContribution({ type: "offering", amount: "", service: "", date: new Date().toISOString().split('T')[0], mpesaCode: "" });
+    } catch (error: any) {
+      toast.error(error.message || "Failed to record contribution");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const deleteContribution = async (id: string) => {
+    try {
+      const { error } = await supabase.from('contributions').delete().eq('id', id);
+      if (error) throw error;
+      toast.success("Contribution deleted");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete");
+    }
+  };
+
+  const generateStyledPDF = (period: string) => {
+    const now = new Date();
+    let filtered = completed;
 
     switch (period) {
       case 'daily':
-        filteredData = contributions.filter(c => c.date === today.toISOString().split('T')[0]);
+        filtered = completed.filter(c => c.contribution_date?.startsWith(now.toISOString().split('T')[0]));
         break;
       case 'weekly':
-        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-        filteredData = contributions.filter(c => new Date(c.date) >= weekAgo);
+        const weekAgo = new Date(now.getTime() - 7 * 86400000);
+        filtered = completed.filter(c => new Date(c.contribution_date) >= weekAgo);
         break;
       case 'monthly':
-        filteredData = contributions.filter(c => {
-          const date = new Date(c.date);
-          return date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+        filtered = completed.filter(c => {
+          const d = new Date(c.contribution_date);
+          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
         });
+        break;
+      case 'quarterly':
+        const qStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+        filtered = completed.filter(c => new Date(c.contribution_date) >= qStart);
+        break;
+      case 'semi-annual':
+        const saStart = new Date(now.getFullYear(), now.getMonth() >= 6 ? 6 : 0, 1);
+        filtered = completed.filter(c => new Date(c.contribution_date) >= saStart);
+        break;
+      case 'annual':
+        const yearStart = new Date(now.getFullYear(), 0, 1);
+        filtered = completed.filter(c => new Date(c.contribution_date) >= yearStart);
         break;
     }
 
     const doc = new jsPDF();
-    
+    const totalAmount = filtered.reduce((s, c) => s + c.amount, 0);
+
+    const drawPageDecoration = (pageNum: number, totalPages: number) => {
+      // Top bar
+      doc.setFillColor(30, 41, 59);
+      doc.rect(0, 0, 210, 8, 'F');
+      doc.setFillColor(59, 130, 246);
+      doc.rect(0, 8, 210, 2, 'F');
+
+      // Watermark
+      doc.saveGraphicsState();
+      const gState = (doc as any).GState({ opacity: 0.06 });
+      doc.setGState(gState);
+      doc.setFontSize(50);
+      doc.setTextColor(30, 41, 59);
+      doc.text('THE OVERCOMER TRIBE', 105, 160, { align: 'center', angle: 45 });
+      doc.restoreGraphicsState();
+
+      // Footer
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.text('The Overcomer Tribe Church • Confidential Financial Report', 105, 285, { align: 'center' });
+      doc.text(`Page ${pageNum} of ${totalPages}`, 195, 285, { align: 'right' });
+    };
+
     // Header
+    drawPageDecoration(1, 1);
     doc.setFontSize(20);
-    doc.text(`Financial Report - ${period.charAt(0).toUpperCase() + period.slice(1)}`, 20, 20);
-    
-    // Summary
+    doc.setTextColor(30, 41, 59);
+    doc.text('Financial Report', 20, 25);
     doc.setFontSize(12);
-    const totalAmount = filteredData.reduce((sum, c) => sum + c.amount, 0);
-    const totalTransactions = filteredData.length;
-    
-    doc.text(`Generated: ${today.toLocaleDateString()}`, 20, 40);
-    doc.text(`Period: ${period.charAt(0).toUpperCase() + period.slice(1)}`, 20, 50);
-    doc.text(`Total Amount: $${totalAmount.toLocaleString()}`, 20, 60);
-    doc.text(`Total Transactions: ${totalTransactions}`, 20, 70);
-    
-    // By Type Summary
-    doc.setFontSize(14);
-    doc.text('Summary by Type:', 20, 90);
-    
-    let yPosition = 105;
-    doc.setFontSize(10);
-    
-    contributionTypes.forEach(type => {
-      const typeAmount = filteredData.filter(c => c.type === type.value).reduce((sum, c) => sum + c.amount, 0);
-      const typeCount = filteredData.filter(c => c.type === type.value).length;
-      doc.text(`${type.label}: $${typeAmount.toLocaleString()} (${typeCount} transactions)`, 30, yPosition);
-      yPosition += 8;
-    });
-    
-    // Transactions List
-    yPosition += 20;
-    doc.setFontSize(14);
-    doc.text('Transaction Details:', 20, yPosition);
-    yPosition += 15;
-    
+    doc.setTextColor(100, 100, 100);
+    doc.text(`${period.charAt(0).toUpperCase() + period.slice(1)} Report • Generated ${format(now, 'PPP')}`, 20, 33);
+
+    // Summary boxes
+    doc.setFillColor(241, 245, 249);
+    doc.roundedRect(15, 42, 85, 28, 3, 3, 'F');
+    doc.roundedRect(110, 42, 85, 28, 3, 3, 'F');
+
     doc.setFontSize(9);
-    filteredData.forEach((contribution, index) => {
-      if (yPosition > 270) {
-        doc.addPage();
-        yPosition = 20;
+    doc.setTextColor(100, 116, 139);
+    doc.text('Total Amount (KES)', 20, 52);
+    doc.text('Total Transactions', 115, 52);
+    doc.setFontSize(16);
+    doc.setTextColor(30, 41, 59);
+    doc.text(formatAmount(totalAmount), 20, 63);
+    doc.text(String(filtered.length), 115, 63);
+
+    // Type breakdown
+    doc.setFontSize(14);
+    doc.setTextColor(30, 41, 59);
+    doc.text('Breakdown by Type', 20, 85);
+
+    let y = 93;
+    doc.setFontSize(10);
+    contributionTypes.forEach(type => {
+      const amt = filtered.filter(c => c.contribution_type === type.value).reduce((s, c) => s + c.amount, 0);
+      const count = filtered.filter(c => c.contribution_type === type.value).length;
+      if (count > 0) {
+        doc.setTextColor(71, 85, 105);
+        doc.text(`${type.label}: ${formatAmount(amt)} (${count} transactions)`, 25, y);
+        y += 7;
       }
-      
-      const typeInfo = contributionTypes.find(t => t.value === contribution.type);
-      doc.text(`${contribution.date} - ${typeInfo?.label} - ${contribution.service} - $${contribution.amount.toLocaleString()}`, 20, yPosition);
-      yPosition += 8;
     });
-    
-    doc.save(`financial-report-${period}-${today.toISOString().split('T')[0]}.pdf`);
+
+    // Transaction table
+    y += 8;
+    autoTable(doc, {
+      startY: y,
+      head: [['Date', 'Type', 'Service/Notes', 'M-Pesa Code', 'Amount (KES)']],
+      body: filtered.map(c => [
+        c.contribution_date ? format(new Date(c.contribution_date), 'dd/MM/yyyy') : '-',
+        getContributionTypeLabel(c.contribution_type),
+        c.notes || c.donor_name || '-',
+        c.transaction_reference || '-',
+        formatAmount(c.amount),
+      ]),
+      headStyles: { fillColor: [30, 41, 59], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      styles: { fontSize: 8, cellPadding: 3 },
+      didDrawPage: (data: any) => {
+        const pageCount = doc.getNumberOfPages();
+        drawPageDecoration(data.pageNumber, pageCount);
+      },
+    });
+
+    doc.save(`financial-report-${period}-${format(now, 'yyyy-MM-dd')}.pdf`);
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(i => (
+            <Card key={i}><CardContent className="pt-6"><Skeleton className="h-12 w-full" /></CardContent></Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -168,43 +307,40 @@ export const FinancialContributions = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Today's Total</p>
-                <p className="text-2xl font-bold">${getDailyTotal().toLocaleString()}</p>
+                <p className="text-2xl font-bold">{formatAmount(getDailyTotal())}</p>
               </div>
               <DollarSign className="h-8 w-8 text-green-600" />
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">This Week</p>
-                <p className="text-2xl font-bold">${getWeeklyTotal().toLocaleString()}</p>
+                <p className="text-2xl font-bold">{formatAmount(getWeeklyTotal())}</p>
               </div>
               <TrendingUp className="h-8 w-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">This Month</p>
-                <p className="text-2xl font-bold">${getMonthlyTotal().toLocaleString()}</p>
+                <p className="text-2xl font-bold">{formatAmount(getMonthlyTotal())}</p>
               </div>
               <Calendar className="h-8 w-8 text-purple-600" />
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Transactions</p>
-                <p className="text-2xl font-bold">{contributions.length}</p>
+                <p className="text-2xl font-bold">{completed.length}</p>
               </div>
               <DollarSign className="h-8 w-8 text-orange-600" />
             </div>
@@ -230,54 +366,38 @@ export const FinancialContributions = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Contribution Type</Label>
-                  <Select 
-                    value={newContribution.type} 
-                    onValueChange={(value) => setNewContribution(prev => ({ ...prev, type: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
+                  <Select value={newContribution.type} onValueChange={(v) => setNewContribution(p => ({ ...p, type: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {contributionTypes.map(type => (
-                        <SelectItem key={type.value} value={type.value}>
-                          {type.label}
-                        </SelectItem>
+                      {contributionTypes.map(t => (
+                        <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="amount">Amount ($)</Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    value={newContribution.amount}
-                    onChange={(e) => setNewContribution(prev => ({ ...prev, amount: e.target.value }))}
-                  />
+                  <Label htmlFor="amount">Amount (KES)</Label>
+                  <Input id="amount" type="number" step="0.01" placeholder="0.00" value={newContribution.amount}
+                    onChange={(e) => setNewContribution(p => ({ ...p, amount: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="service">Service Name</Label>
-                  <Input
-                    id="service"
-                    placeholder="Enter service name"
-                    value={newContribution.service}
-                    onChange={(e) => setNewContribution(prev => ({ ...prev, service: e.target.value }))}
-                  />
+                  <Input id="service" placeholder="Enter service name" value={newContribution.service}
+                    onChange={(e) => setNewContribution(p => ({ ...p, service: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="contributionDate">Date</Label>
-                  <Input
-                    id="contributionDate"
-                    type="date"
-                    value={newContribution.date}
-                    onChange={(e) => setNewContribution(prev => ({ ...prev, date: e.target.value }))}
-                  />
+                  <Input id="contributionDate" type="date" value={newContribution.date}
+                    onChange={(e) => setNewContribution(p => ({ ...p, date: e.target.value }))} />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="mpesaCode">M-Pesa Transaction Code (Optional)</Label>
+                  <Input id="mpesaCode" placeholder="e.g. SLK4H7R2TY" value={newContribution.mpesaCode}
+                    onChange={(e) => setNewContribution(p => ({ ...p, mpesaCode: e.target.value.toUpperCase() }))} />
                 </div>
               </div>
-              <Button onClick={addContribution} className="w-full">
-                Add Contribution
+              <Button onClick={addContribution} className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Recording..." : "Add Contribution"}
               </Button>
             </CardContent>
           </Card>
@@ -286,51 +406,32 @@ export const FinancialContributions = () => {
         <TabsContent value="summary">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Contribution Types Summary</CardTitle>
-              </CardHeader>
+              <CardHeader><CardTitle>Contribution Types Summary</CardTitle></CardHeader>
               <CardContent className="space-y-4">
-                {contributionTypes.map(type => (
-                  <div key={type.value} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge className={type.color}>{type.label}</Badge>
+                {contributionTypes.map(type => {
+                  const total = getTotalByType(type.value);
+                  if (total === 0) return null;
+                  return (
+                    <div key={type.value} className="flex items-center justify-between">
+                      <Badge className={getTypeBadgeColor(type.value)}>{type.label}</Badge>
+                      <span className="font-semibold">{formatAmount(total)}</span>
                     </div>
-                    <span className="font-semibold">${getTotalByType(type.value).toLocaleString()}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </CardContent>
             </Card>
-
             <Card>
               <CardHeader>
                 <CardTitle>Quick Export</CardTitle>
                 <CardDescription>Download reports for different periods</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  onClick={() => exportData('daily')}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Daily Report
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  onClick={() => exportData('weekly')}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Weekly Report
-                </Button>
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  onClick={() => exportData('monthly')}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Monthly Report
-                </Button>
+                {['daily', 'weekly', 'monthly'].map(p => (
+                  <Button key={p} variant="outline" className="w-full justify-start" onClick={() => generateStyledPDF(p)}>
+                    <Download className="mr-2 h-4 w-4" />
+                    {p.charAt(0).toUpperCase() + p.slice(1)} Report
+                  </Button>
+                ))}
               </CardContent>
             </Card>
           </div>
@@ -344,21 +445,52 @@ export const FinancialContributions = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {contributions.map(contribution => {
-                  const typeInfo = contributionTypes.find(t => t.value === contribution.type);
-                  return (
-                    <div key={contribution.id} className="flex items-center justify-between p-3 border rounded-lg">
+                {contributions.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <p>No contributions recorded yet</p>
+                  </div>
+                ) : (
+                  contributions.map(c => (
+                    <div key={c.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center gap-3">
-                        <Badge className={typeInfo?.color}>{typeInfo?.label}</Badge>
+                        <Badge className={getTypeBadgeColor(c.contribution_type)}>
+                          {getContributionTypeLabel(c.contribution_type)}
+                        </Badge>
                         <div>
-                          <p className="font-medium">{contribution.service}</p>
-                          <p className="text-sm text-muted-foreground">{contribution.date}</p>
+                          <p className="font-medium">{c.notes || c.donor_name || 'Contribution'}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {c.contribution_date ? format(new Date(c.contribution_date), 'dd/MM/yyyy') : '-'}
+                            {c.transaction_reference && ` • M-Pesa: ${c.transaction_reference}`}
+                          </p>
                         </div>
                       </div>
-                      <span className="font-semibold text-lg">${contribution.amount.toLocaleString()}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="font-semibold text-lg">{formatAmount(c.amount)}</span>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Contribution?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will permanently remove this {formatAmount(c.amount)} contribution. This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => deleteContribution(c.id)} className="bg-destructive text-destructive-foreground">
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
-                  );
-                })}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
@@ -372,18 +504,16 @@ export const FinancialContributions = () => {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Button variant="outline" className="h-24 flex-col">
-                  <Calendar className="h-6 w-6 mb-2" />
-                  Quarterly Report
-                </Button>
-                <Button variant="outline" className="h-24 flex-col">
-                  <TrendingUp className="h-6 w-6 mb-2" />
-                  Semi-Annual Report
-                </Button>
-                <Button variant="outline" className="h-24 flex-col">
-                  <DollarSign className="h-6 w-6 mb-2" />
-                  Annual Report
-                </Button>
+                {[
+                  { period: 'quarterly', label: 'Quarterly Report', icon: Calendar },
+                  { period: 'semi-annual', label: 'Semi-Annual Report', icon: TrendingUp },
+                  { period: 'annual', label: 'Annual Report', icon: DollarSign },
+                ].map(({ period, label, icon: Icon }) => (
+                  <Button key={period} variant="outline" className="h-24 flex-col" onClick={() => generateStyledPDF(period)}>
+                    <Icon className="h-6 w-6 mb-2" />
+                    {label}
+                  </Button>
+                ))}
               </div>
             </CardContent>
           </Card>

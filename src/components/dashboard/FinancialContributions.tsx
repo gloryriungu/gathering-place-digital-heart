@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import logoImg from "@/assets/logo.png";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -204,26 +205,32 @@ export const FinancialContributions = () => {
       doc.saveGraphicsState();
       const gState = (doc as any).GState({ opacity: 0.06 });
       doc.setGState(gState);
-      doc.setFontSize(50);
+      doc.setFontSize(40);
       doc.setTextColor(30, 41, 59);
-      doc.text('THE OVERCOMER TRIBE', 105, 160, { align: 'center', angle: 45 });
+      doc.text('TENT OF TESTIMONIES', 105, 150, { align: 'center', angle: 45 });
+      doc.text('MINISTRIES INT', 105, 175, { align: 'center', angle: 45 });
       doc.restoreGraphicsState();
 
       // Footer
       doc.setFontSize(8);
       doc.setTextColor(120, 120, 120);
-      doc.text('The Overcomer Tribe Church • Confidential Financial Report', 105, 285, { align: 'center' });
+      doc.text('Tent of Testimonies Ministries Int • Confidential Financial Report', 105, 285, { align: 'center' });
       doc.text(`Page ${pageNum} of ${totalPages}`, 195, 285, { align: 'right' });
     };
 
-    // Header
+    // Header with logo
     drawPageDecoration(1, 1);
+    try {
+      doc.addImage(logoImg, 'PNG', 15, 12, 18, 18);
+    } catch (e) {
+      // fallback if logo fails to load
+    }
     doc.setFontSize(20);
     doc.setTextColor(30, 41, 59);
-    doc.text('Financial Report', 20, 25);
+    doc.text('Financial Report', 36, 25);
     doc.setFontSize(12);
     doc.setTextColor(100, 100, 100);
-    doc.text(`${period.charAt(0).toUpperCase() + period.slice(1)} Report • Generated ${format(now, 'PPP')}`, 20, 33);
+    doc.text(`${period.charAt(0).toUpperCase() + period.slice(1)} Report • Generated ${format(now, 'PPP')}`, 36, 33);
 
     // Summary boxes
     doc.setFillColor(241, 245, 249);

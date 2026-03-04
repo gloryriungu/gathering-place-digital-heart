@@ -25,6 +25,8 @@ interface Contribution {
   transaction_reference: string | null;
   notes: string | null;
   created_at: string;
+  banked_by?: string | null;
+  paystack_reference?: string | null;
 }
 
 interface GivingStats {
@@ -39,6 +41,8 @@ interface GivingStats {
   totalYear: number;
 }
 
+type SourceFilter = 'all' | 'cash' | 'online';
+
 export const GivingAnalysis = () => {
   const { toast } = useToast();
   const [contributions, setContributions] = useState<Contribution[]>([]);
@@ -47,12 +51,22 @@ export const GivingAnalysis = () => {
   const [isAddContributionOpen, setIsAddContributionOpen] = useState(false);
   const [dateFilter, setDateFilter] = useState({ start: '', end: '' });
   const [typeFilter, setTypeFilter] = useState('all');
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>('all');
   const [activeTab, setActiveTab] = useState('analytics');
 
   useEffect(() => {
     fetchContributions();
     calculateStats();
-  }, [dateFilter, typeFilter]);
+  }, [dateFilter, typeFilter, sourceFilter]);
+
+  const applySourceFilter = (query: any) => {
+    if (sourceFilter === 'cash') {
+      query = query.is('paystack_reference', null).in('payment_method', ['manual', 'cash']);
+    } else if (sourceFilter === 'online') {
+      query = query.not('paystack_reference', 'is', null);
+    }
+    return query;
+  };
 
   const fetchContributions = async () => {
     try {
@@ -61,7 +75,6 @@ export const GivingAnalysis = () => {
         .select('*')
         .order('contribution_date', { ascending: false });
 
-      // Apply filters
       if (dateFilter.start) {
         query = query.gte('contribution_date', dateFilter.start);
       }
@@ -71,6 +84,7 @@ export const GivingAnalysis = () => {
       if (typeFilter !== 'all') {
         query = query.eq('contribution_type', typeFilter);
       }
+      query = applySourceFilter(query);
 
       const { data, error } = await query;
 
@@ -94,68 +108,26 @@ export const GivingAnalysis = () => {
       const weekStart = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
       const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
 
-      // Fetch contributions for various periods
+      const buildQuery = (dateGte: string, dateLte?: string) => {
+        let q = supabase
+          .from('contributions')
+          .select('amount')
+          .gte('contribution_date', dateGte);
+        if (dateLte) q = q.lte('contribution_date', dateLte);
+        q = applySourceFilter(q);
+        return q;
+      };
+
       const queries = await Promise.all([
-        // This week
-        supabase
-          .from('contributions')
-          .select('amount')
-          .gte('contribution_date', weekStart.toISOString().split('T')[0]),
-        
-        // This month
-        supabase
-          .from('contributions')
-          .select('amount')
-          .gte('contribution_date', monthStart.toISOString().split('T')[0]),
-        
-        // Q1
-        supabase
-          .from('contributions')
-          .select('amount')
-          .gte('contribution_date', `${currentYear}-01-01`)
-          .lte('contribution_date', `${currentYear}-03-31`),
-        
-        // Q2
-        supabase
-          .from('contributions')
-          .select('amount')
-          .gte('contribution_date', `${currentYear}-04-01`)
-          .lte('contribution_date', `${currentYear}-06-30`),
-        
-        // Q3
-        supabase
-          .from('contributions')
-          .select('amount')
-          .gte('contribution_date', `${currentYear}-07-01`)
-          .lte('contribution_date', `${currentYear}-09-30`),
-        
-        // Q4
-        supabase
-          .from('contributions')
-          .select('amount')
-          .gte('contribution_date', `${currentYear}-10-01`)
-          .lte('contribution_date', `${currentYear}-12-31`),
-        
-        // First Half
-        supabase
-          .from('contributions')
-          .select('amount')
-          .gte('contribution_date', `${currentYear}-01-01`)
-          .lte('contribution_date', `${currentYear}-06-30`),
-        
-        // Second Half
-        supabase
-          .from('contributions')
-          .select('amount')
-          .gte('contribution_date', `${currentYear}-07-01`)
-          .lte('contribution_date', `${currentYear}-12-31`),
-        
-        // Whole Year
-        supabase
-          .from('contributions')
-          .select('amount')
-          .gte('contribution_date', `${currentYear}-01-01`)
-          .lte('contribution_date', `${currentYear}-12-31`)
+        buildQuery(weekStart.toISOString().split('T')[0]),
+        buildQuery(monthStart.toISOString().split('T')[0]),
+        buildQuery(`${currentYear}-01-01`, `${currentYear}-03-31`),
+        buildQuery(`${currentYear}-04-01`, `${currentYear}-06-30`),
+        buildQuery(`${currentYear}-07-01`, `${currentYear}-09-30`),
+        buildQuery(`${currentYear}-10-01`, `${currentYear}-12-31`),
+        buildQuery(`${currentYear}-01-01`, `${currentYear}-06-30`),
+        buildQuery(`${currentYear}-07-01`, `${currentYear}-12-31`),
+        buildQuery(`${currentYear}-01-01`, `${currentYear}-12-31`),
       ]);
 
       const statsData = {
@@ -180,9 +152,10 @@ export const GivingAnalysis = () => {
     }
   };
 
-    const handleAddContribution = async (formData: FormData) => {
+  const handleAddContribution = async (formData: FormData) => {
     try {
       const mpesaCode = formData.get('mpesa_code') as string;
+      const bankedBy = formData.get('banked_by') as string;
       const { error } = await supabase
         .from('contributions')
         .insert({
@@ -191,8 +164,9 @@ export const GivingAnalysis = () => {
           contribution_type: formData.get('contribution_type') as string,
           payment_method: formData.get('payment_method') as string,
           transaction_reference: mpesaCode || null,
-          notes: formData.get('notes') as string || null
-        });
+          notes: (formData.get('notes') as string) || null,
+          banked_by: bankedBy || null,
+        } as any);
 
       if (error) throw error;
 
@@ -217,6 +191,8 @@ export const GivingAnalysis = () => {
     return <div className="flex items-center justify-center p-8">Loading giving data...</div>;
   }
 
+  const sourceLabel = sourceFilter === 'cash' ? ' (Cash Only)' : sourceFilter === 'online' ? ' (Online Only)' : '';
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
       <TabsList>
@@ -229,7 +205,7 @@ export const GivingAnalysis = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Giving Analysis</h2>
+          <h2 className="text-2xl font-bold">Giving Analysis{sourceLabel}</h2>
           <p className="text-muted-foreground">Track and analyze church contributions</p>
         </div>
         
@@ -248,7 +224,7 @@ export const GivingAnalysis = () => {
             <form onSubmit={(e) => { e.preventDefault(); handleAddContribution(new FormData(e.currentTarget)); }} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="amount">Amount</Label>
+                  <Label htmlFor="amount">Amount (KES)</Label>
                   <Input name="amount" type="number" step="0.01" required />
                 </div>
                 <div className="space-y-2">
@@ -282,7 +258,6 @@ export const GivingAnalysis = () => {
                     <SelectContent>
                       <SelectItem value="cash">Cash</SelectItem>
                       <SelectItem value="check">Check</SelectItem>
-                      <SelectItem value="card">Card</SelectItem>
                       <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
                     </SelectContent>
                   </Select>
@@ -290,13 +265,18 @@ export const GivingAnalysis = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="mpesa_code">M-Pesa Transaction Code</Label>
+                <Label htmlFor="mpesa_code">M-Pesa Transaction Code (Optional)</Label>
                 <Input name="mpesa_code" placeholder="e.g. SLK4H7R2TQ" className="uppercase" />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">Notes</Label>
-                <Input name="notes" placeholder="Optional notes..." />
+                <Label htmlFor="banked_by">Banked By (Optional)</Label>
+                <Input name="banked_by" placeholder="Name of person who banked the cash" />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="notes">Service / Notes (Optional)</Label>
+                <Input name="notes" placeholder="Optional - e.g. Sunday Service" />
               </div>
 
               <Button type="submit" className="w-full">Record Contribution</Button>
@@ -363,41 +343,21 @@ export const GivingAnalysis = () => {
       {/* Quarterly Breakdown */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Q1</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-bold">{formatAmount(stats.totalQ1)}</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Q2</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-bold">{formatAmount(stats.totalQ2)}</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Q3</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-bold">{formatAmount(stats.totalQ3)}</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Q4</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-xl font-bold">{formatAmount(stats.totalQ4)}</div>
-            </CardContent>
-          </Card>
+          {[
+            { label: 'Q1', value: stats.totalQ1 },
+            { label: 'Q2', value: stats.totalQ2 },
+            { label: 'Q3', value: stats.totalQ3 },
+            { label: 'Q4', value: stats.totalQ4 },
+          ].map(q => (
+            <Card key={q.label}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">{q.label}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-xl font-bold">{formatAmount(q.value)}</div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
 
@@ -411,6 +371,19 @@ export const GivingAnalysis = () => {
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 flex-wrap">
+            <div className="space-y-2">
+              <Label>Source</Label>
+              <Select value={sourceFilter} onValueChange={(v) => setSourceFilter(v as SourceFilter)}>
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Sources</SelectItem>
+                  <SelectItem value="cash">Cash Only</SelectItem>
+                  <SelectItem value="online">Online (Paystack)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="start_date">Start Date</Label>
               <Input
@@ -447,6 +420,7 @@ export const GivingAnalysis = () => {
               onClick={() => {
                 setDateFilter({ start: '', end: '' });
                 setTypeFilter('all');
+                setSourceFilter('all');
               }}
             >
               Clear Filters
@@ -469,6 +443,7 @@ export const GivingAnalysis = () => {
                 <TableHead>Type</TableHead>
                 <TableHead>Payment Method</TableHead>
                 <TableHead>M-Pesa Code</TableHead>
+                <TableHead>Banked By</TableHead>
                 <TableHead>Notes</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -491,6 +466,7 @@ export const GivingAnalysis = () => {
                     {contribution.payment_method.replace('_', ' ')}
                   </TableCell>
                   <TableCell>{contribution.transaction_reference || '-'}</TableCell>
+                  <TableCell>{contribution.banked_by || '-'}</TableCell>
                   <TableCell>{contribution.notes || '-'}</TableCell>
                   <TableCell>
                     <AlertDialog>

@@ -57,6 +57,7 @@ export const FinancialContributions = () => {
     service: "",
     date: new Date().toISOString().split('T')[0],
     mpesaCode: "",
+    bankedBy: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -78,6 +79,8 @@ export const FinancialContributions = () => {
       const { data, error } = await supabase
         .from('contributions')
         .select('*')
+        .is('paystack_reference', null)
+        .in('payment_method', ['manual', 'cash'])
         .order('contribution_date', { ascending: false })
         .limit(200);
 
@@ -114,8 +117,8 @@ export const FinancialContributions = () => {
     completed.filter(c => c.contribution_type === type).reduce((sum, c) => sum + c.amount, 0);
 
   const addContribution = async () => {
-    if (!newContribution.amount || !newContribution.service) {
-      toast.error("Please fill in amount and service name");
+    if (!newContribution.amount) {
+      toast.error("Please fill in the amount");
       return;
     }
 
@@ -128,20 +131,21 @@ export const FinancialContributions = () => {
         amount: parseFloat(newContribution.amount),
         contribution_type: newContribution.type,
         contribution_date: newContribution.date,
-        notes: newContribution.service,
+        notes: newContribution.service || null,
         transaction_reference: newContribution.mpesaCode || null,
-        payment_method: newContribution.mpesaCode ? 'mpesa' : 'manual',
+        payment_method: 'cash',
         transaction_status: 'completed',
         donor_name: user.user_metadata?.first_name
           ? `${user.user_metadata.first_name} ${user.user_metadata.last_name || ''}`
           : user.email,
         donor_email: user.email,
-      });
+        banked_by: newContribution.bankedBy || null,
+      } as any);
 
       if (error) throw error;
 
-      toast.success("Contribution recorded successfully");
-      setNewContribution({ type: "offering", amount: "", service: "", date: new Date().toISOString().split('T')[0], mpesaCode: "" });
+      toast.success("Cash contribution recorded successfully");
+      setNewContribution({ type: "offering", amount: "", service: "", date: new Date().toISOString().split('T')[0], mpesaCode: "", bankedBy: "" });
     } catch (error: any) {
       toast.error(error.message || "Failed to record contribution");
     } finally {
@@ -214,7 +218,7 @@ export const FinancialContributions = () => {
       // Footer
       doc.setFontSize(8);
       doc.setTextColor(120, 120, 120);
-      doc.text('Tent of Testimonies Ministries Int • Confidential Financial Report', 105, 285, { align: 'center' });
+      doc.text('Tent of Testimonies Ministries Int • Confidential Cash Contributions Report', 105, 285, { align: 'center' });
       doc.text(`Page ${pageNum} of ${totalPages}`, 195, 285, { align: 'right' });
     };
 
@@ -227,7 +231,7 @@ export const FinancialContributions = () => {
     }
     doc.setFontSize(20);
     doc.setTextColor(30, 41, 59);
-    doc.text('Financial Report', 36, 25);
+    doc.text('Cash Contributions Report', 36, 25);
     doc.setFontSize(12);
     doc.setTextColor(100, 100, 100);
     doc.text(`${period.charAt(0).toUpperCase() + period.slice(1)} Report • Generated ${format(now, 'PPP')}`, 36, 33);
@@ -267,12 +271,13 @@ export const FinancialContributions = () => {
     y += 8;
     autoTable(doc, {
       startY: y,
-      head: [['Date', 'Type', 'Service/Notes', 'M-Pesa Code', 'Amount (KES)']],
+      head: [['Date', 'Type', 'Service/Notes', 'M-Pesa Code', 'Banked By', 'Amount (KES)']],
       body: filtered.map(c => [
         c.contribution_date ? format(new Date(c.contribution_date), 'dd/MM/yyyy') : '-',
         getContributionTypeLabel(c.contribution_type),
-        c.notes || c.donor_name || '-',
+        c.notes || '-',
         c.transaction_reference || '-',
+        c.banked_by || '-',
         formatAmount(c.amount),
       ]),
       headStyles: { fillColor: [30, 41, 59], textColor: 255, fontStyle: 'bold' },
@@ -284,7 +289,7 @@ export const FinancialContributions = () => {
       },
     });
 
-    doc.save(`financial-report-${period}-${format(now, 'yyyy-MM-dd')}.pdf`);
+    doc.save(`cash-contributions-report-${period}-${format(now, 'yyyy-MM-dd')}.pdf`);
   };
 
   if (isLoading) {
@@ -303,8 +308,8 @@ export const FinancialContributions = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-foreground">Financial Contributions</h2>
-          <p className="text-muted-foreground">Track and manage church contributions</p>
+          <h2 className="text-2xl font-bold text-foreground">Cash Giving Records</h2>
+          <p className="text-muted-foreground">Track and manage physical cash contributions</p>
         </div>
       </div>
 
@@ -313,7 +318,7 @@ export const FinancialContributions = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Today's Total</p>
+                <p className="text-sm text-muted-foreground">Today's Cash Total</p>
                 <p className="text-2xl font-bold">{formatAmount(getDailyTotal())}</p>
               </div>
               <DollarSign className="h-8 w-8 text-green-600" />
@@ -324,7 +329,7 @@ export const FinancialContributions = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">This Week</p>
+                <p className="text-sm text-muted-foreground">This Week (Cash)</p>
                 <p className="text-2xl font-bold">{formatAmount(getWeeklyTotal())}</p>
               </div>
               <TrendingUp className="h-8 w-8 text-blue-600" />
@@ -335,7 +340,7 @@ export const FinancialContributions = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">This Month</p>
+                <p className="text-sm text-muted-foreground">This Month (Cash)</p>
                 <p className="text-2xl font-bold">{formatAmount(getMonthlyTotal())}</p>
               </div>
               <Calendar className="h-8 w-8 text-purple-600" />
@@ -346,7 +351,7 @@ export const FinancialContributions = () => {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Transactions</p>
+                <p className="text-sm text-muted-foreground">Cash Transactions</p>
                 <p className="text-2xl font-bold">{completed.length}</p>
               </div>
               <DollarSign className="h-8 w-8 text-orange-600" />
@@ -366,8 +371,8 @@ export const FinancialContributions = () => {
         <TabsContent value="add">
           <Card>
             <CardHeader>
-              <CardTitle>Add New Contribution</CardTitle>
-              <CardDescription>Record a new financial contribution</CardDescription>
+              <CardTitle>Record Cash Contribution</CardTitle>
+              <CardDescription>Record a new physical cash contribution that has been counted</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -388,8 +393,8 @@ export const FinancialContributions = () => {
                     onChange={(e) => setNewContribution(p => ({ ...p, amount: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="service">Service Name</Label>
-                  <Input id="service" placeholder="Enter service name" value={newContribution.service}
+                  <Label htmlFor="service">Service Name (Optional)</Label>
+                  <Input id="service" placeholder="Optional - e.g. Sunday Service" value={newContribution.service}
                     onChange={(e) => setNewContribution(p => ({ ...p, service: e.target.value }))} />
                 </div>
                 <div className="space-y-2">
@@ -397,14 +402,19 @@ export const FinancialContributions = () => {
                   <Input id="contributionDate" type="date" value={newContribution.date}
                     onChange={(e) => setNewContribution(p => ({ ...p, date: e.target.value }))} />
                 </div>
-                <div className="space-y-2 md:col-span-2">
+                <div className="space-y-2">
                   <Label htmlFor="mpesaCode">M-Pesa Transaction Code (Optional)</Label>
                   <Input id="mpesaCode" placeholder="e.g. SLK4H7R2TY" value={newContribution.mpesaCode}
                     onChange={(e) => setNewContribution(p => ({ ...p, mpesaCode: e.target.value.toUpperCase() }))} />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="bankedBy">Banked By (Optional)</Label>
+                  <Input id="bankedBy" placeholder="Name of person who banked the cash" value={newContribution.bankedBy}
+                    onChange={(e) => setNewContribution(p => ({ ...p, bankedBy: e.target.value }))} />
+                </div>
               </div>
               <Button onClick={addContribution} className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Recording..." : "Add Contribution"}
+                {isSubmitting ? "Recording..." : "Record Cash Contribution"}
               </Button>
             </CardContent>
           </Card>
@@ -413,7 +423,7 @@ export const FinancialContributions = () => {
         <TabsContent value="summary">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card>
-              <CardHeader><CardTitle>Contribution Types Summary</CardTitle></CardHeader>
+              <CardHeader><CardTitle>Cash Contribution Types Summary</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 {contributionTypes.map(type => {
                   const total = getTotalByType(type.value);
@@ -430,7 +440,7 @@ export const FinancialContributions = () => {
             <Card>
               <CardHeader>
                 <CardTitle>Quick Export</CardTitle>
-                <CardDescription>Download reports for different periods</CardDescription>
+                <CardDescription>Download cash contribution reports</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 {['daily', 'weekly', 'monthly'].map(p => (
@@ -447,14 +457,14 @@ export const FinancialContributions = () => {
         <TabsContent value="history">
           <Card>
             <CardHeader>
-              <CardTitle>Recent Contributions</CardTitle>
-              <CardDescription>Latest financial contributions</CardDescription>
+              <CardTitle>Cash Contribution History</CardTitle>
+              <CardDescription>Physical cash contributions recorded</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {contributions.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
-                    <p>No contributions recorded yet</p>
+                    <p>No cash contributions recorded yet</p>
                   </div>
                 ) : (
                   contributions.map(c => (
@@ -464,10 +474,11 @@ export const FinancialContributions = () => {
                           {getContributionTypeLabel(c.contribution_type)}
                         </Badge>
                         <div>
-                          <p className="font-medium">{c.notes || c.donor_name || 'Contribution'}</p>
+                          <p className="font-medium">{c.notes || c.donor_name || 'Cash Contribution'}</p>
                           <p className="text-sm text-muted-foreground">
                             {c.contribution_date ? format(new Date(c.contribution_date), 'dd/MM/yyyy') : '-'}
                             {c.transaction_reference && ` • M-Pesa: ${c.transaction_reference}`}
+                            {c.banked_by && ` • Banked by: ${c.banked_by}`}
                           </p>
                         </div>
                       </div>
@@ -506,8 +517,8 @@ export const FinancialContributions = () => {
         <TabsContent value="reports">
           <Card>
             <CardHeader>
-              <CardTitle>Advanced Reports</CardTitle>
-              <CardDescription>Generate detailed financial reports</CardDescription>
+              <CardTitle>Cash Contribution Reports</CardTitle>
+              <CardDescription>Generate detailed cash contribution reports</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

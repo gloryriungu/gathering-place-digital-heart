@@ -1,0 +1,1 @@
+ALTER TABLE public.contributions ADD COLUMN banked_by text;

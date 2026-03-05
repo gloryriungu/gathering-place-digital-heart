@@ -552,7 +552,24 @@ export const FinancialContributions = () => {
                 <span className="text-muted-foreground">
                   Showing <span className="font-semibold text-foreground">{filteredHistory.length}</span> record{filteredHistory.length !== 1 ? 's' : ''}
                 </span>
-                <span className="font-semibold">Total: {formatAmount(historyTotal)}</span>
+                <div className="flex items-center gap-3">
+                  <span className="font-semibold">Total: {formatAmount(historyTotal)}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={filteredHistory.length === 0}
+                    onClick={() => {
+                      const typeLabel = filterType === "all" ? "All Types" : contributionTypes.find(t => t.value === filterType)?.label || filterType;
+                      const dateLabel = filterDateFrom || filterDateTo
+                        ? `${filterDateFrom || 'Start'} to ${filterDateTo || 'Present'}`
+                        : 'All Dates';
+                      generateStyledPDF(filteredHistory, `Filtered History • ${typeLabel} • ${dateLabel}`);
+                    }}
+                  >
+                    <Download className="mr-1.5 h-4 w-4" />
+                    Download
+                  </Button>
+                </div>
               </div>
 
               {/* Table */}

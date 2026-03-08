@@ -1,31 +1,51 @@
 
 
-## Plan: Standalone Day Report
+## Plan: Separate Cash Contributions from Online Giving
 
-### What
-Add a dedicated "Day Report" feature with a date picker that generates a comprehensive PDF for a specific day, including all contributions, breakdown by type, and a grand total.
+### Problem
+The "Record Giving" tab in the account portal records **cash money counted separately** (manual/physical contributions), but currently mixes it with Paystack online payments in the same history, stats, and reports. The user needs these tracked independently. Additionally, service name should be optional and a "Banked By" field is needed.
 
-### Changes to `src/components/dashboard/FinancialContributions.tsx`
+### Database Change
+Add a `banked_by` column to the `contributions` table to track who deposited the cash:
 
-1. **Add a `dayReportDate` state** defaulting to today's date.
+```sql
+ALTER TABLE public.contributions ADD COLUMN banked_by text;
+```
 
-2. **Add a new "Day Report" card** in the Reports tab (above or alongside the Custom Filtered Report card) with:
-   - A date picker to select the specific day
-   - A preview showing: number of records found, grand total for that day
-   - A "Generate Day Report" button
+### Code Changes
 
-3. **Create a `generateDayReport` function** that:
-   - Filters `completed` contributions to the selected date
-   - Calls a dedicated PDF generator (`generateDayReportPDF`) that produces a more detailed, standalone report
+**File: `src/components/dashboard/FinancialContributions.tsx`**
 
-4. **The Day Report PDF will include**:
-   - Header with logo, "DAILY CONTRIBUTIONS REPORT", and the selected date (formatted nicely, e.g. "Saturday, 8 March 2026")
-   - **Summary box**: Grand Total (KES), Total Transactions count
-   - **Breakdown by contribution type**: Each type with its subtotal and transaction count
-   - **Full transactions table**: Date, Donor/Recorded By, Type, Service/Notes, M-Pesa Code, Banked By, Amount (KES)
-   - **Grand Total row** at the bottom of the table (bold)
-   - Standard branded footer with watermark
+1. **Add "Banked By" field** to the contribution form state and UI (text input for the person's name who banked the cash).
 
-### UI Placement
-The Day Report card will be the first card in the Reports tab, making it prominent and easy to access. It will have a distinct visual treatment (e.g., a highlighted border) to stand out as the primary daily workflow tool.
+2. **Make Service Name optional** — remove the validation requiring it. Update placeholder to say "Optional - e.g. Sunday Service".
+
+3. **Filter data to cash-only contributions** — all stats, history, and reports in this component will only show contributions where `payment_method` is `'manual'` or `'cash'` (excluding Paystack entries which have `payment_method` = `'mpesa'`, `'card'`, etc. or have a `paystack_reference`).
+   - `loadContributions` query: add `.in('payment_method', ['manual', 'cash'])` or `.is('paystack_reference', null)` filter
+   - Stats cards, summary, history, and PDF reports will automatically reflect only cash data
+
+4. **Store `banked_by`** in the insert call when adding a contribution. Display it in history items and include it in PDF reports as a column.
+
+5. **Update PDF table headers** to include "Banked By" column.
+
+6. **Update heading/descriptions** to clarify this section is for "Cash Contributions" (e.g., "Cash Giving Records", "Track and manage physical cash contributions").
+
+**File: `src/components/accounts/GivingAnalysis.tsx`** (Accounts portal)
+
+Apply the same separation:
+- The analytics/stats queries should distinguish between cash (manual) and online (Paystack) contributions
+- Add a "Banked By" field to the "Record Contribution" dialog
+- Make service/notes optional
+- Consider adding a tab or toggle to view "Cash" vs "Online" vs "All" contributions
+
+### Summary of Fields in "Add Contribution" Form (after changes)
+
+| Field | Required | Notes |
+|---|---|---|
+| Contribution Type | Yes | Dropdown |
+| Amount (KES) | Yes | Number |
+| Service Name | No | Now optional |
+| Date | Yes | Date picker |
+| M-Pesa Code | No | Optional |
+| Banked By | No | Name of person who banked the cash |
 

@@ -79,6 +79,9 @@ export const FinancialContributions = () => {
   const [reportDateFrom, setReportDateFrom] = useState("");
   const [reportDateTo, setReportDateTo] = useState("");
 
+  // Day report
+  const [dayReportDate, setDayReportDate] = useState(new Date().toISOString().split('T')[0]);
+
   useEffect(() => {
     loadContributions();
 
@@ -353,6 +356,134 @@ export const FinancialContributions = () => {
       ? `${reportDateFrom || 'Start'} to ${reportDateTo || 'Present'}`
       : 'All Dates';
     generateStyledPDF(filtered, `Custom Report • ${typeLabel} • ${dateLabel}`);
+  };
+
+  // Day Report helpers
+  const getDayReportRecords = () => completed.filter(c => c.contribution_date === dayReportDate);
+  const dayReportRecords = getDayReportRecords();
+  const dayReportTotal = dayReportRecords.reduce((s, c) => s + c.amount, 0);
+
+  const generateDayReportPDF = () => {
+    const records = dayReportRecords;
+    if (records.length === 0) {
+      toast.error("No contributions found for this date");
+      return;
+    }
+
+    const doc = new jsPDF();
+    const selectedDate = new Date(dayReportDate + 'T00:00:00');
+    const dateFormatted = format(selectedDate, 'EEEE, d MMMM yyyy');
+    const totalAmount = records.reduce((s, c) => s + c.amount, 0);
+
+    const drawPageDecoration = (pageNum: number, totalPages: number) => {
+      doc.setFillColor(30, 41, 59);
+      doc.rect(0, 0, 210, 8, 'F');
+      doc.setFillColor(59, 130, 246);
+      doc.rect(0, 8, 210, 2, 'F');
+
+      doc.saveGraphicsState();
+      const gState = (doc as any).GState({ opacity: 0.06 });
+      doc.setGState(gState);
+      doc.setFontSize(40);
+      doc.setTextColor(30, 41, 59);
+      doc.text('TENT OF TESTIMONIES', 105, 150, { align: 'center', angle: 45 });
+      doc.text('MINISTRIES INT', 105, 175, { align: 'center', angle: 45 });
+      doc.restoreGraphicsState();
+
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.text('Tent of Testimonies Ministries Int • Confidential Daily Report', 105, 285, { align: 'center' });
+      doc.text(`Page ${pageNum} of ${totalPages}`, 195, 285, { align: 'right' });
+    };
+
+    drawPageDecoration(1, 1);
+
+    // Header with logo
+    try {
+      doc.addImage(logoImg, 'PNG', 15, 12, 18, 18);
+    } catch (e) {}
+    doc.setFontSize(20);
+    doc.setTextColor(30, 41, 59);
+    doc.text('DAILY CONTRIBUTIONS REPORT', 36, 25);
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100);
+    doc.text(dateFormatted, 36, 33);
+
+    // Summary boxes
+    doc.setFillColor(220, 252, 231);
+    doc.roundedRect(15, 42, 85, 30, 3, 3, 'F');
+    doc.setFillColor(219, 234, 254);
+    doc.roundedRect(110, 42, 85, 30, 3, 3, 'F');
+
+    doc.setFontSize(9);
+    doc.setTextColor(22, 101, 52);
+    doc.text('GRAND TOTAL (KES)', 20, 52);
+    doc.setFontSize(18);
+    doc.text(formatAmount(totalAmount), 20, 65);
+
+    doc.setFontSize(9);
+    doc.setTextColor(30, 64, 175);
+    doc.text('TOTAL TRANSACTIONS', 115, 52);
+    doc.setFontSize(18);
+    doc.text(String(records.length), 115, 65);
+
+    // Breakdown by type
+    doc.setFontSize(14);
+    doc.setTextColor(30, 41, 59);
+    doc.text('Breakdown by Contribution Type', 20, 87);
+
+    let y = 96;
+    doc.setFontSize(10);
+    contributionTypes.forEach(type => {
+      const typeRecords = records.filter(c => c.contribution_type === type.value);
+      if (typeRecords.length > 0) {
+        const typeTotal = typeRecords.reduce((s, c) => s + c.amount, 0);
+        doc.setFillColor(248, 250, 252);
+        doc.roundedRect(20, y - 5, 170, 9, 2, 2, 'F');
+        doc.setTextColor(71, 85, 105);
+        doc.text(type.label, 25, y + 1);
+        doc.text(`${typeRecords.length} transaction${typeRecords.length !== 1 ? 's' : ''}`, 100, y + 1);
+        doc.setTextColor(30, 41, 59);
+        doc.setFont(undefined as any, 'bold');
+        doc.text(formatAmount(typeTotal), 185, y + 1, { align: 'right' });
+        doc.setFont(undefined as any, 'normal');
+        y += 12;
+      }
+    });
+
+    // Transactions table
+    y += 5;
+    doc.setFontSize(14);
+    doc.setTextColor(30, 41, 59);
+    doc.text('Transaction Details', 20, y);
+    y += 5;
+
+    autoTable(doc, {
+      startY: y,
+      head: [['#', 'Type', 'Service/Notes', 'M-Pesa Code', 'Banked By', 'Amount (KES)']],
+      body: [
+        ...records.map((c, i) => [
+          String(i + 1),
+          getContributionTypeLabel(c.contribution_type),
+          c.notes || '-',
+          c.transaction_reference || '-',
+          c.banked_by || '-',
+          formatAmount(c.amount),
+        ]),
+        // Grand total row
+        ['', '', '', '', { content: 'GRAND TOTAL', styles: { fontStyle: 'bold', halign: 'right' as const } }, { content: formatAmount(totalAmount), styles: { fontStyle: 'bold' } }],
+      ],
+      headStyles: { fillColor: [30, 41, 59], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      styles: { fontSize: 8, cellPadding: 3 },
+      didDrawPage: (data: any) => {
+        const pageCount = doc.getNumberOfPages();
+        drawPageDecoration(data.pageNumber, pageCount);
+      },
+    });
+
+    doc.save(`daily-contributions-report-${dayReportDate}.pdf`);
+    toast.success("Day report downloaded successfully");
   };
 
   if (isLoading) {
@@ -653,6 +784,37 @@ export const FinancialContributions = () => {
 
         <TabsContent value="reports">
           <div className="space-y-6">
+            {/* Day Report */}
+            <Card className="border-2 border-primary/30">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-primary" />
+                  Day Report
+                </CardTitle>
+                <CardDescription>Generate a comprehensive PDF report for a specific day</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                  <div className="space-y-2">
+                    <Label>Select Date</Label>
+                    <Input type="date" value={dayReportDate} onChange={e => setDayReportDate(e.target.value)} />
+                  </div>
+                  <div className="p-3 bg-muted rounded-lg">
+                    <p className="text-xs text-muted-foreground">Records Found</p>
+                    <p className="text-lg font-bold">{dayReportRecords.length}</p>
+                  </div>
+                  <div className="p-3 bg-muted rounded-lg">
+                    <p className="text-xs text-muted-foreground">Grand Total (KES)</p>
+                    <p className="text-lg font-bold">{formatAmount(dayReportTotal)}</p>
+                  </div>
+                </div>
+                <Button onClick={generateDayReportPDF} disabled={dayReportRecords.length === 0} className="w-full">
+                  <Download className="mr-2 h-4 w-4" />
+                  Generate Day Report
+                </Button>
+              </CardContent>
+            </Card>
+
             {/* Custom filtered report */}
             <Card>
               <CardHeader>

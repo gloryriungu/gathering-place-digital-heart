@@ -1,32 +1,51 @@
 
 
-## Plan: Add Interactive Period Selectors to GivingAnalysis Stats & Restrict Access
+## Plan: Separate Cash Contributions from Online Giving
 
-### Two Changes
+### Problem
+The "Record Giving" tab in the account portal records **cash money counted separately** (manual/physical contributions), but currently mixes it with Paystack online payments in the same history, stats, and reports. The user needs these tracked independently. Additionally, service name should be optional and a "Banked By" field is needed.
 
-**1. Replace static stats cards with interactive period selectors**
+### Database Change
+Add a `banked_by` column to the `contributions` table to track who deposited the cash:
 
-In `src/components/accounts/GivingAnalysis.tsx`:
+```sql
+ALTER TABLE public.contributions ADD COLUMN banked_by text;
+```
 
-- Add state for user-selected periods: `statsYear` (default current year), `statsWeekDate` (date to calculate the week from), `statsMonthDate` (month+year).
-- Replace the hardcoded "This Week" / "This Month" / Q1-Q4 / Half / Year stats with interactive cards that let the user pick:
-  - **Weekly**: date picker → shows total for that week
-  - **Monthly**: month + year selectors → shows total for that month
-  - **Quarterly**: Q1-Q4 + year selectors → shows totals per quarter
-  - **Semi-Annual**: H1/H2 + year → shows half-year total
-  - **Annual**: year selector → shows full year total
-- Update `calculateStats` to use the selected year/periods instead of always `new Date().getFullYear()`.
-- Year selector range: 2020 to current year.
-- Layout: Keep the 5-card top row but add small selectors (dropdowns/inputs) inside each card. Remove the separate "Quarterly Breakdown" section below and merge Q1-Q4 into the selectable stats.
+### Code Changes
 
-**2. Restrict the "Giving Analysis" tab to accounts role only**
+**File: `src/components/dashboard/FinancialContributions.tsx`**
 
-In `src/pages/Dashboard.tsx`:
-- The tab trigger for "giving-analysis" should only render for users with `accounts`, `it`, or `founder` roles (matching the existing RLS on contributions).
-- Check how existing tabs are gated (likely by `userRole`) and apply the same pattern.
+1. **Add "Banked By" field** to the contribution form state and UI (text input for the person's name who banked the cash).
 
-### File Changes
+2. **Make Service Name optional** — remove the validation requiring it. Update placeholder to say "Optional - e.g. Sunday Service".
 
-- `src/components/accounts/GivingAnalysis.tsx` — Add year/period state, update `calculateStats` to be dynamic, replace static cards with interactive selector cards, remove redundant quarterly breakdown section.
-- `src/pages/Dashboard.tsx` — Conditionally render the "giving-analysis" tab trigger based on role (accounts/it/founder only).
+3. **Filter data to cash-only contributions** — all stats, history, and reports in this component will only show contributions where `payment_method` is `'manual'` or `'cash'` (excluding Paystack entries which have `payment_method` = `'mpesa'`, `'card'`, etc. or have a `paystack_reference`).
+   - `loadContributions` query: add `.in('payment_method', ['manual', 'cash'])` or `.is('paystack_reference', null)` filter
+   - Stats cards, summary, history, and PDF reports will automatically reflect only cash data
+
+4. **Store `banked_by`** in the insert call when adding a contribution. Display it in history items and include it in PDF reports as a column.
+
+5. **Update PDF table headers** to include "Banked By" column.
+
+6. **Update heading/descriptions** to clarify this section is for "Cash Contributions" (e.g., "Cash Giving Records", "Track and manage physical cash contributions").
+
+**File: `src/components/accounts/GivingAnalysis.tsx`** (Accounts portal)
+
+Apply the same separation:
+- The analytics/stats queries should distinguish between cash (manual) and online (Paystack) contributions
+- Add a "Banked By" field to the "Record Contribution" dialog
+- Make service/notes optional
+- Consider adding a tab or toggle to view "Cash" vs "Online" vs "All" contributions
+
+### Summary of Fields in "Add Contribution" Form (after changes)
+
+| Field | Required | Notes |
+|---|---|---|
+| Contribution Type | Yes | Dropdown |
+| Amount (KES) | Yes | Number |
+| Service Name | No | Now optional |
+| Date | Yes | Date picker |
+| M-Pesa Code | No | Optional |
+| Banked By | No | Name of person who banked the cash |
 

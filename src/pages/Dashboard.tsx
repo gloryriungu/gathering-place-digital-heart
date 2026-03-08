@@ -218,6 +218,7 @@ const Dashboard = () => {
         { value: "programs", label: "Programs", icon: BookOpen },
         { value: "analytics", label: "Advanced Analytics", icon: Activity },
         { value: "demographics", label: "Demographics", icon: Users },
+        { value: "giving-analysis", label: "Giving Analysis", icon: DollarSign },
         { value: "budget-requests", label: "Budget Requests", icon: DollarSign },
         { value: "inventory", label: "All Inventory", icon: Settings },
         { value: "activity-visibility", label: "Activity Visibility", icon: Shield },
@@ -280,6 +281,7 @@ const Dashboard = () => {
       ],
       it: [
         { value: "programs", label: "Programs", icon: BookOpen },
+        { value: "giving-analysis", label: "Giving Analysis", icon: DollarSign },
         { value: "user-management", label: "User Management", icon: Users },
         { value: "system-logs", label: "System Logs", icon: Activity },
         { value: "ticketing", label: "Support Tickets", icon: Ticket },

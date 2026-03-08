@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, DollarSign, TrendingUp, Calendar, Filter, Trash2 } from "lucide-react";
 import { formatAmount } from "@/lib/paystack";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { format, startOfWeek, endOfWeek } from "date-fns";
 
 interface Contribution {
   id: string;
@@ -30,18 +31,23 @@ interface Contribution {
 }
 
 interface GivingStats {
-  totalThisWeek: number;
-  totalThisMonth: number;
-  totalQ1: number;
-  totalQ2: number;
-  totalQ3: number;
-  totalQ4: number;
-  totalFirstHalf: number;
-  totalSecondHalf: number;
-  totalYear: number;
+  weeklyTotal: number;
+  monthlyTotal: number;
+  quarterlyTotal: number;
+  halfYearTotal: number;
+  annualTotal: number;
 }
 
 type SourceFilter = 'all' | 'cash' | 'online';
+
+const currentYear = new Date().getFullYear();
+const yearOptions = Array.from({ length: currentYear - 2019 }, (_, i) => (2020 + i).toString());
+const monthOptions = [
+  { value: '1', label: 'January' }, { value: '2', label: 'February' }, { value: '3', label: 'March' },
+  { value: '4', label: 'April' }, { value: '5', label: 'May' }, { value: '6', label: 'June' },
+  { value: '7', label: 'July' }, { value: '8', label: 'August' }, { value: '9', label: 'September' },
+  { value: '10', label: 'October' }, { value: '11', label: 'November' }, { value: '12', label: 'December' },
+];
 
 export const GivingAnalysis = () => {
   const { toast } = useToast();
@@ -54,10 +60,23 @@ export const GivingAnalysis = () => {
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>('all');
   const [activeTab, setActiveTab] = useState('analytics');
 
+  // Interactive period selectors
+  const [weekDate, setWeekDate] = useState(new Date().toISOString().split('T')[0]);
+  const [statsMonth, setStatsMonth] = useState((new Date().getMonth() + 1).toString());
+  const [statsMonthYear, setStatsMonthYear] = useState(currentYear.toString());
+  const [statsQuarter, setStatsQuarter] = useState(`Q${Math.ceil((new Date().getMonth() + 1) / 3)}`);
+  const [statsQuarterYear, setStatsQuarterYear] = useState(currentYear.toString());
+  const [statsHalf, setStatsHalf] = useState(new Date().getMonth() < 6 ? 'H1' : 'H2');
+  const [statsHalfYear, setStatsHalfYear] = useState(currentYear.toString());
+  const [statsAnnualYear, setStatsAnnualYear] = useState(currentYear.toString());
+
   useEffect(() => {
     fetchContributions();
-    calculateStats();
   }, [dateFilter, typeFilter, sourceFilter]);
+
+  useEffect(() => {
+    calculateStats();
+  }, [sourceFilter, weekDate, statsMonth, statsMonthYear, statsQuarter, statsQuarterYear, statsHalf, statsHalfYear, statsAnnualYear]);
 
   const applySourceFilter = (query: any) => {
     if (sourceFilter === 'cash') {
@@ -75,27 +94,16 @@ export const GivingAnalysis = () => {
         .select('*')
         .order('contribution_date', { ascending: false });
 
-      if (dateFilter.start) {
-        query = query.gte('contribution_date', dateFilter.start);
-      }
-      if (dateFilter.end) {
-        query = query.lte('contribution_date', dateFilter.end);
-      }
-      if (typeFilter !== 'all') {
-        query = query.eq('contribution_type', typeFilter);
-      }
+      if (dateFilter.start) query = query.gte('contribution_date', dateFilter.start);
+      if (dateFilter.end) query = query.lte('contribution_date', dateFilter.end);
+      if (typeFilter !== 'all') query = query.eq('contribution_type', typeFilter);
       query = applySourceFilter(query);
 
       const { data, error } = await query;
-
       if (error) throw error;
       setContributions(data || []);
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -103,52 +111,58 @@ export const GivingAnalysis = () => {
 
   const calculateStats = async () => {
     try {
-      const currentYear = new Date().getFullYear();
-      const currentDate = new Date();
-      const weekStart = new Date(currentDate.setDate(currentDate.getDate() - currentDate.getDay()));
-      const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-
       const buildQuery = (dateGte: string, dateLte?: string) => {
-        let q = supabase
-          .from('contributions')
-          .select('amount')
-          .gte('contribution_date', dateGte);
+        let q = supabase.from('contributions').select('amount').gte('contribution_date', dateGte);
         if (dateLte) q = q.lte('contribution_date', dateLte);
         q = applySourceFilter(q);
         return q;
       };
 
+      const sumResult = (data: any[] | null) => data?.reduce((s, c) => s + Number(c.amount), 0) || 0;
+
+      // Weekly
+      const wd = new Date(weekDate);
+      const ws = startOfWeek(wd, { weekStartsOn: 0 });
+      const we = endOfWeek(wd, { weekStartsOn: 0 });
+
+      // Monthly
+      const mY = parseInt(statsMonthYear);
+      const mM = parseInt(statsMonth);
+      const monthStart = `${mY}-${String(mM).padStart(2, '0')}-01`;
+      const monthEnd = `${mY}-${String(mM).padStart(2, '0')}-${new Date(mY, mM, 0).getDate()}`;
+
+      // Quarterly
+      const qY = parseInt(statsQuarterYear);
+      const qN = parseInt(statsQuarter.replace('Q', ''));
+      const qStart = `${qY}-${String((qN - 1) * 3 + 1).padStart(2, '0')}-01`;
+      const qEndMonth = qN * 3;
+      const qEnd = `${qY}-${String(qEndMonth).padStart(2, '0')}-${new Date(qY, qEndMonth, 0).getDate()}`;
+
+      // Semi-annual
+      const hY = parseInt(statsHalfYear);
+      const hStart = statsHalf === 'H1' ? `${hY}-01-01` : `${hY}-07-01`;
+      const hEnd = statsHalf === 'H1' ? `${hY}-06-30` : `${hY}-12-31`;
+
+      // Annual
+      const aY = statsAnnualYear;
+
       const queries = await Promise.all([
-        buildQuery(weekStart.toISOString().split('T')[0]),
-        buildQuery(monthStart.toISOString().split('T')[0]),
-        buildQuery(`${currentYear}-01-01`, `${currentYear}-03-31`),
-        buildQuery(`${currentYear}-04-01`, `${currentYear}-06-30`),
-        buildQuery(`${currentYear}-07-01`, `${currentYear}-09-30`),
-        buildQuery(`${currentYear}-10-01`, `${currentYear}-12-31`),
-        buildQuery(`${currentYear}-01-01`, `${currentYear}-06-30`),
-        buildQuery(`${currentYear}-07-01`, `${currentYear}-12-31`),
-        buildQuery(`${currentYear}-01-01`, `${currentYear}-12-31`),
+        buildQuery(format(ws, 'yyyy-MM-dd'), format(we, 'yyyy-MM-dd')),
+        buildQuery(monthStart, monthEnd),
+        buildQuery(qStart, qEnd),
+        buildQuery(hStart, hEnd),
+        buildQuery(`${aY}-01-01`, `${aY}-12-31`),
       ]);
 
-      const statsData = {
-        totalThisWeek: queries[0].data?.reduce((sum, c) => sum + Number(c.amount), 0) || 0,
-        totalThisMonth: queries[1].data?.reduce((sum, c) => sum + Number(c.amount), 0) || 0,
-        totalQ1: queries[2].data?.reduce((sum, c) => sum + Number(c.amount), 0) || 0,
-        totalQ2: queries[3].data?.reduce((sum, c) => sum + Number(c.amount), 0) || 0,
-        totalQ3: queries[4].data?.reduce((sum, c) => sum + Number(c.amount), 0) || 0,
-        totalQ4: queries[5].data?.reduce((sum, c) => sum + Number(c.amount), 0) || 0,
-        totalFirstHalf: queries[6].data?.reduce((sum, c) => sum + Number(c.amount), 0) || 0,
-        totalSecondHalf: queries[7].data?.reduce((sum, c) => sum + Number(c.amount), 0) || 0,
-        totalYear: queries[8].data?.reduce((sum, c) => sum + Number(c.amount), 0) || 0
-      };
-
-      setStats(statsData);
-    } catch (error: any) {
-      toast({
-        title: "Error calculating stats",
-        description: error.message,
-        variant: "destructive"
+      setStats({
+        weeklyTotal: sumResult(queries[0].data),
+        monthlyTotal: sumResult(queries[1].data),
+        quarterlyTotal: sumResult(queries[2].data),
+        halfYearTotal: sumResult(queries[3].data),
+        annualTotal: sumResult(queries[4].data),
       });
+    } catch (error: any) {
+      toast({ title: "Error calculating stats", description: error.message, variant: "destructive" });
     }
   };
 
@@ -170,20 +184,12 @@ export const GivingAnalysis = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Contribution recorded successfully"
-      });
-
+      toast({ title: "Success", description: "Contribution recorded successfully" });
       setIsAddContributionOpen(false);
       fetchContributions();
       calculateStats();
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive"
-      });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     }
   };
 
@@ -285,79 +291,140 @@ export const GivingAnalysis = () => {
         </Dialog>
       </div>
 
-      {/* Statistics Cards */}
+      {/* Interactive Statistics Cards */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {/* Weekly */}
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-4 space-y-3">
               <div className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-green-600" />
-                <span className="text-sm font-medium">This Week</span>
+                <DollarSign className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">Weekly</span>
               </div>
-              <div className="text-2xl font-bold">{formatAmount(stats.totalThisWeek)}</div>
+              <Input
+                type="date"
+                value={weekDate}
+                onChange={(e) => setWeekDate(e.target.value)}
+                className="h-8 text-xs"
+              />
+              <div className="text-2xl font-bold">{formatAmount(stats.weeklyTotal)}</div>
+              <p className="text-xs text-muted-foreground">
+                {format(startOfWeek(new Date(weekDate), { weekStartsOn: 0 }), 'dd MMM')} – {format(endOfWeek(new Date(weekDate), { weekStartsOn: 0 }), 'dd MMM yyyy')}
+              </p>
             </CardContent>
           </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium">This Month</span>
-              </div>
-              <div className="text-2xl font-bold">{formatAmount(stats.totalThisMonth)}</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-purple-600" />
-                <span className="text-sm font-medium">Q1</span>
-              </div>
-              <div className="text-2xl font-bold">{formatAmount(stats.totalQ1)}</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-orange-600" />
-                <span className="text-sm font-medium">First Half</span>
-              </div>
-              <div className="text-2xl font-bold">{formatAmount(stats.totalFirstHalf)}</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-red-600" />
-                <span className="text-sm font-medium">Whole Year</span>
-              </div>
-              <div className="text-2xl font-bold">{formatAmount(stats.totalYear)}</div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
 
-      {/* Quarterly Breakdown */}
-      {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {[
-            { label: 'Q1', value: stats.totalQ1 },
-            { label: 'Q2', value: stats.totalQ2 },
-            { label: 'Q3', value: stats.totalQ3 },
-            { label: 'Q4', value: stats.totalQ4 },
-          ].map(q => (
-            <Card key={q.label}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">{q.label}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-xl font-bold">{formatAmount(q.value)}</div>
-              </CardContent>
-            </Card>
-          ))}
+          {/* Monthly */}
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">Monthly</span>
+              </div>
+              <div className="flex gap-1">
+                <Select value={statsMonth} onValueChange={setStatsMonth}>
+                  <SelectTrigger className="h-8 text-xs flex-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {monthOptions.map(m => (
+                      <SelectItem key={m.value} value={m.value}>{m.label.slice(0, 3)}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={statsMonthYear} onValueChange={setStatsMonthYear}>
+                  <SelectTrigger className="h-8 text-xs w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {yearOptions.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="text-2xl font-bold">{formatAmount(stats.monthlyTotal)}</div>
+            </CardContent>
+          </Card>
+
+          {/* Quarterly */}
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">Quarterly</span>
+              </div>
+              <div className="flex gap-1">
+                <Select value={statsQuarter} onValueChange={setStatsQuarter}>
+                  <SelectTrigger className="h-8 text-xs flex-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Q1">Q1</SelectItem>
+                    <SelectItem value="Q2">Q2</SelectItem>
+                    <SelectItem value="Q3">Q3</SelectItem>
+                    <SelectItem value="Q4">Q4</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={statsQuarterYear} onValueChange={setStatsQuarterYear}>
+                  <SelectTrigger className="h-8 text-xs w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {yearOptions.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="text-2xl font-bold">{formatAmount(stats.quarterlyTotal)}</div>
+            </CardContent>
+          </Card>
+
+          {/* Semi-Annual */}
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">Semi-Annual</span>
+              </div>
+              <div className="flex gap-1">
+                <Select value={statsHalf} onValueChange={setStatsHalf}>
+                  <SelectTrigger className="h-8 text-xs flex-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="H1">H1 (Jan–Jun)</SelectItem>
+                    <SelectItem value="H2">H2 (Jul–Dec)</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={statsHalfYear} onValueChange={setStatsHalfYear}>
+                  <SelectTrigger className="h-8 text-xs w-20">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {yearOptions.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="text-2xl font-bold">{formatAmount(stats.halfYearTotal)}</div>
+            </CardContent>
+          </Card>
+
+          {/* Annual */}
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">Annual</span>
+              </div>
+              <Select value={statsAnnualYear} onValueChange={setStatsAnnualYear}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {yearOptions.map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <div className="text-2xl font-bold">{formatAmount(stats.annualTotal)}</div>
+            </CardContent>
+          </Card>
         </div>
       )}
 

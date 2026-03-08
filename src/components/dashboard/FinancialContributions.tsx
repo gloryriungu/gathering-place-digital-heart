@@ -82,6 +82,23 @@ export const FinancialContributions = () => {
   // Day report
   const [dayReportDate, setDayReportDate] = useState(new Date().toISOString().split('T')[0]);
 
+  // Preset report selectors
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth() + 1;
+  const currentQuarter = Math.ceil(currentMonth / 3);
+  const currentHalf = currentMonth <= 6 ? 'H1' : 'H2';
+  const yearOptions = Array.from({ length: currentYear - 2019 }, (_, i) => (currentYear - i).toString());
+
+  const [presetDaily, setPresetDaily] = useState(new Date().toISOString().split('T')[0]);
+  const [presetWeeklyStart, setPresetWeeklyStart] = useState(new Date().toISOString().split('T')[0]);
+  const [presetMonth, setPresetMonth] = useState(currentMonth.toString());
+  const [presetMonthYear, setPresetMonthYear] = useState(currentYear.toString());
+  const [presetQuarter, setPresetQuarter] = useState(`Q${currentQuarter}`);
+  const [presetQuarterYear, setPresetQuarterYear] = useState(currentYear.toString());
+  const [presetHalf, setPresetHalf] = useState(currentHalf);
+  const [presetHalfYear, setPresetHalfYear] = useState(currentYear.toString());
+  const [presetAnnualYear, setPresetAnnualYear] = useState(currentYear.toString());
+
   useEffect(() => {
     loadContributions();
 

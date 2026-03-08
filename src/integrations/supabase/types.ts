@@ -642,6 +642,33 @@ export type Database = {
         }
         Relationships: []
       }
+      department_tab_configs: {
+        Row: {
+          department: string
+          enabled: boolean
+          id: string
+          tab_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          department: string
+          enabled?: boolean
+          id?: string
+          tab_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          department?: string
+          enabled?: boolean
+          id?: string
+          tab_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       digital_purchases: {
         Row: {
           access_token: string | null

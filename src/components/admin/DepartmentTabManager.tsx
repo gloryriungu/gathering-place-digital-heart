@@ -5,29 +5,25 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { 
-  Users, 
   Calendar, 
   DollarSign, 
   FileText, 
   Settings,
-  Heart,
-  BookOpen,
-  UserCheck,
-  Monitor,
-  Shield,
-  Activity,
-  Ticket,
-  Mail,
-  Video,
-  ShoppingBag,
-  Home,
-  Megaphone,
-  Play,
-  BarChart3,
-  Star,
-  Share2,
-  HelpCircle
+  Users, 
+  Activity, 
+  Video, 
+  ShoppingBag, 
+  Home, 
+  Megaphone, 
+  Play, 
+  Mail, 
+  BarChart3, 
+  Share2, 
+  Star, 
+  HelpCircle,
+  Loader2
 } from "lucide-react";
 
 interface TabConfig {
@@ -77,6 +73,17 @@ const departments = [
   "registration"
 ];
 
+const defaultConfigs: { [key: string]: string[] } = {
+  admin: ["overview", "requisitions", "inventory", "reports", "users"],
+  accounts: ["overview", "requisitions", "inventory", "giving-records", "giving-analysis", "budget-create", "contributions"],
+  media: ["overview", "requisitions", "inventory", "livestream", "events", "shop", "hero", "announcements", "watch"],
+  marketing: ["overview", "requisitions", "inventory", "about", "newsletter", "filming", "social", "testimonials", "faq"],
+  sound: ["overview", "requisitions", "inventory"],
+  security: ["overview", "requisitions", "inventory"],
+  it: ["overview", "requisitions", "inventory", "users", "reports"],
+  registration: ["overview", "requisitions", "inventory", "reports"]
+};
+
 const getIconComponent = (iconName: string) => {
   const icons: { [key: string]: any } = {
     Calendar, DollarSign, FileText, Settings, Users, Activity, Video, 
@@ -88,6 +95,8 @@ const getIconComponent = (iconName: string) => {
 export const DepartmentTabManager = () => {
   const [departmentConfigs, setDepartmentConfigs] = useState<DepartmentTabsConfig[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchDepartmentConfigs();
@@ -97,12 +106,24 @@ export const DepartmentTabManager = () => {
     try {
       setLoading(true);
       
-      // Initialize with default configurations if none exist
+      const { data: dbConfigs, error } = await supabase
+        .from('department_tab_configs')
+        .select('department, tab_id, enabled');
+
+      if (error) throw error;
+
+      // Build a lookup map: department -> tab_id -> enabled
+      const configMap: Record<string, Record<string, boolean>> = {};
+      dbConfigs?.forEach(row => {
+        if (!configMap[row.department]) configMap[row.department] = {};
+        configMap[row.department][row.tab_id] = row.enabled;
+      });
+
       const configs = departments.map(dept => ({
         department: dept,
         tabs: availableTabs.map(tab => ({
           ...tab,
-          enabled: getDefaultTabStatus(dept, tab.id)
+          enabled: configMap[dept]?.[tab.id] ?? (defaultConfigs[dept]?.includes(tab.id) || false)
         }))
       }));
       
@@ -115,21 +136,6 @@ export const DepartmentTabManager = () => {
     }
   };
 
-  const getDefaultTabStatus = (department: string, tabId: string): boolean => {
-    const defaultConfigs: { [key: string]: string[] } = {
-      admin: ["overview", "requisitions", "inventory", "reports", "users"],
-      accounts: ["overview", "requisitions", "inventory", "giving-records", "giving-analysis", "budget-create", "contributions"],
-      media: ["overview", "requisitions", "inventory", "livestream", "events", "shop", "hero", "announcements", "watch"],
-      marketing: ["overview", "requisitions", "inventory", "about", "newsletter", "filming", "social", "testimonials", "faq"],
-      sound: ["overview", "requisitions", "inventory"],
-      security: ["overview", "requisitions", "inventory"],
-      it: ["overview", "requisitions", "inventory", "users", "reports"],
-      registration: ["overview", "requisitions", "inventory", "reports"]
-    };
-    
-    return defaultConfigs[department]?.includes(tabId) || false;
-  };
-
   const toggleTab = (departmentIndex: number, tabIndex: number) => {
     const newConfigs = [...departmentConfigs];
     newConfigs[departmentIndex].tabs[tabIndex].enabled = !newConfigs[departmentIndex].tabs[tabIndex].enabled;
@@ -138,17 +144,41 @@ export const DepartmentTabManager = () => {
 
   const saveConfiguration = async () => {
     try {
-      toast.success("Department tab configurations updated successfully");
-      // In a real implementation, you would save these to the database
-      // For now, we're just showing success since this is configuration-based
+      setSaving(true);
+      
+      // Build upsert rows for all departments/tabs
+      const rows = departmentConfigs.flatMap(config =>
+        config.tabs.map(tab => ({
+          department: config.department,
+          tab_id: tab.id,
+          enabled: tab.enabled,
+          updated_by: user?.id || null,
+          updated_at: new Date().toISOString(),
+        }))
+      );
+
+      const { error } = await supabase
+        .from('department_tab_configs')
+        .upsert(rows, { onConflict: 'department,tab_id' });
+
+      if (error) throw error;
+
+      toast.success("Department tab configurations saved successfully");
     } catch (error) {
       console.error('Error saving configuration:', error);
       toast.error("Failed to save configuration");
+    } finally {
+      setSaving(false);
     }
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center p-8">Loading department configurations...</div>;
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-6 w-6 animate-spin mr-2" />
+        Loading department configurations...
+      </div>
+    );
   }
 
   return (
@@ -158,8 +188,8 @@ export const DepartmentTabManager = () => {
           <h2 className="text-2xl font-bold text-foreground">Department Tab Management</h2>
           <p className="text-muted-foreground">Configure which tabs are available for each department</p>
         </div>
-        <Button onClick={saveConfiguration} className="bg-primary hover:bg-primary/90">
-          Save Configuration
+        <Button onClick={saveConfiguration} disabled={saving} className="bg-primary hover:bg-primary/90">
+          {saving ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Saving...</> : "Save Configuration"}
         </Button>
       </div>
 

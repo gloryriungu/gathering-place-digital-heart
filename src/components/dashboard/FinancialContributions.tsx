@@ -322,44 +322,76 @@ export const FinancialContributions = () => {
   };
 
   const generatePresetReport = (period: string) => {
-    const now = new Date();
     let filtered = completed;
-    let label = period.charAt(0).toUpperCase() + period.slice(1);
+    let label = '';
 
     switch (period) {
       case 'daily':
-        filtered = completed.filter(c => c.contribution_date?.startsWith(now.toISOString().split('T')[0]));
+        filtered = completed.filter(c => c.contribution_date === presetDaily);
+        label = `Daily Report – ${format(new Date(presetDaily + 'T00:00:00'), 'dd MMM yyyy')}`;
         break;
       case 'weekly': {
-        const weekAgo = new Date(now.getTime() - 7 * 86400000);
-        filtered = completed.filter(c => new Date(c.contribution_date) >= weekAgo);
-        break;
-      }
-      case 'monthly':
+        const start = new Date(presetWeeklyStart + 'T00:00:00');
+        const end = new Date(start.getTime() + 7 * 86400000);
         filtered = completed.filter(c => {
           const d = new Date(c.contribution_date);
-          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+          return d >= start && d < end;
         });
+        label = `Weekly Report – ${format(start, 'dd MMM')} to ${format(end, 'dd MMM yyyy')}`;
         break;
+      }
+      case 'monthly': {
+        const m = parseInt(presetMonth) - 1;
+        const y = parseInt(presetMonthYear);
+        filtered = completed.filter(c => {
+          const d = new Date(c.contribution_date);
+          return d.getMonth() === m && d.getFullYear() === y;
+        });
+        label = `Monthly Report – ${format(new Date(y, m, 1), 'MMMM yyyy')}`;
+        break;
+      }
       case 'quarterly': {
-        const qStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
-        filtered = completed.filter(c => new Date(c.contribution_date) >= qStart);
+        const qNum = parseInt(presetQuarter.replace('Q', ''));
+        const y = parseInt(presetQuarterYear);
+        const qStart = new Date(y, (qNum - 1) * 3, 1);
+        const qEnd = new Date(y, qNum * 3, 1);
+        filtered = completed.filter(c => {
+          const d = new Date(c.contribution_date);
+          return d >= qStart && d < qEnd;
+        });
+        label = `Quarterly Report – Q${qNum} ${y}`;
         break;
       }
       case 'semi-annual': {
-        const saStart = new Date(now.getFullYear(), now.getMonth() >= 6 ? 6 : 0, 1);
-        filtered = completed.filter(c => new Date(c.contribution_date) >= saStart);
-        label = 'Semi-Annual';
+        const y = parseInt(presetHalfYear);
+        const saStart = new Date(y, presetHalf === 'H1' ? 0 : 6, 1);
+        const saEnd = new Date(y, presetHalf === 'H1' ? 6 : 12, 1);
+        filtered = completed.filter(c => {
+          const d = new Date(c.contribution_date);
+          return d >= saStart && d < saEnd;
+        });
+        label = `Semi-Annual Report – ${presetHalf} ${y}`;
         break;
       }
       case 'annual': {
-        const yearStart = new Date(now.getFullYear(), 0, 1);
-        filtered = completed.filter(c => new Date(c.contribution_date) >= yearStart);
+        const y = parseInt(presetAnnualYear);
+        const yearStart = new Date(y, 0, 1);
+        const yearEnd = new Date(y + 1, 0, 1);
+        filtered = completed.filter(c => {
+          const d = new Date(c.contribution_date);
+          return d >= yearStart && d < yearEnd;
+        });
+        label = `Annual Report – ${y}`;
         break;
       }
     }
 
-    generateStyledPDF(filtered, `${label} Report`);
+    if (filtered.length === 0) {
+      toast.error("No records found for the selected period");
+      return;
+    }
+
+    generateStyledPDF(filtered, label);
   };
 
   const generateCustomReport = () => {

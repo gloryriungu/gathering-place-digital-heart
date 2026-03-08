@@ -190,6 +190,7 @@ export const FinancialContributions = () => {
 
       toast.success("Cash contribution recorded successfully");
       setNewContribution({ type: "offering", amount: "", service: "", date: new Date().toISOString().split('T')[0], mpesaCode: "", bankedBy: "" });
+      await loadContributions();
       // Auto-switch to History tab so the user can see the saved record
       setActiveTab("history");
     } catch (error: any) {

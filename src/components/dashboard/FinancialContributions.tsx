@@ -79,6 +79,9 @@ export const FinancialContributions = () => {
   const [reportDateFrom, setReportDateFrom] = useState("");
   const [reportDateTo, setReportDateTo] = useState("");
 
+  // Day report
+  const [dayReportDate, setDayReportDate] = useState(new Date().toISOString().split('T')[0]);
+
   useEffect(() => {
     loadContributions();
 

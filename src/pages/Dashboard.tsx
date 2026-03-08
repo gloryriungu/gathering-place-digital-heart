@@ -281,6 +281,7 @@ const Dashboard = () => {
       ],
       it: [
         { value: "programs", label: "Programs", icon: BookOpen },
+        { value: "giving-analysis", label: "Giving Analysis", icon: DollarSign },
         { value: "user-management", label: "User Management", icon: Users },
         { value: "system-logs", label: "System Logs", icon: Activity },
         { value: "ticketing", label: "Support Tickets", icon: Ticket },

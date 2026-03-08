@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, DollarSign, TrendingUp, Calendar, Filter, Trash2 } from "lucide-react";
 import { formatAmount } from "@/lib/paystack";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { format, startOfWeek, endOfWeek } from "date-fns";
 
 interface Contribution {
   id: string;
@@ -30,15 +31,11 @@ interface Contribution {
 }
 
 interface GivingStats {
-  totalThisWeek: number;
-  totalThisMonth: number;
-  totalQ1: number;
-  totalQ2: number;
-  totalQ3: number;
-  totalQ4: number;
-  totalFirstHalf: number;
-  totalSecondHalf: number;
-  totalYear: number;
+  weeklyTotal: number;
+  monthlyTotal: number;
+  quarterlyTotal: number;
+  halfYearTotal: number;
+  annualTotal: number;
 }
 
 type SourceFilter = 'all' | 'cash' | 'online';

@@ -54,6 +54,7 @@
  * - Color-coded role badges for visual identification
  */
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/components/auth/AuthProvider";

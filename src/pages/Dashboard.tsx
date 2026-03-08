@@ -328,7 +328,14 @@ const Dashboard = () => {
       ]
     };
 
-    return [...baseTabs, ...(roleTabs[userRole as keyof typeof roleTabs] || roleTabs.user)];
+    let roleSpecificTabs = roleTabs[userRole as keyof typeof roleTabs] || roleTabs.user;
+    
+    // Filter tabs based on DB config if available
+    if (tabConfigs) {
+      roleSpecificTabs = roleSpecificTabs.filter(tab => tabConfigs[tab.value] !== false);
+    }
+
+    return [...baseTabs, ...roleSpecificTabs];
   };
 
   const getUserRoleBadge = () => {

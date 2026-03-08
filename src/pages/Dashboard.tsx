@@ -131,6 +131,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState<string>("user");
   const [activeTab, setActiveTab] = useState("overview");
+  const [tabConfigs, setTabConfigs] = useState<Record<string, boolean> | null>(null);
   useInactivityLogout();
 
   useEffect(() => {

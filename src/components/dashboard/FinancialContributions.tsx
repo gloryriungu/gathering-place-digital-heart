@@ -205,6 +205,7 @@ export const FinancialContributions = () => {
       const { error } = await supabase.from('contributions').delete().eq('id', id);
       if (error) throw error;
       toast.success("Contribution deleted");
+      await loadContributions();
     } catch (error: any) {
       toast.error(error.message || "Failed to delete");
     }

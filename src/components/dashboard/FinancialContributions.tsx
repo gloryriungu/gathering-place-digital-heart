@@ -784,6 +784,37 @@ export const FinancialContributions = () => {
 
         <TabsContent value="reports">
           <div className="space-y-6">
+            {/* Day Report */}
+            <Card className="border-2 border-primary/30">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-primary" />
+                  Day Report
+                </CardTitle>
+                <CardDescription>Generate a comprehensive PDF report for a specific day</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                  <div className="space-y-2">
+                    <Label>Select Date</Label>
+                    <Input type="date" value={dayReportDate} onChange={e => setDayReportDate(e.target.value)} />
+                  </div>
+                  <div className="p-3 bg-muted rounded-lg">
+                    <p className="text-xs text-muted-foreground">Records Found</p>
+                    <p className="text-lg font-bold">{dayReportRecords.length}</p>
+                  </div>
+                  <div className="p-3 bg-muted rounded-lg">
+                    <p className="text-xs text-muted-foreground">Grand Total (KES)</p>
+                    <p className="text-lg font-bold">{formatAmount(dayReportTotal)}</p>
+                  </div>
+                </div>
+                <Button onClick={generateDayReportPDF} disabled={dayReportRecords.length === 0} className="w-full">
+                  <Download className="mr-2 h-4 w-4" />
+                  Generate Day Report
+                </Button>
+              </CardContent>
+            </Card>
+
             {/* Custom filtered report */}
             <Card>
               <CardHeader>

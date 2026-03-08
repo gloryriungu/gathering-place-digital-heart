@@ -29,12 +29,16 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const contributionTypes = [
-  { value: "offering", label: "Offering" },
   { value: "tithe", label: "Tithe" },
+  { value: "offering", label: "Offering" },
+  { value: "gift", label: "Gift" },
+  { value: "seed", label: "Seed" },
+  { value: "mission", label: "Mission" },
+  { value: "thanksgiving", label: "Thanksgiving" },
   { value: "building_fund", label: "Building Fund" },
-  { value: "missions", label: "Missions" },
   { value: "community_outreach", label: "Community Outreach" },
   { value: "special_offering", label: "Special Offering" },
+  { value: "others", label: "Others" },
 ];
 
 const getTypeBadgeColor = (type: string) => {

@@ -1,51 +1,62 @@
 
 
-## Plan: Separate Cash Contributions from Online Giving
+## Plan: Persist Department Tab Access Control via Database
 
 ### Problem
-The "Record Giving" tab in the account portal records **cash money counted separately** (manual/physical contributions), but currently mixes it with Paystack online payments in the same history, stats, and reports. The user needs these tracked independently. Additionally, service name should be optional and a "Banked By" field is needed.
+The existing `DepartmentTabManager` (accessible by IT under "Tab Management") uses only local state — toggling tabs has no effect. The admin/IT cannot actually control which tabs the accounts role sees.
 
-### Database Change
-Add a `banked_by` column to the `contributions` table to track who deposited the cash:
+### Solution
+1. **Create a `department_tab_configs` table** to store which tabs are enabled per department.
+2. **Update `DepartmentTabManager`** to read/write from this table.
+3. **Update `Dashboard.tsx`** to fetch the accounts tab config and filter the `roleTabs.accounts` list accordingly.
+
+### Database Migration
 
 ```sql
-ALTER TABLE public.contributions ADD COLUMN banked_by text;
+CREATE TABLE public.department_tab_configs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  department text NOT NULL,
+  tab_id text NOT NULL,
+  enabled boolean NOT NULL DEFAULT true,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  updated_by uuid REFERENCES auth.users(id),
+  UNIQUE(department, tab_id)
+);
+
+ALTER TABLE public.department_tab_configs ENABLE ROW LEVEL SECURITY;
+
+-- IT and admin can manage
+CREATE POLICY "IT can manage tab configs"
+  ON public.department_tab_configs FOR ALL
+  TO authenticated
+  USING (EXISTS (
+    SELECT 1 FROM user_roles
+    WHERE user_roles.user_id = auth.uid()
+    AND user_roles.role IN ('it', 'admin', 'founder')
+  ));
+
+-- All authenticated users can read (needed to filter their own tabs)
+CREATE POLICY "Authenticated users can read tab configs"
+  ON public.department_tab_configs FOR SELECT
+  TO authenticated
+  USING (true);
 ```
 
-### Code Changes
+### File Changes
 
-**File: `src/components/dashboard/FinancialContributions.tsx`**
+**`src/components/admin/DepartmentTabManager.tsx`**
+- On load, fetch rows from `department_tab_configs` for all departments. If no rows exist for a department, use defaults.
+- `toggleTab` updates local state as before.
+- `saveConfiguration` upserts all tab configs to the database (using `upsert` on `department, tab_id`).
 
-1. **Add "Banked By" field** to the contribution form state and UI (text input for the person's name who banked the cash).
+**`src/pages/Dashboard.tsx`**
+- Add a `useEffect` that fetches `department_tab_configs` where `department = userRole` (specifically for accounts, but works generically).
+- Filter the `roleTabs[userRole]` array to only include tabs where `enabled = true` (or where no config row exists, fall back to the hardcoded default).
+- This means IT can disable e.g. "Giving Analysis" or "Requisitions" for the accounts role via the Tab Management interface, and those tabs will disappear from the accounts user's dashboard.
 
-2. **Make Service Name optional** — remove the validation requiring it. Update placeholder to say "Optional - e.g. Sunday Service".
-
-3. **Filter data to cash-only contributions** — all stats, history, and reports in this component will only show contributions where `payment_method` is `'manual'` or `'cash'` (excluding Paystack entries which have `payment_method` = `'mpesa'`, `'card'`, etc. or have a `paystack_reference`).
-   - `loadContributions` query: add `.in('payment_method', ['manual', 'cash'])` or `.is('paystack_reference', null)` filter
-   - Stats cards, summary, history, and PDF reports will automatically reflect only cash data
-
-4. **Store `banked_by`** in the insert call when adding a contribution. Display it in history items and include it in PDF reports as a column.
-
-5. **Update PDF table headers** to include "Banked By" column.
-
-6. **Update heading/descriptions** to clarify this section is for "Cash Contributions" (e.g., "Cash Giving Records", "Track and manage physical cash contributions").
-
-**File: `src/components/accounts/GivingAnalysis.tsx`** (Accounts portal)
-
-Apply the same separation:
-- The analytics/stats queries should distinguish between cash (manual) and online (Paystack) contributions
-- Add a "Banked By" field to the "Record Contribution" dialog
-- Make service/notes optional
-- Consider adding a tab or toggle to view "Cash" vs "Online" vs "All" contributions
-
-### Summary of Fields in "Add Contribution" Form (after changes)
-
-| Field | Required | Notes |
-|---|---|---|
-| Contribution Type | Yes | Dropdown |
-| Amount (KES) | Yes | Number |
-| Service Name | No | Now optional |
-| Date | Yes | Date picker |
-| M-Pesa Code | No | Optional |
-| Banked By | No | Name of person who banked the cash |
+### How It Works
+1. IT user goes to Dashboard → Tab Management tab
+2. Toggles tabs on/off for the "accounts" department (or any other)
+3. Clicks "Save Configuration" → persisted to `department_tab_configs`
+4. When an accounts user loads Dashboard, the system fetches their department's config and only shows enabled tabs
 

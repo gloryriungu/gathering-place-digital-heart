@@ -427,32 +427,8 @@ export const FinancialContributions = () => {
     doc.setFontSize(18);
     doc.text(String(records.length), 115, 65);
 
-    // Breakdown by type
-    doc.setFontSize(14);
-    doc.setTextColor(30, 41, 59);
-    doc.text('Breakdown by Contribution Type', 20, 87);
-
-    let y = 96;
-    doc.setFontSize(10);
-    contributionTypes.forEach(type => {
-      const typeRecords = records.filter(c => c.contribution_type === type.value);
-      if (typeRecords.length > 0) {
-        const typeTotal = typeRecords.reduce((s, c) => s + c.amount, 0);
-        doc.setFillColor(248, 250, 252);
-        doc.roundedRect(20, y - 5, 170, 9, 2, 2, 'F');
-        doc.setTextColor(71, 85, 105);
-        doc.text(type.label, 25, y + 1);
-        doc.text(`${typeRecords.length} transaction${typeRecords.length !== 1 ? 's' : ''}`, 100, y + 1);
-        doc.setTextColor(30, 41, 59);
-        doc.setFont(undefined as any, 'bold');
-        doc.text(formatAmount(typeTotal), 185, y + 1, { align: 'right' });
-        doc.setFont(undefined as any, 'normal');
-        y += 12;
-      }
-    });
-
     // Transactions table
-    y += 5;
+    let y = 82;
     doc.setFontSize(14);
     doc.setTextColor(30, 41, 59);
     doc.text('Transaction Details', 20, y);

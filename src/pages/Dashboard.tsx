@@ -178,6 +178,31 @@ const Dashboard = () => {
     }
   }, [isAuthenticated, refreshRole]);
 
+  // Fetch tab configs for current user's role
+  useEffect(() => {
+    const fetchTabConfigs = async () => {
+      if (!userRole || userRole === 'user') return;
+      try {
+        const { data, error } = await supabase
+          .from('department_tab_configs')
+          .select('tab_id, enabled')
+          .eq('department', userRole);
+        if (error) throw error;
+        if (data && data.length > 0) {
+          const map: Record<string, boolean> = {};
+          data.forEach(row => { map[row.tab_id] = row.enabled; });
+          setTabConfigs(map);
+        } else {
+          setTabConfigs(null);
+        }
+      } catch (err) {
+        console.error('Failed to fetch tab configs:', err);
+        setTabConfigs(null);
+      }
+    };
+    fetchTabConfigs();
+  }, [userRole]);
+
   // Show loading state
   if (loading) {
     return (

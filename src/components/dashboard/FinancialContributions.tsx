@@ -31,7 +31,8 @@ import {
 const contributionTypes = [
   { value: "tithe", label: "Tithe" },
   { value: "offering", label: "Offering" },
-  { value: "gift", label: "Gift" },
+  { value: "gift_1", label: "Gift 1" },
+  { value: "gift_2", label: "Gift 2" },
   { value: "seed", label: "Seed" },
   { value: "mission", label: "Mission" },
   { value: "thanksgiving", label: "Thanksgiving" },

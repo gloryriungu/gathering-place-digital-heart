@@ -1645,6 +1645,8 @@ export type Database = {
           last_name: string | null
           occupation: string | null
           phone: string | null
+          photography_consent: boolean | null
+          photography_consent_date: string | null
           qr_code_data: string | null
           updated_at: string
           user_id: string
@@ -1658,6 +1660,8 @@ export type Database = {
           last_name?: string | null
           occupation?: string | null
           phone?: string | null
+          photography_consent?: boolean | null
+          photography_consent_date?: string | null
           qr_code_data?: string | null
           updated_at?: string
           user_id: string
@@ -1671,6 +1675,8 @@ export type Database = {
           last_name?: string | null
           occupation?: string | null
           phone?: string | null
+          photography_consent?: boolean | null
+          photography_consent_date?: string | null
           qr_code_data?: string | null
           updated_at?: string
           user_id?: string

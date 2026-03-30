@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Phone, User } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { MapPin, Phone, User, Camera } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +35,7 @@ const ProfileCompletion = () => {
     phone: '',
     address: '',
     county: '',
+    photographyConsent: false,
   });
 
   useEffect(() => {
@@ -72,6 +74,8 @@ const ProfileCompletion = () => {
           phone: profileForm.phone,
           address: profileForm.address,
           county: profileForm.county,
+          photography_consent: profileForm.photographyConsent,
+          photography_consent_date: profileForm.photographyConsent ? new Date().toISOString() : null,
         }, {
           onConflict: 'user_id'
         });
@@ -204,6 +208,28 @@ const ProfileCompletion = () => {
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div className="flex items-start space-x-3 rounded-md border border-border p-3">
+                      <Checkbox
+                        id="profilePhotographyConsent"
+                        checked={profileForm.photographyConsent}
+                        onCheckedChange={(checked) => setProfileForm({ ...profileForm, photographyConsent: checked === true })}
+                        disabled={isLoading}
+                        className="mt-0.5"
+                      />
+                      <div className="space-y-1">
+                        <Label htmlFor="profilePhotographyConsent" className="text-sm font-medium flex items-center gap-1.5 cursor-pointer">
+                          <Camera className="h-4 w-4 text-muted-foreground" />
+                          Photography & Videography Consent
+                          <span className="text-xs text-muted-foreground">(Optional)</span>
+                        </Label>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          I consent to being photographed and/or recorded during church services and events. 
+                          Images and videos may be used for church communications, social media, and promotional materials 
+                          in accordance with Kenya's Data Protection Act, 2019.
+                        </p>
+                      </div>
+                    </div>
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Completing Profile..." : "Complete Profile"}

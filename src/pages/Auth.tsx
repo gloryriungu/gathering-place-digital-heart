@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Eye, EyeOff, LogIn, UserPlus, MapPin, Phone, User, ArrowLeft, Mail, KeyRound } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Eye, EyeOff, LogIn, UserPlus, MapPin, Phone, User, ArrowLeft, Mail, KeyRound, Camera } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
@@ -86,6 +87,7 @@ const Auth = () => {
     county: '',
     password: '',
     confirmPassword: '',
+    photographyConsent: false,
   });
 
   // Forgot password form state
@@ -155,6 +157,7 @@ const Auth = () => {
         phone: signUpForm.phone,
         address: signUpForm.address,
         county: signUpForm.county,
+        photography_consent: signUpForm.photographyConsent,
       };
       
       const { error } = await signUp(signUpForm.email, signUpForm.password, userData);
@@ -172,6 +175,7 @@ const Auth = () => {
           county: '',
           password: '',
           confirmPassword: '',
+          photographyConsent: false,
         });
       }
     } catch (error) {
@@ -728,6 +732,28 @@ const Auth = () => {
                         {signUpForm.password === signUpForm.confirmPassword ? '✓ Passwords match' : '✗ Passwords do not match'}
                       </p>
                     )}
+
+                    <div className="flex items-start space-x-3 rounded-md border border-border p-3">
+                      <Checkbox
+                        id="photographyConsent"
+                        checked={signUpForm.photographyConsent}
+                        onCheckedChange={(checked) => setSignUpForm({ ...signUpForm, photographyConsent: checked === true })}
+                        disabled={isLoading}
+                        className="mt-0.5"
+                      />
+                      <div className="space-y-1">
+                        <Label htmlFor="photographyConsent" className="text-sm font-medium flex items-center gap-1.5 cursor-pointer">
+                          <Camera className="h-4 w-4 text-muted-foreground" />
+                          Photography & Videography Consent
+                          <span className="text-xs text-muted-foreground">(Optional)</span>
+                        </Label>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          I consent to being photographed and/or recorded during church services and events. 
+                          Images and videos may be used for church communications, social media, and promotional materials 
+                          in accordance with Kenya's Data Protection Act, 2019.
+                        </p>
+                      </div>
+                    </div>
 
                     <Button type="submit" className="w-full" disabled={isLoading}>
                       {isLoading ? "Creating Account..." : "Create Account"}

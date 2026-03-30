@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Phone, User } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { MapPin, Phone, User, Camera } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +35,7 @@ const ProfileCompletion = () => {
     phone: '',
     address: '',
     county: '',
+    photographyConsent: false,
   });
 
   useEffect(() => {
@@ -72,6 +74,8 @@ const ProfileCompletion = () => {
           phone: profileForm.phone,
           address: profileForm.address,
           county: profileForm.county,
+          photography_consent: profileForm.photographyConsent,
+          photography_consent_date: profileForm.photographyConsent ? new Date().toISOString() : null,
         }, {
           onConflict: 'user_id'
         });

@@ -154,13 +154,13 @@ export const WatchPageManager = () => {
   const addSermon = () => {
     setFormData(prev => ({
       ...prev,
-      sermons: [{
+      sermons: [...prev.sermons, {
         title: "",
         date: "",
         duration: "",
         description: "",
         video_url: ""
-      }, ...prev.sermons]
+      }]
     }));
   };
 
@@ -371,15 +371,17 @@ export const WatchPageManager = () => {
               </div>
             </div>
             
-            {formData.sermons.map((sermon, index) => (
-              <Card key={index} className="bg-gray-50">
+            {[...formData.sermons].reverse().map((sermon, _ri) => {
+              const originalIndex = formData.sermons.length - 1 - _ri;
+              return (
+              <Card key={originalIndex} className="bg-gray-50">
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Sermon {formData.sermons.length - index}</h4>
+                    <h4 className="font-medium">Sermon {originalIndex + 1}</h4>
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      onClick={() => removeSermon(index)}
+                      onClick={() => removeSermon(originalIndex)}
                     >
                       Remove
                     </Button>
@@ -389,7 +391,7 @@ export const WatchPageManager = () => {
                       <Label>Title</Label>
                       <Input
                         value={sermon.title}
-                        onChange={(e) => updateSermon(index, 'title', e.target.value)}
+                        onChange={(e) => updateSermon(originalIndex, 'title', e.target.value)}
                         placeholder="Sermon title"
                       />
                     </div>
@@ -397,7 +399,7 @@ export const WatchPageManager = () => {
                       <Label>Date</Label>
                       <Input
                         value={sermon.date}
-                        onChange={(e) => updateSermon(index, 'date', e.target.value)}
+                        onChange={(e) => updateSermon(originalIndex, 'date', e.target.value)}
                         placeholder="e.g., January 21, 2024"
                       />
                     </div>
@@ -405,7 +407,7 @@ export const WatchPageManager = () => {
                       <Label>Duration</Label>
                       <Input
                         value={sermon.duration}
-                        onChange={(e) => updateSermon(index, 'duration', e.target.value)}
+                        onChange={(e) => updateSermon(originalIndex, 'duration', e.target.value)}
                         placeholder="e.g., 52 min"
                       />
                     </div>
@@ -413,7 +415,7 @@ export const WatchPageManager = () => {
                       <Label>Video URL</Label>
                       <Input
                         value={sermon.video_url || ''}
-                        onChange={(e) => updateSermon(index, 'video_url', e.target.value)}
+                        onChange={(e) => updateSermon(originalIndex, 'video_url', e.target.value)}
                         placeholder="YouTube or video URL"
                       />
                     </div>
@@ -422,14 +424,15 @@ export const WatchPageManager = () => {
                     <Label>Description</Label>
                     <Textarea
                       value={sermon.description}
-                      onChange={(e) => updateSermon(index, 'description', e.target.value)}
+                      onChange={(e) => updateSermon(originalIndex, 'description', e.target.value)}
                       placeholder="Sermon description"
                       rows={2}
                     />
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
 
           <div className="flex justify-end space-x-2 pt-4">

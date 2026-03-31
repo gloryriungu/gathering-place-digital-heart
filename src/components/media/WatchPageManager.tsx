@@ -371,11 +371,13 @@ export const WatchPageManager = () => {
               </div>
             </div>
             
-            {formData.sermons.map((sermon, index) => (
-              <Card key={index} className="bg-gray-50">
+            {[...formData.sermons].map((sermon, _ri, arr) => {
+              const originalIndex = formData.sermons.length - 1 - _ri;
+              return (
+              <Card key={originalIndex} className="bg-gray-50">
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Sermon {formData.sermons.length - index}</h4>
+                    <h4 className="font-medium">Sermon {originalIndex + 1}</h4>
                     <Button 
                       variant="outline" 
                       size="sm" 

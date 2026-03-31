@@ -154,13 +154,13 @@ export const WatchPageManager = () => {
   const addSermon = () => {
     setFormData(prev => ({
       ...prev,
-      sermons: [...prev.sermons, {
+      sermons: [{
         title: "",
         date: "",
         duration: "",
         description: "",
         video_url: ""
-      }]
+      }, ...prev.sermons]
     }));
   };
 

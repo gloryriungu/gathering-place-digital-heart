@@ -275,7 +275,7 @@ const Watch = () => {
             
             {(() => {
               // Reverse array so the most recently uploaded message appears first
-              const sorted = [...watchData.sermons];
+              const sorted = [...watchData.sermons].reverse();
 
               // Filter by name
               const filtered = sorted.filter((sermon) => {

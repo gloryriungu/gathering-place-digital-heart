@@ -375,7 +375,7 @@ export const WatchPageManager = () => {
               <Card key={index} className="bg-gray-50">
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-medium">Sermon {index + 1}</h4>
+                    <h4 className="font-medium">Sermon {formData.sermons.length - index}</h4>
                     <Button 
                       variant="outline" 
                       size="sm" 

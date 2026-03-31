@@ -360,9 +360,15 @@ export const WatchPageManager = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold">Recent Sermons</h3>
-              <Button onClick={addSermon} size="sm">
-                Add Sermon
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button onClick={addSermon} size="sm">
+                  Add Sermon
+                </Button>
+                <Button onClick={handleSave} disabled={saving} size="sm">
+                  <Save className="w-4 h-4 mr-2" />
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </div>
             </div>
             
             {formData.sermons.map((sermon, index) => (

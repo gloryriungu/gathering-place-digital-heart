@@ -522,7 +522,7 @@ const Shop = () => {
               </div> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProducts.map((product) => <Card key={product.id} className="overflow-hidden">
                     <CardHeader className="p-0 relative">
-                      <img src={product.image} alt={product.name} className="h-48 w-full object-cover" />
+                      <img src={product.image} alt={product.name} className="h-48 w-full object-contain bg-muted" />
                       <Button variant="secondary" size="icon" className="absolute top-2 right-2" onClick={() => toggleWishlist(product.id)}>
                         <Heart className={`h-4 w-4 ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : ''}`} />
                       </Button>

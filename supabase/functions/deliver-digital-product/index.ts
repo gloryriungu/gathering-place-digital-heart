@@ -372,6 +372,68 @@ serve(async (req) => {
       });
     }
 
+    // Action: read_file - Stream file for in-browser reading (does NOT count against download limit)
+    if (action === 'read_file') {
+      console.log('Reading file in-browser:', { accessToken });
+
+      const { data: purchase, error: purchaseError } = await supabaseClient
+        .from('digital_purchases')
+        .select('*, media_content:product_id(*)')
+        .eq('access_token', accessToken)
+        .single();
+
+      if (purchaseError || !purchase) {
+        console.error('Digital purchase not found:', purchaseError);
+        return new Response(
+          JSON.stringify({ error: 'Access not found or expired' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Check if access expired
+      if (purchase.download_expires_at && new Date(purchase.download_expires_at) < new Date()) {
+        return new Response(
+          JSON.stringify({ error: 'Access has expired' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const product = purchase.media_content as any;
+      const contentData = product?.content_data as any;
+      const filePath = contentData?.digital_file_path;
+
+      if (!filePath) {
+        return new Response(
+          JSON.stringify({ error: 'Digital file not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const { data: fileData, error: fileError } = await supabaseClient
+        .storage
+        .from('digital-products')
+        .download(filePath);
+
+      if (fileError || !fileData) {
+        console.error('Failed to read file from storage:', fileError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to load file' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      console.log('File read successful for in-browser viewing');
+
+      // Return as inline PDF (not attachment) - does NOT increment download count
+      return new Response(fileData, {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/pdf',
+          'Content-Disposition': 'inline',
+        }
+      });
+    }
+
     // Action: get_user_downloads - Get all digital purchases for a user
     if (action === 'get_user_downloads') {
       console.log('Getting user downloads:', { customerEmail, userId });

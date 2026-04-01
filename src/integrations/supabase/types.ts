@@ -1857,6 +1857,47 @@ export type Database = {
         }
         Relationships: []
       }
+      reading_progress: {
+        Row: {
+          created_at: string
+          current_page: number
+          id: string
+          last_read_at: string
+          product_id: string
+          total_pages: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_page?: number
+          id?: string
+          last_read_at?: string
+          product_id: string
+          total_pages?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_page?: number
+          id?: string
+          last_read_at?: string
+          product_id?: string
+          total_pages?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reading_progress_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "media_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       recurring_contributions: {
         Row: {
           amount: number

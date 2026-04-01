@@ -2,11 +2,13 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Download, BookOpen, Clock, AlertCircle, Loader2, ShoppingBag } from "lucide-react";
+import { Download, BookOpen, Clock, AlertCircle, Loader2, ShoppingBag, Library } from "lucide-react";
 import { format } from "date-fns";
 import { EmbeddedShop } from "@/components/shop/EmbeddedShop";
+import { EbookReader } from "@/components/reader/EbookReader";
 
 interface DigitalPurchase {
   id: string;
@@ -15,6 +17,7 @@ interface DigitalPurchase {
   max_downloads: number;
   download_expires_at: string | null;
   created_at: string;
+  product_id: string;
   media_content: {
     id: string;
     title: string;
@@ -24,15 +27,45 @@ interface DigitalPurchase {
   };
 }
 
+interface ReadingProgressRecord {
+  product_id: string;
+  last_read_at: string;
+}
+
 export const MyDownloads = () => {
   const [downloads, setDownloads] = useState<DigitalPurchase[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [showShop, setShowShop] = useState(false);
+  const [readingBook, setReadingBook] = useState<DigitalPurchase | null>(null);
+  const [readingProgress, setReadingProgress] = useState<Record<string, ReadingProgressRecord>>({});
 
   useEffect(() => {
     fetchDownloads();
+    fetchReadingProgress();
   }, []);
+
+  const fetchReadingProgress = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('reading_progress')
+        .select('product_id, last_read_at')
+        .eq('user_id', user.id);
+
+      if (data) {
+        const progressMap: Record<string, ReadingProgressRecord> = {};
+        data.forEach((p: any) => {
+          progressMap[p.product_id] = p;
+        });
+        setReadingProgress(progressMap);
+      }
+    } catch (error) {
+      console.error('Error fetching reading progress:', error);
+    }
+  };
 
   const fetchDownloads = async () => {
     try {
@@ -54,7 +87,7 @@ export const MyDownloads = () => {
       setDownloads(data.downloads || []);
     } catch (error) {
       console.error('Error fetching downloads:', error);
-      toast.error('Failed to load your downloads');
+      toast.error('Failed to load your library');
     } finally {
       setLoading(false);
     }
@@ -63,7 +96,6 @@ export const MyDownloads = () => {
   const handleDownload = async (purchase: DigitalPurchase) => {
     setDownloadingId(purchase.id);
     try {
-      // Use fetch directly to get blob response
       const { data: { session } } = await supabase.auth.getSession();
       
       const response = await fetch(
@@ -81,7 +113,6 @@ export const MyDownloads = () => {
         }
       );
 
-      // Check if response is JSON (error) or blob (file)
       const contentType = response.headers.get('Content-Type');
       
       if (contentType?.includes('application/json')) {
@@ -95,10 +126,7 @@ export const MyDownloads = () => {
         return;
       }
 
-      // Get filename from header or use product title
       const filename = response.headers.get('X-Filename') || `${purchase.media_content?.title || 'download'}.pdf`;
-
-      // Create blob and trigger download
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -110,8 +138,6 @@ export const MyDownloads = () => {
       URL.revokeObjectURL(url);
 
       toast.success(`Downloaded ${purchase.media_content?.title || 'file'}`);
-      
-      // Refresh to update download count
       await fetchDownloads();
     } catch (error) {
       console.error('Download error:', error);
@@ -119,6 +145,15 @@ export const MyDownloads = () => {
     } finally {
       setDownloadingId(null);
     }
+  };
+
+  const handleRead = (purchase: DigitalPurchase) => {
+    setReadingBook(purchase);
+  };
+
+  const handleCloseReader = () => {
+    setReadingBook(null);
+    fetchReadingProgress(); // Refresh progress after reading
   };
 
   const isExpired = (expiresAt: string | null) => {
@@ -130,13 +165,25 @@ export const MyDownloads = () => {
     return purchase.download_count >= purchase.max_downloads;
   };
 
+  // Show reader overlay
+  if (readingBook) {
+    return (
+      <EbookReader
+        accessToken={readingBook.access_token}
+        productId={readingBook.product_id || readingBook.media_content?.id}
+        title={readingBook.media_content?.title || 'Book'}
+        onClose={handleCloseReader}
+      />
+    );
+  }
+
   if (loading) {
     return (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
-            My Downloads
+            <Library className="h-5 w-5" />
+            My Library
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -148,7 +195,6 @@ export const MyDownloads = () => {
     );
   }
 
-  // Show embedded shop when Browse Shop is clicked
   if (showShop) {
     return <EmbeddedShop onClose={() => setShowShop(false)} />;
   }
@@ -157,11 +203,11 @@ export const MyDownloads = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <BookOpen className="h-5 w-5" />
-          My Downloads
+          <Library className="h-5 w-5" />
+          My Library
         </CardTitle>
         <CardDescription>
-          Access your purchased digital books and resources
+          Read and download your purchased digital books and resources
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -170,7 +216,7 @@ export const MyDownloads = () => {
             <BookOpen className="mx-auto h-12 w-12 text-muted-foreground" />
             <h3 className="mt-4 text-lg font-semibold">No digital purchases yet</h3>
             <p className="mt-2 text-muted-foreground">
-              Purchase digital books from our shop to access them here
+              Purchase digital books from our shop to read them here
             </p>
             <Button className="mt-4" onClick={() => setShowShop(true)}>
               <ShoppingBag className="h-4 w-4 mr-2" />
@@ -183,20 +229,21 @@ export const MyDownloads = () => {
               const expired = isExpired(purchase.download_expires_at);
               const limitReached = isDownloadLimitReached(purchase);
               const canDownload = !expired && !limitReached;
+              const hasProgress = readingProgress[purchase.product_id || purchase.media_content?.id];
 
               return (
                 <div
                   key={purchase.id}
-                  className="flex items-center gap-4 p-4 border rounded-lg"
+                  className="flex items-start gap-4 p-4 border rounded-lg"
                 >
                   {purchase.media_content?.image_url ? (
                     <img
                       src={purchase.media_content.image_url}
                       alt={purchase.media_content.title}
-                      className="w-16 h-20 object-cover rounded"
+                      className="w-16 h-20 object-cover rounded flex-shrink-0"
                     />
                   ) : (
-                    <div className="w-16 h-20 bg-muted rounded flex items-center justify-center">
+                    <div className="w-16 h-20 bg-muted rounded flex items-center justify-center flex-shrink-0">
                       <BookOpen className="h-8 w-8 text-muted-foreground" />
                     </div>
                   )}
@@ -210,6 +257,13 @@ export const MyDownloads = () => {
                     </p>
                     
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
+                      {hasProgress && (
+                        <Badge variant="default" className="text-xs">
+                          <BookOpen className="h-3 w-3 mr-1" />
+                          Continue Reading
+                        </Badge>
+                      )}
+                      
                       <Badge variant="secondary" className="text-xs">
                         <Download className="h-3 w-3 mr-1" />
                         {purchase.max_downloads - purchase.download_count} downloads left
@@ -228,11 +282,32 @@ export const MyDownloads = () => {
                         </Badge>
                       )}
                     </div>
+
+                    {hasProgress && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Last read {format(new Date(hasProgress.last_read_at), 'MMM dd, yyyy')}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="flex-shrink-0">
+                  <div className="flex-shrink-0 flex flex-col gap-2">
+                    {/* Read button - always available if not expired */}
+                    {!expired && (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        onClick={() => handleRead(purchase)}
+                      >
+                        <BookOpen className="h-4 w-4 mr-2" />
+                        {hasProgress ? 'Continue' : 'Read'}
+                      </Button>
+                    )}
+                    
+                    {/* Download button */}
                     {canDownload ? (
                       <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => handleDownload(purchase)}
                         disabled={downloadingId === purchase.id}
                       >
@@ -246,7 +321,7 @@ export const MyDownloads = () => {
                         )}
                       </Button>
                     ) : (
-                      <Button variant="outline" disabled>
+                      <Button variant="outline" size="sm" disabled>
                         <AlertCircle className="h-4 w-4 mr-2" />
                         {expired ? 'Expired' : 'Limit Reached'}
                       </Button>

@@ -1,51 +1,70 @@
 
 
-## Plan: Separate Cash Contributions from Online Giving
+## Plan: Kindle-like In-App Ebook Reader
 
-### Problem
-The "Record Giving" tab in the account portal records **cash money counted separately** (manual/physical contributions), but currently mixes it with Paystack online payments in the same history, stats, and reports. The user needs these tracked independently. Additionally, service name should be optional and a "Banked By" field is needed.
+### What Changes
 
-### Database Change
-Add a `banked_by` column to the `contributions` table to track who deposited the cash:
+Transform the current download-only digital book system into an in-browser reading experience. Users who purchase ebooks can read them directly in the app, with reading progress saved automatically.
 
-```sql
-ALTER TABLE public.contributions ADD COLUMN banked_by text;
-```
+### Overview
 
-### Code Changes
+1. **Add a PDF reader component** using `react-pdf` (renders PDFs page-by-page in-browser)
+2. **Create a `reading_progress` database table** to persist page position per user per book
+3. **Add a `read_file` action to the edge function** that streams file content for in-browser viewing (without counting against download limits)
+4. **Update MyDownloads** to show a "Read" button alongside "Download", and render the reader inline
+5. **Rename the tab** from "My Downloads" to "My Library" for a Kindle-like feel
 
-**File: `src/components/dashboard/FinancialContributions.tsx`**
+### Database Changes
 
-1. **Add "Banked By" field** to the contribution form state and UI (text input for the person's name who banked the cash).
+**New table: `reading_progress`**
+- `id` (uuid, PK)
+- `user_id` (uuid, references auth.users, not null)
+- `product_id` (uuid, references media_content, not null)
+- `current_page` (integer, default 1)
+- `total_pages` (integer, nullable)
+- `last_read_at` (timestamptz, default now())
+- `created_at` / `updated_at`
+- Unique constraint on (user_id, product_id)
+- RLS: users can only read/write their own rows
 
-2. **Make Service Name optional** — remove the validation requiring it. Update placeholder to say "Optional - e.g. Sunday Service".
+### New Components
 
-3. **Filter data to cash-only contributions** — all stats, history, and reports in this component will only show contributions where `payment_method` is `'manual'` or `'cash'` (excluding Paystack entries which have `payment_method` = `'mpesa'`, `'card'`, etc. or have a `paystack_reference`).
-   - `loadContributions` query: add `.in('payment_method', ['manual', 'cash'])` or `.is('paystack_reference', null)` filter
-   - Stats cards, summary, history, and PDF reports will automatically reflect only cash data
+**`src/components/reader/EbookReader.tsx`**
+- Full-screen overlay PDF reader using `react-pdf`
+- Top bar: book title, close button, page indicator (e.g. "Page 12 of 145")
+- Navigation: previous/next page buttons, page number input for jumping
+- Auto-saves reading progress every page turn (debounced)
+- Resumes from last-read page on reopen
+- Responsive: works on desktop and mobile
 
-4. **Store `banked_by`** in the insert call when adding a contribution. Display it in history items and include it in PDF reports as a column.
+### Edge Function Update
 
-5. **Update PDF table headers** to include "Banked By" column.
+**`deliver-digital-product/index.ts`** -- new action `read_file`:
+- Similar to `download_file` but does NOT increment download count
+- Returns file with `Content-Type: application/pdf` (inline, not attachment)
+- Validates access token, checks expiry (but not download limit since reading is unlimited)
 
-6. **Update heading/descriptions** to clarify this section is for "Cash Contributions" (e.g., "Cash Giving Records", "Track and manage physical cash contributions").
+### MyDownloads Updates
 
-**File: `src/components/accounts/GivingAnalysis.tsx`** (Accounts portal)
+- Add "Read" button next to "Download" for each purchased book
+- Clicking "Read" opens the EbookReader overlay
+- Show reading progress bar on each book card (e.g. "62% complete")
+- Show "Continue Reading" badge on books with saved progress
 
-Apply the same separation:
-- The analytics/stats queries should distinguish between cash (manual) and online (Paystack) contributions
-- Add a "Banked By" field to the "Record Contribution" dialog
-- Make service/notes optional
-- Consider adding a tab or toggle to view "Cash" vs "Online" vs "All" contributions
+### Technical Details
 
-### Summary of Fields in "Add Contribution" Form (after changes)
+- **Library**: `react-pdf` (wraps PDF.js, well-maintained, React-native rendering)
+- **Progress persistence**: Upsert to `reading_progress` on each page turn, debounced 2 seconds
+- **File streaming**: The edge function streams the PDF blob; the reader creates an object URL for `react-pdf`'s `Document` component
+- **No format conversion needed**: Current system already stores PDFs; `react-pdf` handles them natively
+- **Access model**: Reading is unlimited (no download count decrement); downloading still has the 5-download/30-day limit
 
-| Field | Required | Notes |
-|---|---|---|
-| Contribution Type | Yes | Dropdown |
-| Amount (KES) | Yes | Number |
-| Service Name | No | Now optional |
-| Date | Yes | Date picker |
-| M-Pesa Code | No | Optional |
-| Banked By | No | Name of person who banked the cash |
+### Files to Create/Modify
+
+| File | Action |
+|------|--------|
+| `src/components/reader/EbookReader.tsx` | Create - PDF reader component |
+| `src/components/dashboard/MyDownloads.tsx` | Modify - add Read button, progress display, rename to Library |
+| `supabase/functions/deliver-digital-product/index.ts` | Modify - add `read_file` action |
+| Migration SQL | Create `reading_progress` table with RLS |
 

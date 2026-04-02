@@ -1,14 +1,14 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.53.0";
+import { createHmac } from "https://deno.land/std@0.177.0/node/crypto.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Resend webhook event types
 interface ResendBounceWebhook {
-  type: string; // "email.bounced", "email.complained", "email.delivered", etc.
+  type: string;
   created_at: string;
   data: {
     email_id: string;
@@ -22,19 +22,69 @@ interface ResendBounceWebhook {
   };
 }
 
+function verifyResendSignature(body: string, headers: Headers, secret: string): boolean {
+  const svixId = headers.get('svix-id');
+  const svixTimestamp = headers.get('svix-timestamp');
+  const svixSignature = headers.get('svix-signature');
+
+  if (!svixId || !svixTimestamp || !svixSignature) {
+    console.error('Missing svix headers for signature verification');
+    return false;
+  }
+
+  // Reject timestamps older than 5 minutes to prevent replay attacks
+  const timestampSeconds = parseInt(svixTimestamp, 10);
+  const now = Math.floor(Date.now() / 1000);
+  if (Math.abs(now - timestampSeconds) > 300) {
+    console.error('Webhook timestamp too old, possible replay attack');
+    return false;
+  }
+
+  // Resend uses Svix under the hood; the secret is base64-encoded after "whsec_" prefix
+  const secretBytes = Uint8Array.from(atob(secret.startsWith('whsec_') ? secret.slice(6) : secret), c => c.charCodeAt(0));
+
+  const signedContent = `${svixId}.${svixTimestamp}.${body}`;
+  const expectedSig = createHmac('sha256', secretBytes).update(signedContent).digest('base64');
+
+  // svix-signature can contain multiple signatures separated by spaces
+  const signatures = svixSignature.split(' ');
+  return signatures.some(s => s.startsWith('v1,') && s.slice(3) === expectedSig);
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    const signingSecret = Deno.env.get('RESEND_WEBHOOK_SECRET');
+    if (!signingSecret) {
+      console.error('RESEND_WEBHOOK_SECRET is not configured');
+      return new Response(
+        JSON.stringify({ error: 'Webhook secret not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Read body as text for signature verification
+    const body = await req.text();
+
+    // Verify the webhook signature
+    if (!verifyResendSignature(body, req.headers, signingSecret)) {
+      console.error('Invalid webhook signature - rejecting request');
+      return new Response(
+        JSON.stringify({ error: 'Invalid signature' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const webhookData: ResendBounceWebhook = await req.json();
+    const webhookData: ResendBounceWebhook = JSON.parse(body);
     
-    console.log('Received Resend webhook:', webhookData);
+    console.log('Received verified Resend webhook:', webhookData.type);
 
     // Only process bounce and complaint events
     if (!['email.bounced', 'email.complained'].includes(webhookData.type)) {
@@ -45,7 +95,6 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Map Resend event types to our bounce types
     let bounceType = 'soft';
     if (webhookData.type === 'email.bounced') {
       bounceType = 'hard';
@@ -53,9 +102,7 @@ const handler = async (req: Request): Promise<Response> => {
       bounceType = 'spam_complaint';
     }
 
-    // Process each recipient
     for (const email of webhookData.data.to) {
-      // Insert bounce record (this will trigger the handle_email_bounce function)
       const { error: bounceError } = await supabase
         .from('email_bounces')
         .insert({
@@ -76,20 +123,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     return new Response(
       JSON.stringify({ success: true, message: 'Bounce processed' }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error: any) {
     console.error('Error processing bounce:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 };

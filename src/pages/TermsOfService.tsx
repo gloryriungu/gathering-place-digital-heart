@@ -91,7 +91,7 @@ const TermsOfService = () => {
       <SEO
         title="Terms of Service | TOT International"
         description="Read the terms and conditions for using TOT International's website and services."
-        url="/terms-of-service"
+        canonical="/terms-of-service"
       />
       <Navigation />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">

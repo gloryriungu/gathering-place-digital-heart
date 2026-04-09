@@ -90,7 +90,7 @@ const PrivacyPolicy = () => {
       <SEO
         title="Privacy Policy | TOT International"
         description="Learn how TOT International collects, uses, and protects your personal information."
-        url="/privacy-policy"
+        canonical="/privacy-policy"
       />
       <Navigation />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">

@@ -88,6 +88,8 @@ const Auth = () => {
     password: '',
     confirmPassword: '',
     photographyConsent: false,
+    acceptedTerms: false,
+    churchUpdatesOptIn: false,
   });
 
   // Forgot password form state
@@ -130,6 +132,15 @@ const Auth = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!signUpForm.acceptedTerms) {
+      toast({
+        title: "Terms Required",
+        description: "You must accept the Privacy Policy and Terms of Service to create an account.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (signUpForm.password !== signUpForm.confirmPassword) {
       toast({
         title: "Password Mismatch",
@@ -158,6 +169,7 @@ const Auth = () => {
         address: signUpForm.address,
         county: signUpForm.county,
         photography_consent: signUpForm.photographyConsent,
+        church_updates_opt_in: signUpForm.churchUpdatesOptIn,
       };
       
       const { error } = await signUp(signUpForm.email, signUpForm.password, userData);
@@ -176,6 +188,8 @@ const Auth = () => {
           password: '',
           confirmPassword: '',
           photographyConsent: false,
+          acceptedTerms: false,
+          churchUpdatesOptIn: false,
         });
       }
     } catch (error) {
@@ -755,7 +769,47 @@ const Auth = () => {
                       </div>
                     </div>
 
-                    <Button type="submit" className="w-full" disabled={isLoading}>
+                    <div className="flex items-start space-x-3 rounded-md border border-border p-3">
+                      <Checkbox
+                        id="acceptedTerms"
+                        checked={signUpForm.acceptedTerms}
+                        onCheckedChange={(checked) => setSignUpForm({ ...signUpForm, acceptedTerms: checked === true })}
+                        disabled={isLoading}
+                        className="mt-0.5"
+                      />
+                      <div className="space-y-1">
+                        <Label htmlFor="acceptedTerms" className="text-sm font-medium cursor-pointer">
+                          I have read and accept the Privacy Policy and Terms of Service
+                          <span className="text-destructive ml-0.5">*</span>
+                        </Label>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          By checking this box, you confirm that you have read and agree to our{' '}
+                          <a href="/privacy-policy" target="_blank" className="underline text-primary hover:text-primary/80">Privacy Policy</a>{' '}and{' '}
+                          <a href="/terms-of-service" target="_blank" className="underline text-primary hover:text-primary/80">Terms of Service</a>.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start space-x-3 rounded-md border border-border p-3">
+                      <Checkbox
+                        id="churchUpdatesOptIn"
+                        checked={signUpForm.churchUpdatesOptIn}
+                        onCheckedChange={(checked) => setSignUpForm({ ...signUpForm, churchUpdatesOptIn: checked === true })}
+                        disabled={isLoading}
+                        className="mt-0.5"
+                      />
+                      <div className="space-y-1">
+                        <Label htmlFor="churchUpdatesOptIn" className="text-sm font-medium cursor-pointer">
+                          Receive church updates via SMS & Email
+                          <span className="text-xs text-muted-foreground ml-1">(Optional)</span>
+                        </Label>
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                          Stay informed about upcoming services, events, and community news. You can unsubscribe at any time.
+                        </p>
+                      </div>
+                    </div>
+
+                    <Button type="submit" className="w-full" disabled={isLoading || !signUpForm.acceptedTerms}>
                       {isLoading ? "Creating Account..." : "Create Account"}
                     </Button>
 

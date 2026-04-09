@@ -132,6 +132,15 @@ const Auth = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!signUpForm.acceptedTerms) {
+      toast({
+        title: "Terms Required",
+        description: "You must accept the Privacy Policy and Terms of Service to create an account.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (signUpForm.password !== signUpForm.confirmPassword) {
       toast({
         title: "Password Mismatch",

@@ -169,6 +169,7 @@ const Auth = () => {
         address: signUpForm.address,
         county: signUpForm.county,
         photography_consent: signUpForm.photographyConsent,
+        church_updates_opt_in: signUpForm.churchUpdatesOptIn,
       };
       
       const { error } = await signUp(signUpForm.email, signUpForm.password, userData);

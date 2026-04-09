@@ -45,6 +45,8 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const GiveVerify = lazy(() => import("./pages/GiveVerify"));
 const GivingHistory = lazy(() => import("./pages/GivingHistory"));
 const ShopVerify = lazy(() => import("./pages/ShopVerify"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 
 // Optimized loading fallback
 const PageLoader = () => (

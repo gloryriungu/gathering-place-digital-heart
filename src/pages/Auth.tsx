@@ -187,6 +187,8 @@ const Auth = () => {
           password: '',
           confirmPassword: '',
           photographyConsent: false,
+          acceptedTerms: false,
+          churchUpdatesOptIn: false,
         });
       }
     } catch (error) {

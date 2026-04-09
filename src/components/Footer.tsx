@@ -50,8 +50,8 @@ const DEFAULTS: FooterData = {
     { day: "WEDNESDAY", times: ["7:00 PM - Bible Study"] },
     { day: "FRIDAY", times: ["7:00 PM - Prayer Night"] },
   ],
-  privacy_policy_url: "#",
-  terms_url: "#",
+  privacy_policy_url: "/privacy-policy",
+  terms_url: "/terms-of-service",
   contact_url: "#",
   copyright_text: "© 2025 TOT International. All rights reserved.",
 };

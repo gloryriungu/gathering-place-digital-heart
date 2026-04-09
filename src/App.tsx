@@ -45,6 +45,8 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const GiveVerify = lazy(() => import("./pages/GiveVerify"));
 const GivingHistory = lazy(() => import("./pages/GivingHistory"));
 const ShopVerify = lazy(() => import("./pages/ShopVerify"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 
 // Optimized loading fallback
 const PageLoader = () => (
@@ -119,6 +121,8 @@ const App = () => (
               <Route path="/newsletter" element={<Newsletter />} />
               <Route path="/notice-of-filming" element={<NoticeOfFilming />} />
               <Route path="/faq" element={<FAQ />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

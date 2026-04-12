@@ -31,6 +31,13 @@ export const UserProfile = () => {
     occupation: "",
   });
 
+  // Consent state
+  const [consents, setConsents] = useState({
+    photographyConsent: false,
+    churchUpdatesOptIn: false,
+  });
+  const [consentLoading, setConsentLoading] = useState(false);
+
   // Password state
   const [passwords, setPasswords] = useState({
     newPassword: "",

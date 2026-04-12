@@ -539,6 +539,70 @@ export const UserProfile = () => {
           </Card>
         </TabsContent>
 
+        <TabsContent value="consents">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Consents & Preferences
+              </CardTitle>
+              <CardDescription>
+                Manage your consent preferences. You can update or revoke these at any time.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between rounded-lg border border-border p-4">
+                <div className="space-y-1 flex-1">
+                  <div className="flex items-center gap-2">
+                    <Camera className="h-4 w-4 text-muted-foreground" />
+                    <Label className="text-sm font-medium">Photography & Videography Consent</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    I consent to being photographed and/or recorded during church services and events. 
+                    Images and videos may be used for church communications, social media, and promotional materials 
+                    in accordance with Kenya's Data Protection Act, 2019.
+                  </p>
+                </div>
+                <Switch
+                  checked={consents.photographyConsent}
+                  onCheckedChange={(checked) => handleConsentUpdate('photographyConsent', checked)}
+                  disabled={consentLoading}
+                />
+              </div>
+
+              <div className="flex items-center justify-between rounded-lg border border-border p-4">
+                <div className="space-y-1 flex-1">
+                  <div className="flex items-center gap-2">
+                    <Bell className="h-4 w-4 text-muted-foreground" />
+                    <Label className="text-sm font-medium">Receive Church Updates via SMS & Email</Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Stay informed about upcoming services, events, and community news. 
+                    Opting out will unsubscribe you from the church newsletter.
+                  </p>
+                </div>
+                <Switch
+                  checked={consents.churchUpdatesOptIn}
+                  onCheckedChange={(checked) => handleConsentUpdate('churchUpdatesOptIn', checked)}
+                  disabled={consentLoading}
+                />
+              </div>
+
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  <strong>Your rights:</strong>
+                </p>
+                <ul className="list-disc list-inside text-xs text-muted-foreground mt-2 space-y-1">
+                  <li>You can update or revoke any consent at any time</li>
+                  <li>Changes take effect immediately</li>
+                  <li>Revoking church updates will unsubscribe you from newsletters</li>
+                  <li>For data deletion requests, please contact the church office</li>
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="qr-code">
           <Card>
             <CardHeader>

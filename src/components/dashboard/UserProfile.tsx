@@ -158,6 +158,73 @@ export const UserProfile = () => {
     }
   };
 
+  const fetchConsents = async () => {
+    if (!user) return;
+    const metadata = user.user_metadata || {};
+    setConsents({
+      photographyConsent: metadata.photography_consent || false,
+      churchUpdatesOptIn: metadata.church_updates_opt_in || false,
+    });
+  };
+
+  const handleConsentUpdate = async (field: 'photographyConsent' | 'churchUpdatesOptIn', value: boolean) => {
+    if (!user) return;
+    setConsentLoading(true);
+
+    try {
+      const metaKey = field === 'photographyConsent' ? 'photography_consent' : 'church_updates_opt_in';
+      
+      const { error } = await supabase.auth.updateUser({
+        data: { [metaKey]: value }
+      });
+      if (error) throw error;
+
+      setConsents(prev => ({ ...prev, [field]: value }));
+
+      // Sync newsletter_subscribers for church updates opt-in
+      if (field === 'churchUpdatesOptIn') {
+        if (value) {
+          const { data: existing } = await supabase
+            .from('newsletter_subscribers')
+            .select('id, is_active')
+            .eq('email', user.email!.toLowerCase())
+            .maybeSingle();
+
+          if (existing) {
+            if (!existing.is_active) {
+              await supabase
+                .from('newsletter_subscribers')
+                .update({ is_active: true })
+                .eq('id', existing.id);
+            }
+          } else {
+            await supabase.from('newsletter_subscribers').insert({
+              email: user.email!.toLowerCase(),
+              first_name: profile.first_name,
+              last_name: profile.last_name,
+              is_active: true,
+              source: 'profile_opt_in',
+              tags: ['church_updates', 'profile_opt_in'],
+              metadata: { subscribed_from: '/dashboard/profile' },
+            });
+          }
+        } else {
+          await supabase
+            .from('newsletter_subscribers')
+            .update({ is_active: false })
+            .eq('email', user.email!.toLowerCase());
+        }
+      }
+
+      toast.success(`${field === 'photographyConsent' ? 'Photography consent' : 'Church updates preference'} updated`);
+    } catch (error: any) {
+      console.error('Error updating consent:', error);
+      toast.error(error.message || "Failed to update preference");
+    } finally {
+      setConsentLoading(false);
+    }
+  };
+
   const downloadQRCode = async () => {
     if (!qrCodeData) return;
 

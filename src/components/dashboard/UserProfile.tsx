@@ -424,10 +424,14 @@ export const UserProfile = () => {
       )}
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             Profile
+          </TabsTrigger>
+          <TabsTrigger value="consents" className="flex items-center gap-2">
+            <Shield className="h-4 w-4" />
+            Consents
           </TabsTrigger>
           <TabsTrigger value="qr-code" className="flex items-center gap-2">
             <QrCode className="h-4 w-4" />

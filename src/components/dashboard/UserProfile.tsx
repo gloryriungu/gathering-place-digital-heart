@@ -48,6 +48,7 @@ export const UserProfile = () => {
     if (user) {
       fetchProfileData();
       fetchMemberNumber();
+      fetchConsents();
     }
   }, [user]);
 

@@ -230,6 +230,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           variant: "destructive"
         });
       } else {
+        // Add to newsletter subscribers if opted in
+        if (userData.church_updates_opt_in) {
+          try {
+            await supabase.from('newsletter_subscribers').insert({
+              email: email.toLowerCase(),
+              first_name: userData.first_name || '',
+              last_name: userData.last_name || '',
+              is_active: true,
+              source: 'signup_form',
+              tags: ['church_updates', 'signup_opt_in'],
+              metadata: {
+                subscribed_from: '/auth',
+                opt_in_type: 'signup_consent',
+              },
+            });
+          } catch (newsletterError) {
+            console.error('Failed to add to newsletter:', newsletterError);
+          }
+        }
+
         // Send welcome email
         try {
           await supabase.functions.invoke('send-email', {

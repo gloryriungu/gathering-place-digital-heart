@@ -1,12 +1,25 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const allowedOrigins = [
+  'https://tot.co.ke',
+  'https://stg.tot.co.ke',
+  'http://localhost:5173',
+  'https://id-preview--1002bdcc-1ba9-4425-9337-cf483dae12d9.lovable.app',
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get('origin') ?? '';
+  return {
+    'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Credentials': 'true',
+  };
+}
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -33,7 +46,6 @@ serve(async (req) => {
       );
     }
 
-    // Validate amount is a positive number within acceptable range
     if (typeof amount !== 'number' || !Number.isFinite(amount)) {
       return new Response(
         JSON.stringify({ error: 'Invalid amount' }),
@@ -62,13 +74,11 @@ serve(async (req) => {
       );
     }
 
-    // Initialize Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get member_id if user is authenticated
     let member_id = null;
     if (user_id) {
       const { data: member } = await supabaseClient
@@ -76,11 +86,9 @@ serve(async (req) => {
         .select('id')
         .eq('user_id', user_id)
         .maybeSingle();
-      
       member_id = member?.id || null;
     }
 
-    // Create contribution record
     const { data: contribution, error: contributionError } = await supabaseClient
       .from('contributions')
       .insert({
@@ -109,9 +117,8 @@ serve(async (req) => {
 
     console.log('Contribution created:', contribution.id);
 
-    // Initialize Paystack transaction
     const paystackSecretKey = Deno.env.get('PAYSTACK_SECRET_KEY');
-    const amountInKobo = Math.round(amount * 100); // Convert to kobo (smallest unit)
+    const amountInKobo = Math.round(amount * 100);
 
     const paystackPayload: any = {
       email,
@@ -132,11 +139,8 @@ serve(async (req) => {
       }
     };
 
-    // Add channel-specific parameters
     if (payment_method === 'mobile_money') {
-      // For M-Pesa, only specify the channel - Paystack handles the rest
       paystackPayload.channels = ['mobile_money'];
-      // Phone must be in format 254XXXXXXXXX for Kenya M-Pesa
       if (phone) {
         paystackPayload.metadata.phone = phone;
       }
@@ -159,8 +163,6 @@ serve(async (req) => {
 
     if (!paystackResponse.ok || !paystackData.status) {
       console.error('Paystack error:', paystackData);
-      
-      // Update contribution status to failed
       await supabaseClient
         .from('contributions')
         .update({ transaction_status: 'failed' })
@@ -172,7 +174,6 @@ serve(async (req) => {
       );
     }
 
-    // Update contribution with Paystack reference
     await supabaseClient
       .from('contributions')
       .update({

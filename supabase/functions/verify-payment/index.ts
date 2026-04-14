@@ -1,12 +1,25 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const allowedOrigins = [
+  'https://tot.co.ke',
+  'https://stg.tot.co.ke',
+  'http://localhost:5173',
+  'https://id-preview--1002bdcc-1ba9-4425-9337-cf483dae12d9.lovable.app',
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get('origin') ?? '';
+  return {
+    'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Credentials': 'true',
+  };
+}
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -23,13 +36,11 @@ serve(async (req) => {
       );
     }
 
-    // Initialize Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Verify transaction with Paystack
     const paystackSecretKey = Deno.env.get('PAYSTACK_SECRET_KEY');
     
     console.log('Verifying with Paystack:', reference);
@@ -58,7 +69,6 @@ serve(async (req) => {
     const transactionData = paystackData.data;
     console.log('Paystack transaction data:', transactionData);
 
-    // Get contribution record
     const { data: contribution, error: fetchError } = await supabaseClient
       .from('contributions')
       .select('*')
@@ -73,13 +83,11 @@ serve(async (req) => {
       );
     }
 
-    // Determine transaction status
     const isSuccessful = transactionData.status === 'success';
     const transactionStatus = isSuccessful ? 'completed' : 
                              transactionData.status === 'failed' ? 'failed' :
                              transactionData.status === 'abandoned' ? 'failed' : 'pending';
 
-    // Update contribution record
     const { error: updateError } = await supabaseClient
       .from('contributions')
       .update({
@@ -94,7 +102,6 @@ serve(async (req) => {
       console.error('Error updating contribution:', updateError);
     }
 
-    // Save payment method if requested and transaction was successful
     if (isSuccessful && contribution.save_details && contribution.member_id) {
       const { data: member } = await supabaseClient
         .from('members')
@@ -103,7 +110,6 @@ serve(async (req) => {
         .single();
 
       if (member?.user_id) {
-        // Check if payment method already exists
         const existingQuery = contribution.payment_channel === 'mobile_money'
           ? { phone_number: contribution.donor_phone }
           : { authorization_code: transactionData.authorization?.authorization_code };
@@ -129,7 +135,6 @@ serve(async (req) => {
             paymentMethodData.authorization_code = transactionData.authorization.authorization_code;
           }
 
-          // Check if user has any saved methods to set as default
           const { count } = await supabaseClient
             .from('saved_payment_methods')
             .select('*', { count: 'exact', head: true })
@@ -151,7 +156,7 @@ serve(async (req) => {
         success: true,
         data: {
           status: transactionStatus,
-          amount: transactionData.amount / 100, // Convert from kobo
+          amount: transactionData.amount / 100,
           currency: transactionData.currency,
           reference: transactionData.reference,
           paid_at: transactionData.paid_at,

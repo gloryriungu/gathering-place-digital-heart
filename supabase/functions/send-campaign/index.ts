@@ -2,16 +2,29 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.53.0";
 import { Resend } from "npm:resend@4.0.0";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const allowedOrigins = [
+  'https://tot.co.ke',
+  'https://stg.tot.co.ke',
+  'http://localhost:5173',
+  'https://id-preview--1002bdcc-1ba9-4425-9337-cf483dae12d9.lovable.app',
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get('origin') ?? '';
+  return {
+    'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Credentials': 'true',
+  };
+}
 
 interface SendCampaignRequest {
   campaign_id: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -23,6 +36,39 @@ const handler = async (req: Request): Promise<Response> => {
     
     const supabase = createClient(supabaseUrl, supabaseKey);
     const resend = new Resend(resendApiKey);
+
+    // Server-side role validation: only admin/marketing/it can send campaigns
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check user has an authorized role
+    const { data: roles } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id);
+
+    const authorizedRoles = ['admin', 'it', 'marketing', 'founder', 'senior_pastor'];
+    if (!roles?.some(r => authorizedRoles.includes(r.role))) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: insufficient privileges' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const { campaign_id }: SendCampaignRequest = await req.json();
 
@@ -49,7 +95,6 @@ const handler = async (req: Request): Promise<Response> => {
       .select('email, first_name, last_name')
       .eq('is_active', true);
 
-    // Apply segment filters
     const filters = campaign.segment_filters as any || {};
     if (filters.tags && filters.tags.length > 0) {
       query = query.contains('tags', filters.tags);
@@ -59,12 +104,9 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const { data: subscribers, error: subsError } = await query;
+    if (subsError) throw subsError;
 
-    if (subsError) {
-      throw subsError;
-    }
-
-    // Check suppression list and filter out suppressed emails
+    // Check suppression list
     const { data: suppressedEmails } = await supabase
       .from('suppression_list')
       .select('email');
@@ -77,15 +119,12 @@ const handler = async (req: Request): Promise<Response> => {
     let successCount = 0;
     let failureCount = 0;
 
-    // Send emails in batches
     for (const subscriber of validSubscribers) {
       try {
-        // Personalize content
         const personalizedHtml = campaign.html_content
           .replace(/\{\{first_name\}\}/g, subscriber.first_name || 'there')
           .replace(/\{\{last_name\}\}/g, subscriber.last_name || '');
 
-        // Send via Resend
         const { data, error } = await resend.emails.send({
           from: 'Mountain of Blessings <onboarding@resend.dev>',
           to: [subscriber.email],
@@ -94,18 +133,14 @@ const handler = async (req: Request): Promise<Response> => {
           text: campaign.text_content || undefined,
         });
 
-        if (error) {
-          throw new Error(`Resend error: ${JSON.stringify(error)}`);
-        }
+        if (error) throw new Error(`Resend error: ${JSON.stringify(error)}`);
 
-        // Record analytics
         await supabase.from('email_analytics').insert({
           campaign_id: campaign_id,
           email: subscriber.email,
           sent_at: new Date().toISOString(),
         });
 
-        // Update last email sent
         await supabase
           .from('newsletter_subscribers')
           .update({ last_email_sent: new Date().toISOString() })
@@ -119,11 +154,9 @@ const handler = async (req: Request): Promise<Response> => {
         failureCount++;
       }
 
-      // Small delay to avoid rate limiting
       await new Promise(resolve => setTimeout(resolve, 100));
     }
 
-    // Update campaign status
     await supabase
       .from('email_campaigns')
       .update({ 
@@ -139,33 +172,15 @@ const handler = async (req: Request): Promise<Response> => {
         failed: failureCount,
         total: validSubscribers.length,
       }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error: any) {
     console.error('Error sending campaign:', error);
     
-    // Update campaign status to failed
-    if (error.campaign_id) {
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-      const supabase = createClient(supabaseUrl, supabaseKey);
-      
-      await supabase
-        .from('email_campaigns')
-        .update({ status: 'failed' })
-        .eq('id', error.campaign_id);
-    }
-
     return new Response(
       JSON.stringify({ error: error.message }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { status: 500, headers: { ...getCorsHeaders(req), 'Content-Type': 'application/json' } }
     );
   }
 };

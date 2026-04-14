@@ -1,17 +1,27 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const allowedOrigins = [
+  'https://tot.co.ke',
+  'https://stg.tot.co.ke',
+  'http://localhost:5173',
+  'https://id-preview--1002bdcc-1ba9-4425-9337-cf483dae12d9.lovable.app',
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get('origin') ?? '';
+  return {
+    'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Credentials': 'true',
+  };
+}
 
 // Rate limiting configuration
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute window
-const MAX_REQUESTS_PER_WINDOW = 5; // Max 5 payment attempts per minute per IP
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 5;
 const ENDPOINT_NAME = 'initialize-shop-payment';
 
-// Rate limiting function
 async function checkRateLimit(
   supabase: ReturnType<typeof createClient>,
   identifier: string
@@ -19,7 +29,6 @@ async function checkRateLimit(
   const now = new Date();
   const windowStart = new Date(now.getTime() - RATE_LIMIT_WINDOW_MS);
 
-  // Check existing requests in the current window
   const { data: existingRequests, error: fetchError } = await supabase
     .from('rate_limit_tracking')
     .select('id, request_count, window_start')
@@ -31,7 +40,6 @@ async function checkRateLimit(
 
   if (fetchError) {
     console.error('Rate limit check error:', fetchError);
-    // Allow request on error to avoid blocking legitimate traffic
     return { allowed: true };
   }
 
@@ -43,14 +51,11 @@ async function checkRateLimit(
       console.warn(`Rate limit exceeded for ${identifier}`);
       return { allowed: false, retryAfter: Math.max(retryAfter, 1) };
     }
-
-    // Increment the counter
     await supabase
       .from('rate_limit_tracking')
       .update({ request_count: record.request_count + 1 })
       .eq('id', record.id);
   } else {
-    // Create new rate limit record
     await supabase
       .from('rate_limit_tracking')
       .insert({
@@ -64,31 +69,26 @@ async function checkRateLimit(
   return { allowed: true };
 }
 
-// Get client IP from request headers
 function getClientIP(req: Request): string {
   const forwardedFor = req.headers.get('x-forwarded-for');
-  if (forwardedFor) {
-    return forwardedFor.split(',')[0].trim();
-  }
+  if (forwardedFor) return forwardedFor.split(',')[0].trim();
   const realIP = req.headers.get('x-real-ip');
-  if (realIP) {
-    return realIP;
-  }
+  if (realIP) return realIP;
   return 'unknown';
 }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Initialize Supabase client early for rate limiting
   const supabaseClient = createClient(
     Deno.env.get('SUPABASE_URL') ?? '',
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
   );
 
-  // Check rate limit
   const clientIP = getClientIP(req);
   const rateLimitResult = await checkRateLimit(supabaseClient, clientIP);
   
@@ -124,7 +124,6 @@ serve(async (req) => {
 
     console.log('Initialize shop payment:', { payment_method, customer_email, total_amount });
 
-    // Validate inputs
     if (!customer_name || !customer_email || !items || !total_amount) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
@@ -139,7 +138,6 @@ serve(async (req) => {
       );
     }
 
-    // Validate amount is a positive number
     if (typeof total_amount !== 'number' || total_amount < 10 || total_amount > 1000000) {
       return new Response(
         JSON.stringify({ error: 'Amount must be between KES 10 and KES 1,000,000' }),
@@ -154,7 +152,7 @@ serve(async (req) => {
       );
     }
 
-    // SERVER-SIDE PRICE VALIDATION: Verify prices match actual product prices in database
+    // SERVER-SIDE PRICE VALIDATION
     let calculatedTotal = 0;
     for (const item of items) {
       if (!item.product_id || !item.quantity || item.quantity < 1) {
@@ -164,7 +162,6 @@ serve(async (req) => {
         );
       }
 
-      // Fetch actual product price from database
       const { data: product, error: productError } = await supabaseClient
         .from('media_content')
         .select('id, title, content_data')
@@ -183,7 +180,6 @@ serve(async (req) => {
       const itemTotal = actualPrice * item.quantity;
       calculatedTotal += itemTotal;
 
-      // Validate that client-sent price matches actual price
       if (item.price !== undefined && Math.abs(item.price - actualPrice) > 0.01) {
         console.warn('Price mismatch detected:', { 
           product_id: item.product_id, 
@@ -196,7 +192,6 @@ serve(async (req) => {
         );
       }
 
-      // Check stock availability for physical products
       const stock = (product.content_data as any)?.stock;
       if (stock !== undefined && stock !== null && stock < item.quantity) {
         return new Response(
@@ -206,7 +201,6 @@ serve(async (req) => {
       }
     }
 
-    // Validate that total amount matches calculated total
     if (Math.abs(calculatedTotal - total_amount) > 0.01) {
       console.warn('Total mismatch detected:', { 
         sent_total: total_amount, 
@@ -218,7 +212,6 @@ serve(async (req) => {
       );
     }
 
-    // Generate order number
     const { data: orderNumberData, error: orderNumberError } = await supabaseClient
       .rpc('generate_order_number');
 
@@ -232,7 +225,6 @@ serve(async (req) => {
 
     const orderNumber = orderNumberData;
 
-    // Create order record
     const { data: order, error: orderError } = await supabaseClient
       .from('shop_orders')
       .insert({
@@ -261,7 +253,6 @@ serve(async (req) => {
 
     console.log('Order created:', order.id);
 
-    // Initialize Paystack transaction
     const paystackSecretKey = Deno.env.get('PAYSTACK_SECRET_KEY');
     const amountInKobo = Math.round(total_amount * 100);
 
@@ -270,7 +261,7 @@ serve(async (req) => {
       amount: amountInKobo,
       currency: 'KES',
       reference: order.id,
-      callback_url: `${req.headers.get('origin')}/shop/verify`,
+      callback_url: `${req.headers.get('origin') || 'https://stg.tot.co.ke'}/shop/verify`,
       metadata: {
         order_id: order.id,
         order_number: orderNumber,
@@ -285,7 +276,6 @@ serve(async (req) => {
       }
     };
 
-    // Add channel-specific parameters
     if (payment_method === 'mobile_money') {
       paystackPayload.channels = ['mobile_money'];
       if (customer_phone) {
@@ -310,8 +300,6 @@ serve(async (req) => {
 
     if (!paystackResponse.ok || !paystackData.status) {
       console.error('Paystack error:', paystackData);
-      
-      // Update order status to failed
       await supabaseClient
         .from('shop_orders')
         .update({ transaction_status: 'failed' })
@@ -323,7 +311,6 @@ serve(async (req) => {
       );
     }
 
-    // Update order with Paystack reference
     await supabaseClient
       .from('shop_orders')
       .update({

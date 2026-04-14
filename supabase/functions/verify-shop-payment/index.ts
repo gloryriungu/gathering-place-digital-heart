@@ -1,17 +1,26 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+const allowedOrigins = [
+  'https://tot.co.ke',
+  'https://stg.tot.co.ke',
+  'http://localhost:5173',
+  'https://id-preview--1002bdcc-1ba9-4425-9337-cf483dae12d9.lovable.app',
+];
 
-// Rate limiting configuration
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute window
-const MAX_REQUESTS_PER_WINDOW = 10; // Max 10 verification attempts per minute per IP
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get('origin') ?? '';
+  return {
+    'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Credentials': 'true',
+  };
+}
+
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 10;
 const ENDPOINT_NAME = 'verify-shop-payment';
 
-// Rate limiting function
 async function checkRateLimit(
   supabase: ReturnType<typeof createClient>,
   identifier: string
@@ -19,7 +28,6 @@ async function checkRateLimit(
   const now = new Date();
   const windowStart = new Date(now.getTime() - RATE_LIMIT_WINDOW_MS);
 
-  // Check existing requests in the current window
   const { data: existingRequests, error: fetchError } = await supabase
     .from('rate_limit_tracking')
     .select('id, request_count, window_start')
@@ -31,7 +39,6 @@ async function checkRateLimit(
 
   if (fetchError) {
     console.error('Rate limit check error:', fetchError);
-    // Allow request on error to avoid blocking legitimate traffic
     return { allowed: true };
   }
 
@@ -43,14 +50,11 @@ async function checkRateLimit(
       console.warn(`Rate limit exceeded for ${identifier}`);
       return { allowed: false, retryAfter: Math.max(retryAfter, 1) };
     }
-
-    // Increment the counter
     await supabase
       .from('rate_limit_tracking')
       .update({ request_count: record.request_count + 1 })
       .eq('id', record.id);
   } else {
-    // Create new rate limit record
     await supabase
       .from('rate_limit_tracking')
       .insert({
@@ -64,20 +68,17 @@ async function checkRateLimit(
   return { allowed: true };
 }
 
-// Get client IP from request headers
 function getClientIP(req: Request): string {
   const forwardedFor = req.headers.get('x-forwarded-for');
-  if (forwardedFor) {
-    return forwardedFor.split(',')[0].trim();
-  }
+  if (forwardedFor) return forwardedFor.split(',')[0].trim();
   const realIP = req.headers.get('x-real-ip');
-  if (realIP) {
-    return realIP;
-  }
+  if (realIP) return realIP;
   return 'unknown';
 }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -87,7 +88,6 @@ serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
   );
 
-  // Check rate limit
   const clientIP = getClientIP(req);
   const rateLimitResult = await checkRateLimit(supabaseClient, clientIP);
   
@@ -119,7 +119,6 @@ serve(async (req) => {
       );
     }
 
-    // Verify transaction with Paystack
     const paystackSecretKey = Deno.env.get('PAYSTACK_SECRET_KEY');
     const verifyResponse = await fetch(
       `https://api.paystack.co/transaction/verify/${reference}`,
@@ -140,7 +139,6 @@ serve(async (req) => {
       );
     }
 
-    // Get order record
     const { data: order, error: orderFetchError } = await supabaseClient
       .from('shop_orders')
       .select('*')
@@ -155,17 +153,11 @@ serve(async (req) => {
       );
     }
 
-    // Determine transaction status
     const paystackStatus = verifyData.data.status;
     let transactionStatus = 'pending';
-    
-    if (paystackStatus === 'success') {
-      transactionStatus = 'completed';
-    } else if (paystackStatus === 'failed') {
-      transactionStatus = 'failed';
-    }
+    if (paystackStatus === 'success') transactionStatus = 'completed';
+    else if (paystackStatus === 'failed') transactionStatus = 'failed';
 
-    // Update order
     const { data: updatedOrder, error: updateError } = await supabaseClient
       .from('shop_orders')
       .update({
@@ -189,16 +181,13 @@ serve(async (req) => {
 
     console.log('Order updated successfully:', updatedOrder.id);
 
-    // Grant digital product access if payment successful
     let digitalPurchases = [];
     let hasDigitalProducts = false;
     
     if (transactionStatus === 'completed') {
       try {
         console.log('Calling deliver-digital-product for order:', order.id);
-        // Call deliver-digital-product to grant access
         const deliverUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/deliver-digital-product`;
-        console.log('Deliver URL:', deliverUrl);
         
         const deliverResponse = await fetch(deliverUrl, {
           method: 'POST',
@@ -214,9 +203,7 @@ serve(async (req) => {
           })
         });
 
-        console.log('Deliver response status:', deliverResponse.status);
         const deliverData = await deliverResponse.json();
-        console.log('Deliver response data:', JSON.stringify(deliverData));
         if (deliverData.success) {
           digitalPurchases = deliverData.digital_purchases || [];
           hasDigitalProducts = deliverData.has_digital_products || false;
@@ -224,7 +211,6 @@ serve(async (req) => {
         }
       } catch (deliverError) {
         console.error('Failed to grant digital access:', deliverError);
-        // Don't fail the whole request, just log the error
       }
     }
 

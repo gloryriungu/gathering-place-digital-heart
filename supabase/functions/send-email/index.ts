@@ -3,10 +3,21 @@ import { Resend } from "npm:resend@4.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const allowedOrigins = [
+  'https://tot.co.ke',
+  'https://stg.tot.co.ke',
+  'http://localhost:5173',
+  'https://id-preview--1002bdcc-1ba9-4425-9337-cf483dae12d9.lovable.app',
+];
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get('origin') ?? '';
+  return {
+    'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : allowedOrigins[0],
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Credentials': 'true',
+  };
+}
 
 interface EmailRequest {
   to: string | string[];
@@ -17,6 +28,8 @@ interface EmailRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  const corsHeaders = getCorsHeaders(req);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -27,7 +40,6 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Sending email to:", to);
 
-    // Handle bulk emails (array of recipients)
     if (Array.isArray(to)) {
       const results = await Promise.all(
         to.map(async (recipient) => {
@@ -45,10 +57,8 @@ const handler = async (req: Request): Promise<Response> => {
               return { recipient, success: false, error };
             }
 
-            console.log(`Email sent successfully to ${recipient}`);
             return { recipient, success: true, data };
           } catch (error: unknown) {
-            console.error(`Error sending email to ${recipient}:`, error);
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             return { recipient, success: false, error: errorMessage };
           }
@@ -57,14 +67,10 @@ const handler = async (req: Request): Promise<Response> => {
 
       return new Response(
         JSON.stringify({ success: true, results }),
-        {
-          status: 200,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    // Handle single email
     const { data, error } = await resend.emails.send({
       from: fromAddress,
       to: [to],
@@ -77,31 +83,19 @@ const handler = async (req: Request): Promise<Response> => {
       console.error("Resend API error:", error);
       return new Response(
         JSON.stringify({ error }),
-        {
-          status: 400,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    console.log("Email sent successfully:", data);
-
     return new Response(
       JSON.stringify({ success: true, data }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   } catch (error: unknown) {
-    console.error("Error in send-email function:", error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
       JSON.stringify({ error: errorMessage }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      { status: 500, headers: { "Content-Type": "application/json", ...getCorsHeaders(req) } }
     );
   }
 };

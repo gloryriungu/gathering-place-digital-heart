@@ -1,70 +1,57 @@
 
 
-## Plan: Kindle-like In-App Ebook Reader
+# Security Fixes & Multi-Department User Management Plan
 
-### What Changes
+## Summary
 
-Transform the current download-only digital book system into an in-browser reading experience. Users who purchase ebooks can read them directly in the app, with reading progress saved automatically.
+There are **4 security findings** to fix (code-side) plus **SQL you'll run manually** in the Supabase SQL Editor. I'll also handle multi-department user display in admin.
 
-### Overview
+---
 
-1. **Add a PDF reader component** using `react-pdf` (renders PDFs page-by-page in-browser)
-2. **Create a `reading_progress` database table** to persist page position per user per book
-3. **Add a `read_file` action to the edge function** that streams file content for in-browser viewing (without counting against download limits)
-4. **Update MyDownloads** to show a "Read" button alongside "Download", and render the reader inline
-5. **Rename the tab** from "My Downloads" to "My Library" for a Kindle-like feel
+## Part 1: SQL You Run Manually
 
-### Database Changes
+Go to your **Supabase SQL Editor** and run this SQL. I will provide the exact script during implementation:
 
-**New table: `reading_progress`**
-- `id` (uuid, PK)
-- `user_id` (uuid, references auth.users, not null)
-- `product_id` (uuid, references media_content, not null)
-- `current_page` (integer, default 1)
-- `total_pages` (integer, nullable)
-- `last_read_at` (timestamptz, default now())
-- `created_at` / `updated_at`
-- Unique constraint on (user_id, product_id)
-- RLS: users can only read/write their own rows
+1. **Fix cookie_consents RLS tautology** - Drop the broken SELECT policy (`session_id = session_id` always TRUE) and replace with a proper owner-scoped policy
+2. **Add INSERT/UPDATE/DELETE restrictions on pastor_roles** - Restrict to admin/IT roles only to prevent privilege escalation
+3. **Enable leaked password protection** - This is a Supabase dashboard setting under Authentication > Settings
 
-### New Components
+---
 
-**`src/components/reader/EbookReader.tsx`**
-- Full-screen overlay PDF reader using `react-pdf`
-- Top bar: book title, close button, page indicator (e.g. "Page 12 of 145")
-- Navigation: previous/next page buttons, page number input for jumping
-- Auto-saves reading progress every page turn (debounced)
-- Resumes from last-read page on reopen
-- Responsive: works on desktop and mobile
+## Part 2: Code Changes I'll Make
 
-### Edge Function Update
+### A. CORS Hardening on Edge Functions (10 functions)
 
-**`deliver-digital-product/index.ts`** -- new action `read_file`:
-- Similar to `download_file` but does NOT increment download count
-- Returns file with `Content-Type: application/pdf` (inline, not attachment)
-- Validates access token, checks expiry (but not download limit since reading is unlimited)
+Replace wildcard `'*'` CORS origin with a dynamic allowlist helper across all edge functions:
+- `initialize-payment`, `initialize-shop-payment`, `verify-payment`, `verify-shop-payment`, `deliver-digital-product`, `send-campaign`, `send-email`, `send-session-reminders`, `handle-bounce`, `process-recurring-payments`
 
-### MyDownloads Updates
+For `webhook-paystack`: remove CORS headers entirely (server-to-server).
 
-- Add "Read" button next to "Download" for each purchased book
-- Clicking "Read" opens the EbookReader overlay
-- Show reading progress bar on each book card (e.g. "62% complete")
-- Show "Continue Reading" badge on books with saved progress
+### B. Server-Side Role Validation in Admin Edge Functions
 
-### Technical Details
+Add JWT-based role checking to `send-campaign` and other admin-only edge functions so they can't be called by non-admin users even if they bypass the UI.
 
-- **Library**: `react-pdf` (wraps PDF.js, well-maintained, React-native rendering)
-- **Progress persistence**: Upsert to `reading_progress` on each page turn, debounced 2 seconds
-- **File streaming**: The edge function streams the PDF blob; the reader creates an object URL for `react-pdf`'s `Document` component
-- **No format conversion needed**: Current system already stores PDFs; `react-pdf` handles them natively
-- **Access model**: Reading is unlimited (no download count decrement); downloading still has the 5-download/30-day limit
+### C. Multi-Department User Display in Admin
 
-### Files to Create/Modify
+Review and ensure the admin user management interface properly shows users with multiple department/role assignments as badges, with the ability to manage them via multi-select.
 
-| File | Action |
-|------|--------|
-| `src/components/reader/EbookReader.tsx` | Create - PDF reader component |
-| `src/components/dashboard/MyDownloads.tsx` | Modify - add Read button, progress display, rename to Library |
-| `supabase/functions/deliver-digital-product/index.ts` | Modify - add `read_file` action |
-| Migration SQL | Create `reading_progress` table with RLS |
+---
+
+## Part 3: Security Findings I'll Mark
+
+After fixes are applied, I'll update the security scan findings to reflect resolved issues.
+
+---
+
+## Steps
+
+| # | Action | Who |
+|---|--------|-----|
+| 1 | I provide the SQL script for RLS fixes | You run in SQL Editor |
+| 2 | Fix CORS in all 10 edge functions | I code |
+| 3 | Remove CORS from webhook-paystack | I code |
+| 4 | Add server-side role checks to admin edge functions | I code |
+| 5 | Verify multi-department admin UI | I code (if needed) |
+| 6 | Enable leaked password protection | You toggle in Supabase Auth settings |
+| 7 | Mark security findings as fixed | I update scan results |
 

@@ -16,17 +16,34 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   userRole: string | null;
+  userRoles: string[];
   loading: boolean;
   signUp: (email: string, password: string, userData: any) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   refreshRole: () => Promise<void>;
+  switchActiveRole: (role: string) => void;
   isAuthenticated: boolean;
   needsProfileCompletion: boolean;
   isPasswordRecovery: boolean;
   clearPasswordRecovery: () => void;
 }
+
+const ACTIVE_ROLE_STORAGE_KEY = 'active_portal_role';
+
+const ROLE_PRIORITY = [
+  'founder', 'senior_pastor', 'admin', 'it', 'media', 'marketing',
+  'registration', 'accounts', 'sunday_school', 'teacher', 'pastor',
+  'sound', 'security', 'user'
+];
+
+const pickPrimaryRole = (roles: string[]): string => {
+  for (const r of ROLE_PRIORITY) {
+    if (roles.includes(r)) return r;
+  }
+  return 'user';
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -42,6 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [userRoles, setUserRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [needsProfileCompletion, setNeedsProfileCompletion] = useState(false);
   // Check sessionStorage - this is set by index.html before Supabase can clear the hash
@@ -62,54 +80,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error || !data || data.length === 0) {
         console.log('No role found, defaulting to user');
+        setUserRoles(['user']);
         setUserRole('user');
         return;
       }
 
-      // Prioritize roles: founder > senior_pastor > admin > it > media > marketing > registration > accounts > sunday_school > teacher > pastor > user
-      const roles = data.map(item => item.role);
+      const roles = Array.from(new Set(data.map((item: any) => item.role as string)));
       console.log('User roles found:', roles);
-      
-      if (roles.includes('founder')) {
-        console.log('Setting role to founder');
-        setUserRole('founder');
-      } else if (roles.includes('senior_pastor')) {
-        console.log('Setting role to senior_pastor');
-        setUserRole('senior_pastor');
-      } else if (roles.includes('admin')) {
-        console.log('Setting role to admin');
-        setUserRole('admin');
-      } else if (roles.includes('it')) {
-        console.log('Setting role to it');
-        setUserRole('it');
-      } else if (roles.includes('media')) {
-        console.log('Setting role to media');
-        setUserRole('media');
-      } else if (roles.includes('marketing')) {
-        console.log('Setting role to marketing');
-        setUserRole('marketing');
-      } else if (roles.includes('registration')) {
-        console.log('Setting role to registration');
-        setUserRole('registration');
-      } else if (roles.includes('accounts')) {
-        console.log('Setting role to accounts');
-        setUserRole('accounts');
-      } else if (roles.includes('sunday_school')) {
-        console.log('Setting role to sunday_school');
-        setUserRole('sunday_school');
-      } else if (roles.includes('teacher')) {
-        console.log('Setting role to teacher');
-        setUserRole('teacher');
-      } else if (roles.includes('pastor')) {
-        console.log('Setting role to pastor');
-        setUserRole('pastor');
+      setUserRoles(roles);
+
+      // Honor previously-selected active portal if user still has access to it
+      const stored = typeof window !== 'undefined'
+        ? localStorage.getItem(ACTIVE_ROLE_STORAGE_KEY)
+        : null;
+      if (stored && roles.includes(stored)) {
+        setUserRole(stored);
       } else {
-        console.log('Setting role to user (default)');
-        setUserRole('user');
+        const primary = pickPrimaryRole(roles);
+        setUserRole(primary);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(ACTIVE_ROLE_STORAGE_KEY, primary);
+        }
       }
     } catch (error) {
       console.error('Error fetching user role:', error);
+      setUserRoles(['user']);
       setUserRole('user');
+    }
+  };
+
+  const switchActiveRole = (role: string) => {
+    if (!userRoles.includes(role)) {
+      console.warn(`Cannot switch to role "${role}" — user does not have it.`);
+      return;
+    }
+    setUserRole(role);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(ACTIVE_ROLE_STORAGE_KEY, role);
     }
   };
 

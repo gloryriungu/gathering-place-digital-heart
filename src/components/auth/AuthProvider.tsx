@@ -374,6 +374,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       setSession(null);
       setUserRole(null);
+      setUserRoles([]);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(ACTIVE_ROLE_STORAGE_KEY);
+      }
       setNeedsProfileCompletion(false);
       
       // Only show error if it's not a "session not found" error
@@ -394,6 +398,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       setSession(null);
       setUserRole(null);
+      setUserRoles([]);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(ACTIVE_ROLE_STORAGE_KEY);
+      }
       setNeedsProfileCompletion(false);
       
       toast({
@@ -407,12 +415,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     session,
     userRole,
+    userRoles,
     loading,
     signUp,
     signIn,
     signInWithGoogle,
     signOut,
     refreshRole,
+    switchActiveRole,
     isAuthenticated: !!user,
     needsProfileCompletion,
     isPasswordRecovery,

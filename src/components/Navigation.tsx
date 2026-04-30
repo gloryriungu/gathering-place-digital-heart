@@ -33,6 +33,7 @@ import { useSocialMedia } from "@/hooks/useSocialMedia";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import logo from "@/assets/logo.png";
+import { PortalSwitcher } from "@/components/shared/PortalSwitcher";
 
 export const Navigation = memo(() => {
   const [isOpen, setIsOpen] = useState(false);
@@ -197,6 +198,8 @@ export const Navigation = memo(() => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* Portal switcher: only renders for staff in 2+ departments */}
+            <PortalSwitcher variant="outline" className="bg-white text-black hover:bg-gray-100 font-semibold border-white" />
             <Button variant="outline" className="bg-white text-black hover:bg-gray-100 font-bold" asChild>
               <Link to="/auth">SIGN IN</Link>
             </Button>

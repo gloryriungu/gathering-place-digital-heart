@@ -11,7 +11,7 @@ interface AuthGuardProps {
 }
 
 export const AuthGuard = ({ children, requiredRole, allowedRoles }: AuthGuardProps) => {
-  const { isAuthenticated, userRole, loading } = useAuth();
+  const { isAuthenticated, userRole, userRoles, loading } = useAuth();
   
   if (loading) {
     return (
@@ -47,10 +47,17 @@ export const AuthGuard = ({ children, requiredRole, allowedRoles }: AuthGuardPro
     );
   }
 
-  const hasAccess = allowedRoles 
-    ? allowedRoles.includes(userRole || '') || userRole === 'it'
-    : requiredRole 
-      ? userRole === requiredRole || userRole === 'it'
+  // Multi-department aware access check: a user has access if ANY of their assigned
+  // roles satisfies the requirement. This means staff in multiple departments can
+  // navigate freely between their portals without re-login or admin intervention.
+  const effectiveRoles = userRoles && userRoles.length > 0
+    ? userRoles
+    : (userRole ? [userRole] : []);
+
+  const hasAccess = allowedRoles
+    ? effectiveRoles.some(r => allowedRoles.includes(r) || r === 'it')
+    : requiredRole
+      ? effectiveRoles.some(r => r === requiredRole || r === 'it')
       : true;
 
   if (!hasAccess) {

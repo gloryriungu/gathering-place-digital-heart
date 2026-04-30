@@ -295,7 +295,10 @@ export const Navigation = memo(() => {
                 </Link>
               </div>
 
-              <div className="pt-4 px-3">
+              <div className="pt-4 px-3 space-y-3">
+                <div className="flex justify-center">
+                  <PortalSwitcher variant="outline" className="w-full bg-white text-black hover:bg-gray-100 font-semibold border-white" />
+                </div>
                 <Button className="w-full bg-white text-black hover:bg-gray-100 font-bold" asChild>
                   <Link to="/visit-us" onClick={closeMenu}>
                     VISIT US

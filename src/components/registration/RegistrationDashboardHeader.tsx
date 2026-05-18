@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Users, Calendar, UserPlus, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { PortalSwitcher } from "@/components/shared/PortalSwitcher";
 
 interface RegistrationStats {
   totalMembers: number;
@@ -83,6 +84,7 @@ export const RegistrationDashboardHeader = () => {
           </p>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
+          <PortalSwitcher variant="outline" />
           <Badge variant="default" className="bg-yellow-100 text-yellow-800 border-yellow-300 text-xs sm:text-sm">
             <span className="hidden sm:inline">Registration Department</span>
             <span className="sm:hidden">Registration</span>

@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bell, Settings, User, LogOut, Video } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
+import { PortalSwitcher } from "@/components/shared/PortalSwitcher";
 
 export const MediaDashboardHeader = () => {
   const { user, signOut } = useAuth();
@@ -33,6 +34,7 @@ export const MediaDashboardHeader = () => {
             </p>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4 flex-shrink-0">
+            <PortalSwitcher variant="outline" className="bg-white text-black hover:bg-gray-100 border-white" />
             <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 h-8 w-8 sm:h-10 sm:w-10">
               <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>

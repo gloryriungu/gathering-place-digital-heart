@@ -22,7 +22,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 type RoleKey =
   | "founder" | "senior_pastor" | "admin" | "it" | "media" | "marketing"
   | "registration" | "accounts" | "sunday_school" | "teacher" | "pastor"
-  | "sound" | "security" | "user";
+  | "user";
 
 const PORTAL_ROLES: { value: RoleKey; label: string; description: string }[] = [
   { value: "founder", label: "Founder", description: "Top-level oversight" },
@@ -36,8 +36,6 @@ const PORTAL_ROLES: { value: RoleKey; label: string; description: string }[] = [
   { value: "sunday_school", label: "Sunday School", description: "Children's ministry" },
   { value: "teacher", label: "Teacher", description: "Class management" },
   { value: "pastor", label: "Pastor", description: "Ministry oversight" },
-  { value: "sound", label: "Sound", description: "Sound team" },
-  { value: "security", label: "Security", description: "Security team" },
 ];
 
 interface StaffUser {

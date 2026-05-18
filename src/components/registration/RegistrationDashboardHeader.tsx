@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Users, Calendar, UserPlus, TrendingUp } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { PortalSwitcher } from "@/components/shared/PortalSwitcher";
 
 interface RegistrationStats {
   totalMembers: number;

@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Bell, Settings, User, LogOut, Megaphone } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
+import { PortalSwitcher } from "@/components/shared/PortalSwitcher";
 
 export const MarketingDashboardHeader = () => {
   const { user, signOut } = useAuth();

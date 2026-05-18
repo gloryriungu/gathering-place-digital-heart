@@ -114,7 +114,7 @@ const PortalAccessManagementInner = () => {
     if (checked) {
       const { error } = await supabase
         .from("user_roles")
-        .insert({ user_id: target.user_id, role });
+        .insert([{ user_id: target.user_id, role }]);
       if (error) {
         toast({ title: "Failed to assign role", description: error.message, variant: "destructive" });
         setSavingKey(null);

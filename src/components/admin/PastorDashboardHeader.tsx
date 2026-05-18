@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Bell, Settings, User } from "lucide-react";
+import { PortalSwitcher } from "@/components/shared/PortalSwitcher";
 
 export const PastorDashboardHeader = () => {
   return (

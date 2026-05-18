@@ -36,6 +36,7 @@
  * - Responsive layout works on all devices
  */
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 import { DashboardHeader } from "@/components/admin/DashboardHeader";
@@ -46,10 +47,14 @@ import { RecentActivity } from "@/components/admin/RecentActivity";
 import { AIInsights } from "@/components/admin/AIInsights";
 import { UserProfile } from "@/components/dashboard/UserProfile";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutDashboard, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { LayoutDashboard, User, ShieldCheck } from "lucide-react";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const { userRoles } = useAuth();
+  const isIT = userRoles.includes("it");
   useInactivityLogout();
 
   return (

@@ -84,6 +84,7 @@ export const RegistrationDashboardHeader = () => {
           </p>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
+          <PortalSwitcher variant="outline" />
           <Badge variant="default" className="bg-yellow-100 text-yellow-800 border-yellow-300 text-xs sm:text-sm">
             <span className="hidden sm:inline">Registration Department</span>
             <span className="sm:hidden">Registration</span>

@@ -36,6 +36,7 @@
  * - Responsive layout works on all devices
  */
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 import { DashboardHeader } from "@/components/admin/DashboardHeader";
@@ -46,10 +47,14 @@ import { RecentActivity } from "@/components/admin/RecentActivity";
 import { AIInsights } from "@/components/admin/AIInsights";
 import { UserProfile } from "@/components/dashboard/UserProfile";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { LayoutDashboard, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { LayoutDashboard, User, ShieldCheck } from "lucide-react";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const { userRoles } = useAuth();
+  const isIT = userRoles.includes("it");
   useInactivityLogout();
 
   return (
@@ -59,16 +64,26 @@ const AdminDashboard = () => {
         <DashboardHeader />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
-              <TabsTrigger value="overview" className="flex items-center gap-2">
-                <LayoutDashboard className="h-4 w-4" />
-                Overview
-              </TabsTrigger>
-              <TabsTrigger value="profile" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Profile
-              </TabsTrigger>
-            </TabsList>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <TabsList className="grid w-full max-w-md grid-cols-2">
+                <TabsTrigger value="overview" className="flex items-center gap-2">
+                  <LayoutDashboard className="h-4 w-4" />
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger value="profile" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Profile
+                </TabsTrigger>
+              </TabsList>
+              {isIT && (
+                <Button asChild variant="outline" size="sm">
+                  <Link to="/admin/portal-access">
+                    <ShieldCheck className="h-4 w-4 mr-2" />
+                    Manage Portal Access
+                  </Link>
+                </Button>
+              )}
+            </div>
 
             <TabsContent value="overview">
               <DashboardStats />

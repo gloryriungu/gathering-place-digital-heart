@@ -342,7 +342,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'https://stg.tot.co.ke/dashboard',
+          redirectTo: 'https://stg.tot.co.ke/auth/complete-profile',
         }
       });
 

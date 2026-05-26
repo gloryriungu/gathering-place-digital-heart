@@ -1,57 +1,69 @@
+# Migrate to a New Supabase Project Using Codebase Migrations
 
+Since the old project's data is inaccessible (no password, expired connection), we cannot dump existing rows. The good news: the entire schema lives in `supabase/migrations/` (68 files, ~169 KB) and all 11 edge functions are in source. We can rebuild the database structurally; **row data will start empty** and be reseeded via the app (registrations, content via admin dashboards, etc.).
 
-# Security Fixes & Multi-Department User Management Plan
+## What we can recover from the codebase
+- All tables, columns, enums, RLS policies, triggers, functions (68 migration files)
+- All 11 edge functions (auto-deployed by Lovable on connect)
+- App code already references the schema correctly
 
-## Summary
+## What we CANNOT recover
+- Row data (members, contributions, events, content, uploaded files in Storage)
+- `auth.users` (every user must sign up again or be re-imported)
+- Edge function secrets (Paystack keys, Resend key, etc. — re-add after connect)
+- Google OAuth provider config (must reconfigure in new project)
+- Storage bucket contents (buckets get recreated by migrations; files are gone)
 
-There are **4 security findings** to fix (code-side) plus **SQL you'll run manually** in the Supabase SQL Editor. I'll also handle multi-department user display in admin.
+## Plan
 
----
+### Step 1 — Create the new Supabase project
+You create a brand-new project at supabase.com. Note the new project ref, URL, and anon key.
 
-## Part 1: SQL You Run Manually
+### Step 2 — Run the consolidated schema in the new project's SQL Editor
+I'll generate one combined SQL file by concatenating all 68 migrations in order. You paste it into the new project's SQL Editor and run it once. This rebuilds:
+- All tables + enums + indexes
+- All RLS policies
+- All database functions + triggers
+- All storage buckets (empty)
 
-Go to your **Supabase SQL Editor** and run this SQL. I will provide the exact script during implementation:
+```text
+supabase/migrations/*.sql  →  /mnt/documents/full_schema.sql  →  paste into new SQL Editor
+```
 
-1. **Fix cookie_consents RLS tautology** - Drop the broken SELECT policy (`session_id = session_id` always TRUE) and replace with a proper owner-scoped policy
-2. **Add INSERT/UPDATE/DELETE restrictions on pastor_roles** - Restrict to admin/IT roles only to prevent privilege escalation
-3. **Enable leaked password protection** - This is a Supabase dashboard setting under Authentication > Settings
+### Step 3 — Reconnect Lovable to the new Supabase project
+In the Cloud panel: Disconnect current Supabase → Connect new project. Lovable will:
+- Auto-update `.env` (VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY, VITE_SUPABASE_PROJECT_ID)
+- Auto-update `src/integrations/supabase/client.ts`
+- Auto-deploy all 11 edge functions
 
----
+### Step 4 — Re-add edge function secrets
+After connect, re-add via Lovable's secret tool:
+- `PAYSTACK_SECRET_KEY`, `PAYSTACK_PUBLIC_KEY`, `PAYSTACK_WEBHOOK_SECRET`
+- `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`
+- Any others surfaced when functions are first invoked
 
-## Part 2: Code Changes I'll Make
+### Step 5 — Reconfigure Auth in the new Supabase dashboard
+- Site URL: `https://stg.tot.co.ke`
+- Redirect URLs: `https://stg.tot.co.ke/**`, `https://stg.tot.co.ke/auth/complete-profile`
+- Enable Google provider with your Google OAuth client (same client ID/secret works; add new Supabase callback URL to Google Cloud Console)
 
-### A. CORS Hardening on Edge Functions (10 functions)
+### Step 6 — Reconfigure external webhooks
+Update Paystack and Resend dashboards to point webhooks at the **new** project's edge function URLs (the function names stay the same, only the project ref in the URL changes).
 
-Replace wildcard `'*'` CORS origin with a dynamic allowlist helper across all edge functions:
-- `initialize-payment`, `initialize-shop-payment`, `verify-payment`, `verify-shop-payment`, `deliver-digital-product`, `send-campaign`, `send-email`, `send-session-reminders`, `handle-bounce`, `process-recurring-payments`
+### Step 7 — Seed essentials
+Since rows are gone, the founder account must:
+1. Sign up fresh, then I'll insert a `user_roles` row granting `founder`
+2. Use the admin dashboards to recreate hero content, events, ministries, shop products, etc.
+3. Re-upload storage assets (images, ebooks, sermon thumbnails)
 
-For `webhook-paystack`: remove CORS headers entirely (server-to-server).
+## What I'll produce in build mode
+1. `/mnt/documents/full_schema.sql` — concatenated migrations, ready to paste
+2. `/mnt/documents/MIGRATION_STEPS.md` — checklist with exact dashboard URLs and SQL snippets (e.g., the founder-role insert template)
+3. After you reconnect: update any hardcoded references and verify the app loads against the empty DB
 
-### B. Server-Side Role Validation in Admin Edge Functions
+## Risks / things to confirm
+- **No row data is recoverable.** If there's any chance of regaining access to the old project (password reset on the Supabase dashboard login, not the DB), that's worth trying first — even one `pg_dump` would save weeks of re-entry.
+- Storage files (sermons, ebooks, product images) must be re-uploaded manually.
+- All users must register again; existing emails in `newsletter_subscribers` can be re-imported via CSV if you have an export.
 
-Add JWT-based role checking to `send-campaign` and other admin-only edge functions so they can't be called by non-admin users even if they bypass the UI.
-
-### C. Multi-Department User Display in Admin
-
-Review and ensure the admin user management interface properly shows users with multiple department/role assignments as badges, with the ability to manage them via multi-select.
-
----
-
-## Part 3: Security Findings I'll Mark
-
-After fixes are applied, I'll update the security scan findings to reflect resolved issues.
-
----
-
-## Steps
-
-| # | Action | Who |
-|---|--------|-----|
-| 1 | I provide the SQL script for RLS fixes | You run in SQL Editor |
-| 2 | Fix CORS in all 10 edge functions | I code |
-| 3 | Remove CORS from webhook-paystack | I code |
-| 4 | Add server-side role checks to admin edge functions | I code |
-| 5 | Verify multi-department admin UI | I code (if needed) |
-| 6 | Enable leaked password protection | You toggle in Supabase Auth settings |
-| 7 | Mark security findings as fixed | I update scan results |
-
+Confirm to proceed and I'll generate the combined schema file and step-by-step guide.

@@ -1,69 +1,64 @@
-# Migrate to a New Supabase Project Using Codebase Migrations
 
-Since the old project's data is inaccessible (no password, expired connection), we cannot dump existing rows. The good news: the entire schema lives in `supabase/migrations/` (68 files, ~169 KB) and all 11 edge functions are in source. We can rebuild the database structurally; **row data will start empty** and be reseeded via the app (registrations, content via admin dashboards, etc.).
+# Seed Content into the New Supabase Project
 
-## What we can recover from the codebase
-- All tables, columns, enums, RLS policies, triggers, functions (68 migration files)
-- All 11 edge functions (auto-deployed by Lovable on connect)
-- App code already references the schema correctly
+`full_schema_v3.sql` is in. Now produce a **separate, seed-only** file that inserts starter content into the tables that already exist. Keeping seeds in their own file means you can re-run them safely without touching schema.
 
-## What we CANNOT recover
-- Row data (members, contributions, events, content, uploaded files in Storage)
-- `auth.users` (every user must sign up again or be re-imported)
-- Edge function secrets (Paystack keys, Resend key, etc. — re-add after connect)
-- Google OAuth provider config (must reconfigure in new project)
-- Storage bucket contents (buckets get recreated by migrations; files are gone)
+## Deliverable
+`/mnt/documents/seed_data.sql` — single idempotent script to paste into the SQL Editor after the schema is live.
 
-## Plan
+## Structure
 
-### Step 1 — Create the new Supabase project
-You create a brand-new project at supabase.com. Note the new project ref, URL, and anon key.
+Wrapped in `DO $seed$ BEGIN ... END $seed$;` with `RAISE NOTICE` per section. Every section guarded by `IF to_regclass('public.<table>') IS NOT NULL THEN ...` so missing tables are skipped, not fatal.
 
-### Step 2 — Run the consolidated schema in the new project's SQL Editor
-I'll generate one combined SQL file by concatenating all 68 migrations in order. You paste it into the new project's SQL Editor and run it once. This rebuilds:
-- All tables + enums + indexes
-- All RLS policies
-- All database functions + triggers
-- All storage buckets (empty)
+### 1. Config (required for app to boot correctly)
+- `department_tab_visibility` — default rows for every tab key the UI checks (giving, shop, counseling, events, ministries, baptism, dedication, prophetic, serve, etc.), all visible
+- `cookie_categories` — necessary, analytics, marketing, preferences (+ descriptions)
+- `activity_log_visibility` — founder-only default
+- `join_family_visibility` — founder-only default
+- `page_content` — `privacy_policy` and `terms_of_service` rows matching the DEFAULT_CONTENT already in `PrivacyPolicy.tsx` / `TermsOfService.tsx`
 
-```text
-supabase/migrations/*.sql  →  /mnt/documents/full_schema.sql  →  paste into new SQL Editor
+### 2. CMS placeholders (public site renders non-empty)
+- `hero_content` — one default hero
+- `service_times` — Sunday 9am, Sunday 11am, Wednesday 6pm
+- `announcements` — one welcome announcement
+- `faqs` — 5 starter Q&As (membership, giving, baptism, counseling, contact)
+- `footer_links` — Quick Links, Connect, Legal groupings
+- `about_us`, `visit_us`, `give_page`, `counseling_page`, `notice_filming` — one published row each
+- `testimonials` — 2 sample testimonials, not featured
+- `social_media_links` — empty/inactive rows for Facebook, Instagram, YouTube, TikTok
+- `watch_page` — placeholder staff label rows
+
+### 3. Catalog samples (QA-friendly, inactive by default)
+- `ministries` — Worship, Youth, Outreach
+- `events` — 2 upcoming events (`now() + interval '30 days'` / `'60 days'`)
+- `shop_products` — 2 physical + 1 digital ebook (inactive)
+- `media_content` / `sermons` — 2 sample entries (inactive)
+- `giving_contribution_types` — `tithe`, `offering`, `gift_1`, `gift_2`, `building_fund`, `missions` (snake_case, per memory)
+
+### 4. Founder bootstrap (commented, run after signup)
+Appended as a clearly labelled comment block — not auto-executed:
+```sql
+/* Replace email, then run:
+   INSERT INTO public.user_roles (user_id, role)
+   SELECT id, 'founder'::app_role FROM auth.users
+   WHERE email = 'founder@tot.co.ke'
+   ON CONFLICT (user_id, role) DO NOTHING;
+*/
 ```
 
-### Step 3 — Reconnect Lovable to the new Supabase project
-In the Cloud panel: Disconnect current Supabase → Connect new project. Lovable will:
-- Auto-update `.env` (VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY, VITE_SUPABASE_PROJECT_ID)
-- Auto-update `src/integrations/supabase/client.ts`
-- Auto-deploy all 11 edge functions
+## Idempotency rules
+- Tables with a natural unique key (slug/name/key) → `ON CONFLICT (<key>) DO NOTHING`
+- Tables without one → `INSERT ... SELECT ... WHERE NOT EXISTS (SELECT 1 FROM <table> WHERE <marker>)`
+- `created_by` / `updated_by` set to `NULL` (no fake auth.users FKs)
+- All timestamps via `now()`; future dates via `now() + interval`
+- Schema-qualified (`public.<table>`) everywhere
 
-### Step 4 — Re-add edge function secrets
-After connect, re-add via Lovable's secret tool:
-- `PAYSTACK_SECRET_KEY`, `PAYSTACK_PUBLIC_KEY`, `PAYSTACK_WEBHOOK_SECRET`
-- `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`
-- Any others surfaced when functions are first invoked
+## Approach
+Before writing inserts, I'll quickly inspect the actual columns of each target table via `supabase--read_query` against `information_schema.columns` so every INSERT matches the real schema (column names, NOT NULL, defaults). If a table is structured differently from expectations, that subsection is adjusted or skipped with a `RAISE NOTICE`.
 
-### Step 5 — Reconfigure Auth in the new Supabase dashboard
-- Site URL: `https://stg.tot.co.ke`
-- Redirect URLs: `https://stg.tot.co.ke/**`, `https://stg.tot.co.ke/auth/complete-profile`
-- Enable Google provider with your Google OAuth client (same client ID/secret works; add new Supabase callback URL to Google Cloud Console)
+## Out of scope
+- No schema changes
+- No edits to `src/`
+- No row data referencing real users (founder grant is the manual step at the end)
 
-### Step 6 — Reconfigure external webhooks
-Update Paystack and Resend dashboards to point webhooks at the **new** project's edge function URLs (the function names stay the same, only the project ref in the URL changes).
-
-### Step 7 — Seed essentials
-Since rows are gone, the founder account must:
-1. Sign up fresh, then I'll insert a `user_roles` row granting `founder`
-2. Use the admin dashboards to recreate hero content, events, ministries, shop products, etc.
-3. Re-upload storage assets (images, ebooks, sermon thumbnails)
-
-## What I'll produce in build mode
-1. `/mnt/documents/full_schema.sql` — concatenated migrations, ready to paste
-2. `/mnt/documents/MIGRATION_STEPS.md` — checklist with exact dashboard URLs and SQL snippets (e.g., the founder-role insert template)
-3. After you reconnect: update any hardcoded references and verify the app loads against the empty DB
-
-## Risks / things to confirm
-- **No row data is recoverable.** If there's any chance of regaining access to the old project (password reset on the Supabase dashboard login, not the DB), that's worth trying first — even one `pg_dump` would save weeks of re-entry.
-- Storage files (sermons, ebooks, product images) must be re-uploaded manually.
-- All users must register again; existing emails in `newsletter_subscribers` can be re-imported via CSV if you have an export.
-
-Confirm to proceed and I'll generate the combined schema file and step-by-step guide.
+After you approve, switch to build mode and I'll inspect schemas, generate `/mnt/documents/seed_data.sql`, and link the SQL Editor.

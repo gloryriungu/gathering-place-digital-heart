@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -51,7 +51,7 @@ export type Database = {
           id: string
           ip_address: string | null
           user_agent: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           action: string
@@ -62,7 +62,7 @@ export type Database = {
           id?: string
           ip_address?: string | null
           user_agent?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           action?: string
@@ -73,7 +73,7 @@ export type Database = {
           id?: string
           ip_address?: string | null
           user_agent?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -245,7 +245,7 @@ export type Database = {
           reviewed_by: string | null
           status: string
           submitted_at: string
-          submitted_by: string
+          submitted_by: string | null
           updated_at: string
         }
         Insert: {
@@ -263,7 +263,7 @@ export type Database = {
           reviewed_by?: string | null
           status?: string
           submitted_at?: string
-          submitted_by: string
+          submitted_by?: string | null
           updated_at?: string
         }
         Update: {
@@ -281,41 +281,8 @@ export type Database = {
           reviewed_by?: string | null
           status?: string
           submitted_at?: string
-          submitted_by?: string
+          submitted_by?: string | null
           updated_at?: string
-        }
-        Relationships: []
-      }
-      chat_history: {
-        Row: {
-          category: string | null
-          content: string
-          created_at: string
-          download_url: string | null
-          id: string
-          role: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          category?: string | null
-          content: string
-          created_at?: string
-          download_url?: string | null
-          id?: string
-          role: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          category?: string | null
-          content?: string
-          created_at?: string
-          download_url?: string | null
-          id?: string
-          role?: string
-          updated_at?: string
-          user_id?: string
         }
         Relationships: []
       }
@@ -530,10 +497,10 @@ export type Database = {
           created_at: string
           end_time: string
           id: string
-          member_id: string
+          member_id: string | null
           member_notes: string | null
           notes: string | null
-          pastor_id: string
+          pastor_id: string | null
           session_date: string
           session_type: string
           start_time: string
@@ -544,10 +511,10 @@ export type Database = {
           created_at?: string
           end_time: string
           id?: string
-          member_id: string
+          member_id?: string | null
           member_notes?: string | null
           notes?: string | null
-          pastor_id: string
+          pastor_id?: string | null
           session_date: string
           session_type?: string
           start_time: string
@@ -558,10 +525,10 @@ export type Database = {
           created_at?: string
           end_time?: string
           id?: string
-          member_id?: string
+          member_id?: string | null
           member_notes?: string | null
           notes?: string | null
-          pastor_id?: string
+          pastor_id?: string | null
           session_date?: string
           session_type?: string
           start_time?: string
@@ -1016,7 +983,7 @@ export type Database = {
           status: string | null
           testimony: string | null
           updated_at: string | null
-          user_id: string
+          user_id: string | null
           volunteer_interests: string[] | null
         }
         Insert: {
@@ -1041,7 +1008,7 @@ export type Database = {
           status?: string | null
           testimony?: string | null
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
           volunteer_interests?: string[] | null
         }
         Update: {
@@ -1066,7 +1033,7 @@ export type Database = {
           status?: string | null
           testimony?: string | null
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
           volunteer_interests?: string[] | null
         }
         Relationships: []
@@ -1076,7 +1043,7 @@ export type Database = {
           content_data: Json
           content_type: string
           created_at: string
-          created_by: string
+          created_by: string | null
           description: string | null
           expire_date: string | null
           id: string
@@ -1092,7 +1059,7 @@ export type Database = {
           content_data?: Json
           content_type: string
           created_at?: string
-          created_by: string
+          created_by?: string | null
           description?: string | null
           expire_date?: string | null
           id?: string
@@ -1108,7 +1075,7 @@ export type Database = {
           content_data?: Json
           content_type?: string
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           description?: string | null
           expire_date?: string | null
           id?: string
@@ -1209,7 +1176,7 @@ export type Database = {
           created_at: string | null
           id: string
           match_reasons: Json
-          member_id: string
+          member_id: string | null
           profile_user_id: string
           status: string | null
         }
@@ -1218,7 +1185,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           match_reasons: Json
-          member_id: string
+          member_id?: string | null
           profile_user_id: string
           status?: string | null
         }
@@ -1227,7 +1194,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           match_reasons?: Json
-          member_id?: string
+          member_id?: string | null
           profile_user_id?: string
           status?: string | null
         }
@@ -1347,7 +1314,7 @@ export type Database = {
           ministry_id: string
           role: string | null
           status: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           id?: string
@@ -1355,7 +1322,7 @@ export type Database = {
           ministry_id: string
           role?: string | null
           status?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           id?: string
@@ -1363,7 +1330,7 @@ export type Database = {
           ministry_id?: string
           role?: string | null
           status?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -1476,7 +1443,7 @@ export type Database = {
           id: string
           is_active: boolean
           max_sessions: number
-          pastor_id: string
+          pastor_id: string | null
           session_duration: number
           start_time: string
           updated_at: string
@@ -1488,7 +1455,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           max_sessions?: number
-          pastor_id: string
+          pastor_id?: string | null
           session_duration?: number
           start_time: string
           updated_at?: string
@@ -1500,7 +1467,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           max_sessions?: number
-          pastor_id?: string
+          pastor_id?: string | null
           session_duration?: number
           start_time?: string
           updated_at?: string
@@ -1514,7 +1481,7 @@ export type Database = {
           permissions: string[] | null
           role: string
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -1522,7 +1489,7 @@ export type Database = {
           permissions?: string[] | null
           role?: string
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -1530,7 +1497,7 @@ export type Database = {
           permissions?: string[] | null
           role?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1592,7 +1559,7 @@ export type Database = {
           ceremony_date: string
           ceremony_time: string | null
           created_at: string
-          created_by: string
+          created_by: string | null
           description: string | null
           id: string
           location: string | null
@@ -1607,7 +1574,7 @@ export type Database = {
           ceremony_date: string
           ceremony_time?: string | null
           created_at?: string
-          created_by: string
+          created_by?: string | null
           description?: string | null
           id?: string
           location?: string | null
@@ -1622,7 +1589,7 @@ export type Database = {
           ceremony_date?: string
           ceremony_time?: string | null
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           location?: string | null
@@ -1649,7 +1616,7 @@ export type Database = {
           photography_consent_date: string | null
           qr_code_data: string | null
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           address?: string | null
@@ -1664,7 +1631,7 @@ export type Database = {
           photography_consent_date?: string | null
           qr_code_data?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           address?: string | null
@@ -1679,7 +1646,7 @@ export type Database = {
           photography_consent_date?: string | null
           qr_code_data?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1694,7 +1661,7 @@ export type Database = {
           reviewed_by: string | null
           status: string
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           application_notes?: string | null
@@ -1706,7 +1673,7 @@ export type Database = {
           reviewed_by?: string | null
           status?: string
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           application_notes?: string | null
@@ -1718,7 +1685,7 @@ export type Database = {
           reviewed_by?: string | null
           status?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -1734,7 +1701,7 @@ export type Database = {
         Row: {
           correct_answer: string | null
           created_at: string
-          created_by: string
+          created_by: string | null
           display_order: number
           explanation: string | null
           id: string
@@ -1748,7 +1715,7 @@ export type Database = {
         Insert: {
           correct_answer?: string | null
           created_at?: string
-          created_by: string
+          created_by?: string | null
           display_order?: number
           explanation?: string | null
           id?: string
@@ -1762,7 +1729,7 @@ export type Database = {
         Update: {
           correct_answer?: string | null
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           display_order?: number
           explanation?: string | null
           id?: string
@@ -1787,7 +1754,7 @@ export type Database = {
         Row: {
           content: string
           created_at: string
-          created_by: string
+          created_by: string | null
           display_order: number
           estimated_time: number | null
           id: string
@@ -1799,7 +1766,7 @@ export type Database = {
         Insert: {
           content: string
           created_at?: string
-          created_by: string
+          created_by?: string | null
           display_order?: number
           estimated_time?: number | null
           id?: string
@@ -1811,7 +1778,7 @@ export type Database = {
         Update: {
           content?: string
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           display_order?: number
           estimated_time?: number | null
           id?: string
@@ -1915,7 +1882,7 @@ export type Database = {
           start_date: string
           status: string
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           amount: number
@@ -1933,7 +1900,7 @@ export type Database = {
           start_date?: string
           status?: string
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           amount?: number
@@ -1951,7 +1918,7 @@ export type Database = {
           start_date?: string
           status?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -2024,7 +1991,7 @@ export type Database = {
           priority: string
           reason: string | null
           request_type: string
-          requested_by: string
+          requested_by: string | null
           requested_date: string
           required_by: string | null
           status: string
@@ -2042,7 +2009,7 @@ export type Database = {
           priority?: string
           reason?: string | null
           request_type: string
-          requested_by: string
+          requested_by?: string | null
           requested_date?: string
           required_by?: string | null
           status?: string
@@ -2060,7 +2027,7 @@ export type Database = {
           priority?: string
           reason?: string | null
           request_type?: string
-          requested_by?: string
+          requested_by?: string | null
           requested_date?: string
           required_by?: string | null
           status?: string
@@ -2080,7 +2047,7 @@ export type Database = {
           is_default: boolean | null
           phone_number: string | null
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           authorization_code?: string | null
@@ -2092,7 +2059,7 @@ export type Database = {
           is_default?: boolean | null
           phone_number?: string | null
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           authorization_code?: string | null
@@ -2104,7 +2071,7 @@ export type Database = {
           is_default?: boolean | null
           phone_number?: string | null
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -2152,7 +2119,7 @@ export type Database = {
           reviewed_by: string | null
           status: string | null
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           application_date?: string | null
@@ -2164,7 +2131,7 @@ export type Database = {
           reviewed_by?: string | null
           status?: string | null
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           application_date?: string | null
@@ -2176,7 +2143,7 @@ export type Database = {
           reviewed_by?: string | null
           status?: string | null
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -2366,7 +2333,7 @@ export type Database = {
           id: string
           priority: string
           status: string
-          submitted_by: string
+          submitted_by: string | null
           ticket_number: string
           title: string
           updated_at: string
@@ -2380,7 +2347,7 @@ export type Database = {
           id?: string
           priority: string
           status?: string
-          submitted_by: string
+          submitted_by?: string | null
           ticket_number: string
           title: string
           updated_at?: string
@@ -2394,7 +2361,7 @@ export type Database = {
           id?: string
           priority?: string
           status?: string
-          submitted_by?: string
+          submitted_by?: string | null
           ticket_number?: string
           title?: string
           updated_at?: string
@@ -2539,21 +2506,21 @@ export type Database = {
           id: string
           message: string
           ticket_id: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           id?: string
           message: string
           ticket_id: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           message?: string
           ticket_id?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -2571,21 +2538,21 @@ export type Database = {
           id: string
           role: Database["public"]["Enums"]["app_role"]
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -2594,19 +2561,19 @@ export type Database = {
           added_at: string
           id: string
           product_id: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           added_at?: string
           id?: string
           product_id: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           added_at?: string
           id?: string
           product_id?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {

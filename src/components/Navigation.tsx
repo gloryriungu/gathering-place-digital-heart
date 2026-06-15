@@ -214,7 +214,7 @@ export const Navigation = memo(() => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden bg-black/95 backdrop-blur-md max-h-[calc(100vh-5rem)] overflow-y-auto">
+          <div className="lg:hidden bg-black/95 backdrop-blur-md max-h-[calc(100vh-5rem)] overflow-y-auto">
             <div className="px-2 pt-2 pb-6 space-y-4">
               {navItems.map((item) => (
                 <Link

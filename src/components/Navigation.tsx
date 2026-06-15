@@ -110,21 +110,21 @@ export const Navigation = memo(() => {
   return (
     <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div className="flex justify-between items-center h-20 gap-4">
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link to="/" className="flex items-center">
-              <img src={logo} alt="TOT International" className="h-12 w-12 md:h-14 md:w-14 object-contain" />
+              <img src={logo} alt="TOT International" className="h-11 w-11 lg:h-12 lg:w-12 object-contain" />
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden lg:flex items-center gap-6 xl:gap-8">
             {navItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
-                className="text-white hover:text-gray-300 font-bold text-sm tracking-wide transition-colors"
+                className="text-white/90 hover:text-white font-semibold text-[13px] tracking-[0.08em] transition-colors"
               >
                 {item.name}
               </Link>
@@ -133,9 +133,9 @@ export const Navigation = memo(() => {
             {/* Get Involved Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="text-white hover:text-gray-300 font-bold text-sm tracking-wide transition-colors flex items-center gap-1">
+                <button className="text-white/90 hover:text-white font-semibold text-[13px] tracking-[0.08em] transition-colors flex items-center gap-1">
                   GET INVOLVED
-                  <ChevronDown className="h-4 w-4" />
+                  <ChevronDown className="h-3.5 w-3.5" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-lg z-50">
@@ -143,7 +143,7 @@ export const Navigation = memo(() => {
                   <DropdownMenuItem key={item.name} asChild>
                     <Link
                       to={item.href}
-                      className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 font-bold text-sm tracking-wide cursor-pointer block px-4 py-2"
+                      className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 font-semibold text-sm tracking-wide cursor-pointer block px-4 py-2"
                     >
                       {item.name}
                     </Link>
@@ -151,65 +151,61 @@ export const Navigation = memo(() => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+          </div>
 
-            {/* Social Links */}
-            <div className="flex items-center space-x-4">
+          {/* Right cluster: icons + CTAs */}
+          <div className="hidden lg:flex items-center gap-4">
+            {/* Social Links — only on wide screens to keep the bar uncluttered */}
+            <div className="hidden 2xl:flex items-center gap-3 pr-3 border-r border-white/15">
               {socialLinks.map((social) => (
                 <a
                   key={social.platform}
                   href={social.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-white hover:text-gray-300 transition-colors"
+                  className="text-white/70 hover:text-white transition-colors"
                   aria-label={social.platform}
                 >
-                  <social.icon className="h-5 w-5" />
+                  <social.icon className="h-4 w-4" />
                 </a>
               ))}
             </div>
 
             {/* Wishlist & Cart Icons */}
-            <div className="flex items-center space-x-4">
-              {/* Wishlist Icon */}
-              <div className="relative">
-                <Link to="/wishlist" className="text-white hover:text-gray-300 transition-colors">
-                  <Heart className="h-5 w-5" />
-                  {wishlistCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {wishlistCount}
-                    </span>
-                  )}
-                </Link>
-              </div>
-
-              {/* Cart Icon */}
-              <div className="relative">
-                <Link to="/shop" className="text-white hover:text-gray-300 transition-colors">
-                  <ShoppingCart className="h-5 w-5" />
-                  {cartItems > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {cartItems}
-                    </span>
-                  )}
-                </Link>
-              </div>
+            <div className="flex items-center gap-3">
+              <Link to="/wishlist" className="relative text-white/80 hover:text-white transition-colors" aria-label="Wishlist">
+                <Heart className="h-[18px] w-[18px]" />
+                {wishlistCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
+                    {wishlistCount}
+                  </span>
+                )}
+              </Link>
+              <Link to="/shop" className="relative text-white/80 hover:text-white transition-colors" aria-label="Cart">
+                <ShoppingCart className="h-[18px] w-[18px]" />
+                {cartItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center">
+                    {cartItems}
+                  </span>
+                )}
+              </Link>
             </div>
-          </div>
 
-          {/* CTA Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            {/* Portal switcher: only renders for staff in 2+ departments */}
-            <PortalSwitcher variant="outline" className="bg-white text-black hover:bg-gray-100 font-semibold border-white" />
-            <Button variant="outline" className="bg-white text-black hover:bg-gray-100 font-bold" asChild>
+            {/* Divider */}
+            <span className="h-6 w-px bg-white/15" aria-hidden="true" />
+
+            {/* CTAs */}
+            <PortalSwitcher variant="outline" className="bg-transparent text-white hover:bg-white hover:text-black font-semibold border-white/30 h-9 px-3" />
+            <Button variant="ghost" className="text-white hover:bg-white/10 font-semibold h-9 px-3" asChild>
               <Link to="/auth">SIGN IN</Link>
             </Button>
-            <Button className="bg-white text-black hover:bg-gray-100 font-bold" asChild>
+            <Button className="bg-white text-black hover:bg-gray-100 font-semibold h-9 px-4" asChild>
               <Link to="/visit-us">VISIT US</Link>
             </Button>
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <Button variant="ghost" size="icon" onClick={toggleMenu} className="text-white">
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>

@@ -41,17 +41,17 @@ async function getAdminEmails(supabaseClient: any): Promise<AdminUser[]> {
 }
 
 async function sendCriticalAlert(adminEmails: AdminUser[], subject: string, alertType: string, details: any) {
-  const postmarkApiKey = Deno.env.get('POSTMARK_API_KEY');
-  if (!postmarkApiKey || adminEmails.length === 0) return;
+  const resendApiKey = Deno.env.get('RESEND_API_KEY');
+  if (!resendApiKey || adminEmails.length === 0) return;
 
   const htmlBody = `<!DOCTYPE html><html><head><style>body{font-family:Arial,sans-serif;line-height:1.6;color:#333}.container{max-width:600px;margin:0 auto;padding:20px}.alert-box{background-color:#fee;border-left:4px solid #dc2626;padding:15px;margin:20px 0}.alert-header{color:#dc2626;font-size:18px;font-weight:bold;margin-bottom:10px}.details{background-color:#f5f5f5;padding:15px;border-radius:4px;margin:15px 0}.detail-row{margin:8px 0}.label{font-weight:bold;color:#666}pre{background-color:#f5f5f5;padding:10px;border-radius:4px;overflow-x:auto}.footer{margin-top:30px;padding-top:20px;border-top:1px solid #ddd;color:#666;font-size:12px}</style></head><body><div class="container"><h2>🚨 Critical Webhook Alert</h2><div class="alert-box"><div class="alert-header">${alertType}</div><p>A critical webhook failure has been detected.</p></div><div class="details"><div class="detail-row"><span class="label">Event Type:</span> ${details.event_type || 'Unknown'}</div><div class="detail-row"><span class="label">Reference:</span> ${details.reference || 'N/A'}</div><div class="detail-row"><span class="label">Timestamp:</span> ${new Date().toISOString()}</div><div class="detail-row"><span class="label">IP Address:</span> ${details.ip_address || 'Unknown'}</div>${details.error_message ? `<div class="detail-row"><span class="label">Error:</span><pre>${details.error_message}</pre></div>` : ''}</div><p><strong>Action Required:</strong> Review webhook logs in your dashboard.</p><div class="footer"><p>Automated alert from your church management system.</p></div></div></body></html>`;
 
   try {
     await Promise.all(adminEmails.map(async (admin) => {
-      const response = await fetch('https://api.postmarkapp.com/email', {
+      const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
-        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'X-Postmark-Server-Token': postmarkApiKey },
-        body: JSON.stringify({ From: 'alerts@stg.tot.co.ke', To: admin.email, Subject: subject, HtmlBody: htmlBody, MessageStream: 'outbound' }),
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendApiKey}` },
+        body: JSON.stringify({ from: 'alerts@stg.tot.co.ke', to: admin.email, subject, html: htmlBody }),
       });
       if (!response.ok) console.error(`Failed to send alert to ${admin.email}:`, await response.text());
     }));

@@ -126,7 +126,7 @@ const handler = async (req: Request): Promise<Response> => {
           .replace(/\{\{last_name\}\}/g, subscriber.last_name || '');
 
         const { data, error } = await resend.emails.send({
-          from: 'Mountain of Blessings <onboarding@resend.dev>',
+          from: 'Mountain of Blessings <info@tot.co.ke>',
           to: [subscriber.email],
           subject: campaign.subject,
           html: personalizedHtml,

@@ -56,7 +56,7 @@ const sendReminderEmail = async (resend: Resend, reminder: SessionReminder) => {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: "Mountain of Blessings <onboarding@resend.dev>",
+      from: "Mountain of Blessings <info@tot.co.ke>",
       to: [reminder.member_email],
       subject: "Reminder: Your Counseling Session Tomorrow",
       html: htmlBody,

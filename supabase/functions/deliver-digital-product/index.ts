@@ -190,7 +190,7 @@ serve(async (req) => {
 
           console.log('Sending email to:', order.customer_email);
           const emailResponse = await resend.emails.send({
-            from: "TOT Store <no-reply@tot.co.ke>",
+            from: "TOT Store <info@tot.co.ke>",
             to: [order.customer_email],
             subject: `Your Digital Purchase is Ready - Order #${order.order_number}`,
             html: emailHtml,

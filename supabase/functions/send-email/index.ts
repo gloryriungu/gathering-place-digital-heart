@@ -36,7 +36,7 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const { to, subject, htmlBody, textBody, from }: EmailRequest = await req.json();
-    const fromAddress = from || "Mountain of Blessings <onboarding@resend.dev>";
+    const fromAddress = from || "Mountain of Blessings <info@tot.co.ke>";
 
     console.log("Sending email to:", to);
 

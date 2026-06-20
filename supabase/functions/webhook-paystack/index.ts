@@ -51,7 +51,7 @@ async function sendCriticalAlert(adminEmails: AdminUser[], subject: string, aler
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: { 'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': `Bearer ${resendApiKey}` },
-        body: JSON.stringify({ from: 'alerts@stg.tot.co.ke', to: admin.email, subject, html: htmlBody }),
+        body: JSON.stringify({ from: 'Mountain of Blessings <info@tot.co.ke>', to: admin.email, subject, html: htmlBody }),
       });
       if (!response.ok) console.error(`Failed to send alert to ${admin.email}:`, await response.text());
     }));

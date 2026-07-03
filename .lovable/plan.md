@@ -1,64 +1,36 @@
+## Problem
 
-# Seed Content into the New Supabase Project
+When someone signs up from **Join Us** (email + password), they fill in first/last name, phone, address, county, etc. The `handle_new_user` trigger writes all of that into `profiles`. Yet after email confirmation and first sign-in, they land on `/auth/complete-profile` and are asked to fill the same fields again.
 
-`full_schema_v3.sql` is in. Now produce a **separate, seed-only** file that inserts starter content into the tables that already exist. Keeping seeds in their own file means you can re-run them safely without touching schema.
+Root cause is in `src/components/auth/AuthProvider.tsx` → `checkProfileCompletion`:
 
-## Deliverable
-`/mnt/documents/seed_data.sql` — single idempotent script to paste into the SQL Editor after the schema is live.
+- It flags `needsProfileCompletion = true` whenever `profiles.phone / address / county` are empty **or** when the `.single()` query errors (e.g. profile row not yet created due to a slight trigger race after email confirmation).
+- It makes no distinction between email sign-ups (who already supplied everything) and Google OAuth sign-ups (who legitimately need the extra step).
 
-## Structure
+The `/auth/complete-profile` page is designed for Google users only — the Google callback in `signInWithGoogle` already routes there explicitly.
 
-Wrapped in `DO $seed$ BEGIN ... END $seed$;` with `RAISE NOTICE` per section. Every section guarded by `IF to_regclass('public.<table>') IS NOT NULL THEN ...` so missing tables are skipped, not fatal.
+## Fix
 
-### 1. Config (required for app to boot correctly)
-- `department_tab_visibility` — default rows for every tab key the UI checks (giving, shop, counseling, events, ministries, baptism, dedication, prophetic, serve, etc.), all visible
-- `cookie_categories` — necessary, analytics, marketing, preferences (+ descriptions)
-- `activity_log_visibility` — founder-only default
-- `join_family_visibility` — founder-only default
-- `page_content` — `privacy_policy` and `terms_of_service` rows matching the DEFAULT_CONTENT already in `PrivacyPolicy.tsx` / `TermsOfService.tsx`
+Restrict the "needs profile completion" flag to **OAuth (Google) users only**. Email/password accounts must never be redirected to `ProfileCompletion`.
 
-### 2. CMS placeholders (public site renders non-empty)
-- `hero_content` — one default hero
-- `service_times` — Sunday 9am, Sunday 11am, Wednesday 6pm
-- `announcements` — one welcome announcement
-- `faqs` — 5 starter Q&As (membership, giving, baptism, counseling, contact)
-- `footer_links` — Quick Links, Connect, Legal groupings
-- `about_us`, `visit_us`, `give_page`, `counseling_page`, `notice_filming` — one published row each
-- `testimonials` — 2 sample testimonials, not featured
-- `social_media_links` — empty/inactive rows for Facebook, Instagram, YouTube, TikTok
-- `watch_page` — placeholder staff label rows
+### Changes
 
-### 3. Catalog samples (QA-friendly, inactive by default)
-- `ministries` — Worship, Youth, Outreach
-- `events` — 2 upcoming events (`now() + interval '30 days'` / `'60 days'`)
-- `shop_products` — 2 physical + 1 digital ebook (inactive)
-- `media_content` / `sermons` — 2 sample entries (inactive)
-- `giving_contribution_types` — `tithe`, `offering`, `gift_1`, `gift_2`, `building_fund`, `missions` (snake_case, per memory)
+**`src/components/auth/AuthProvider.tsx`**
 
-### 4. Founder bootstrap (commented, run after signup)
-Appended as a clearly labelled comment block — not auto-executed:
-```sql
-/* Replace email, then run:
-   INSERT INTO public.user_roles (user_id, role)
-   SELECT id, 'founder'::app_role FROM auth.users
-   WHERE email = 'founder@tot.co.ke'
-   ON CONFLICT (user_id, role) DO NOTHING;
-*/
-```
+1. In `checkProfileCompletion(userId)`, first inspect the current user's auth provider:
+   - `provider = user.app_metadata?.provider` (and/or scan `user.identities` for a `google` identity).
+   - If provider is `email` (or anything other than an OAuth social provider), set `needsProfileCompletion = false` and return early — regardless of what's in `profiles`.
+   - Only for OAuth providers (`google`, etc.), keep the existing "phone/address/county missing" check.
+2. Pass the `User` object into `checkProfileCompletion` (instead of just `userId`) so we can read `app_metadata`/`identities` without an extra round-trip. Update the two call sites in the `onAuthStateChange` listener and in the initial `getSession()` block.
+3. Treat a missing `profiles` row for an email user as "not incomplete" (the row will be created by the trigger; email users supplied everything at signup, so we should not push them into the OAuth-only completion form).
 
-## Idempotency rules
-- Tables with a natural unique key (slug/name/key) → `ON CONFLICT (<key>) DO NOTHING`
-- Tables without one → `INSERT ... SELECT ... WHERE NOT EXISTS (SELECT 1 FROM <table> WHERE <marker>)`
-- `created_by` / `updated_by` set to `NULL` (no fake auth.users FKs)
-- All timestamps via `now()`; future dates via `now() + interval`
-- Schema-qualified (`public.<table>`) everywhere
+**No other files need to change.** In particular:
 
-## Approach
-Before writing inserts, I'll quickly inspect the actual columns of each target table via `supabase--read_query` against `information_schema.columns` so every INSERT matches the real schema (column names, NOT NULL, defaults). If a table is structured differently from expectations, that subsection is adjusted or skipped with a `RAISE NOTICE`.
+- `src/pages/Auth.tsx` already routes to `/auth/complete-profile` only when `needsProfileCompletion` is true, so fixing the flag fixes the redirect.
+- `signInWithGoogle` keeps its explicit `redirectTo: /auth/complete-profile` — Google users still see the form the first time.
+- `ProfileCompletion.tsx` stays as-is; it already redirects to `/dashboard` if `needsProfileCompletion` is false, so any Google user who has already filled it won't see it again.
 
-## Out of scope
-- No schema changes
-- No edits to `src/`
-- No row data referencing real users (founder grant is the manual step at the end)
+## Result
 
-After you approve, switch to build mode and I'll inspect schemas, generate `/mnt/documents/seed_data.sql`, and link the SQL Editor.
+- **Email signup → verify email → sign in → `/dashboard`** (no extra form).
+- **Google signup → `/auth/complete-profile` (once) → `/dashboard`** (unchanged behaviour).

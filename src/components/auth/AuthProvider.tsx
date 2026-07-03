@@ -174,7 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Defer the role fetch to avoid blocking auth state changes
           setTimeout(() => {
             fetchUserRole(session.user.id);
-            checkProfileCompletion(session.user.id);
+            checkProfileCompletion(session.user);
           }, 0);
         } else {
           setUserRole(null);
@@ -215,7 +215,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (session?.user) {
         fetchUserRole(session.user.id);
-        checkProfileCompletion(session.user.id);
+        checkProfileCompletion(session.user);
         setupRoleSubscription(session.user.id);
       }
       

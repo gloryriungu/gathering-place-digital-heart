@@ -120,25 +120,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const checkProfileCompletion = async (userId: string) => {
+  const checkProfileCompletion = async (authUser: User) => {
     try {
+      // Only OAuth (e.g. Google) users need the extra profile-completion step.
+      // Email/password sign-ups already provide phone/address/county in the Join Us form.
+      const provider = authUser.app_metadata?.provider;
+      const identities = authUser.identities ?? [];
+      const isOAuthUser =
+        (provider && provider !== 'email') ||
+        identities.some((i: any) => i.provider && i.provider !== 'email');
+
+      if (!isOAuthUser) {
+        setNeedsProfileCompletion(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('profiles')
         .select('phone, address, county')
-        .eq('user_id', userId)
+        .eq('user_id', authUser.id)
         .single();
-      
+
       if (error || !data) {
         setNeedsProfileCompletion(true);
         return;
       }
-      
-      // Check if required fields are missing
+
       const isIncomplete = !data.phone || !data.address || !data.county;
       setNeedsProfileCompletion(isIncomplete);
     } catch (error) {
       console.error('Error checking profile completion:', error);
-      setNeedsProfileCompletion(true);
+      setNeedsProfileCompletion(false);
     }
   };
 

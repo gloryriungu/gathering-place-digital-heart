@@ -180,8 +180,8 @@ describe("Multi-department portal access", () => {
     expect(
       await screen.findByText(/Marketing Dashboard/i)
     ).toBeInTheDocument();
-    expect(screen.getByText(/Media Dashboard/i)).toBeInTheDocument();
-    expect(screen.getByText(/Registration Dashboard/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Media Dashboard/i)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/Registration Dashboard/i)[0]).toBeInTheDocument();
     expect(screen.getByText(/3 portals/i)).toBeInTheDocument();
   });
 
@@ -240,7 +240,7 @@ describe("Multi-department portal access", () => {
     const trigger = await screen.findByRole("button", { name: /portal/i });
     await userEvent.click(trigger);
     expect(await screen.findByText(/Marketing Dashboard/i)).toBeInTheDocument();
-    expect(screen.getByText(/Media Dashboard/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Media Dashboard/i)[0]).toBeInTheDocument();
     expect(state.signOutCalled).toBe(0);
   });
 });

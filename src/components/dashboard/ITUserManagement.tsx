@@ -154,53 +154,25 @@ export const ITUserManagement = () => {
     }
   };
 
-  const fetchDepartments = async () => {
-    try {
-      const { data: depts, error } = await supabase
-        .from("serve_departments")
-        .select("*")
-        .eq("is_visible", true)
-        .order("display_order", { ascending: true });
-
-      if (error) {
-        await logSystemEvent(
-          'fetch_departments_failed',
-          `Failed to fetch departments: ${error.message}`,
-          'error',
-          { error }
-        );
-        return;
-      }
-
-      setDepartments(depts || []);
-      await logSystemEvent(
-        'departments_fetched',
-        `Successfully fetched ${depts?.length || 0} departments`,
-        'info',
-        { department_count: depts?.length || 0 }
-      );
-    } catch (error: any) {
-      await logSystemEvent(
-        'fetch_departments_error',
-        `Unexpected error while fetching departments: ${error.message}`,
-        'error',
-        { error: error.message }
-      );
-    }
-  };
-
-  const updateUserRole = async (userId: string, newRole: string, departments: string[] = []) => {
+  const updateUserRoles = async (userId: string, newRoles: string[]) => {
     if (isUpdating) return;
-    
+
+    if (newRoles.length === 0) {
+      toast({
+        title: "Select at least one role",
+        description: "Users must have at least one role (use 'User' for basic access).",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsUpdating(true);
       const currentUser = await supabase.auth.getUser();
-      
-      // Get user details for logging
       const targetUser = users.find(u => u.user_id === userId);
       const userName = targetUser ? `${targetUser.first_name} ${targetUser.last_name}` : 'Unknown User';
-      
-      // First remove existing roles
+
+      // Replace the user's role set atomically: delete all, then insert selected.
       const { error: deleteError } = await supabase
         .from("user_roles")
         .delete()
@@ -209,79 +181,48 @@ export const ITUserManagement = () => {
       if (deleteError) {
         await logSystemEvent(
           'role_update_failed',
-          `Failed to remove existing roles for user ${userName}: ${deleteError.message}`,
+          `Failed to clear roles for ${userName}: ${deleteError.message}`,
           'error',
-          { 
-            target_user_id: userId,
-            target_user_name: userName,
-            admin_user_id: currentUser.data.user?.id,
-            error: deleteError 
-          }
+          { target_user_id: userId, admin_user_id: currentUser.data.user?.id, error: deleteError }
         );
         throw deleteError;
       }
 
-      // Then add the new role with proper type casting
-      const { error: insertError } = await supabase
-        .from("user_roles")
-        .insert({ 
-          user_id: userId, 
-          role: newRole as "user" | "admin" | "pastor" | "senior_pastor" | "founder" | "registration" | "accounts" | "sunday_school" | "teacher" | "it" | "media" | "marketing"
-        });
+      const rows = newRoles.map(role => ({
+        user_id: userId,
+        role: role as "user" | "admin" | "pastor" | "senior_pastor" | "founder" | "registration" | "accounts" | "sunday_school" | "teacher" | "it" | "media" | "marketing",
+      }));
+
+      const { error: insertError } = await supabase.from("user_roles").insert(rows);
 
       if (insertError) {
         await logSystemEvent(
           'role_update_failed',
-          `Failed to assign new role '${newRole}' to user ${userName}: ${insertError.message}`,
+          `Failed to assign roles [${newRoles.join(', ')}] to ${userName}: ${insertError.message}`,
           'error',
-          { 
-            target_user_id: userId,
-            target_user_name: userName,
-            new_role: newRole,
-            departments: departments,
-            admin_user_id: currentUser.data.user?.id,
-            error: insertError 
-          }
+          { target_user_id: userId, new_roles: newRoles, admin_user_id: currentUser.data.user?.id, error: insertError }
         );
         throw insertError;
       }
 
-      // Log successful role change
       await logSystemEvent(
         'user_role_updated',
-        `Successfully updated role for user ${userName} to '${newRole}'${departments.length > 0 ? ` with departments: ${departments.join(', ')}` : ''}`,
+        `Updated roles for ${userName}: ${newRoles.join(', ')}`,
         'info',
-        { 
-          target_user_id: userId,
-          target_user_name: userName,
-          new_role: newRole,
-          departments: departments,
-          admin_user_id: currentUser.data.user?.id
-        }
+        { target_user_id: userId, new_roles: newRoles, admin_user_id: currentUser.data.user?.id }
       );
 
       toast({
         title: "Success",
-        description: `User role updated successfully to ${newRole}`,
+        description: `Assigned ${newRoles.length} portal${newRoles.length > 1 ? 's' : ''} to ${userName}.`,
       });
-      
-      fetchUsers(); // Refresh the list
-      
+
+      setDialogOpen(false);
+      fetchUsers();
     } catch (error: any) {
-      await logSystemEvent(
-        'role_update_critical_error',
-        `Critical error during role update for user ID ${userId}: ${error.message}`,
-        'error',
-        { 
-          target_user_id: userId,
-          error: error.message,
-          stack: error.stack
-        }
-      );
-      
       toast({
         title: "Error",
-        description: "Failed to update user role. This has been logged for IT review.",
+        description: "Failed to update user roles. This has been logged for IT review.",
         variant: "destructive",
       });
     } finally {
@@ -291,8 +232,8 @@ export const ITUserManagement = () => {
 
   useEffect(() => {
     fetchUsers();
-    fetchDepartments();
   }, []);
+
 
   const getUserRoles = (user: UserProfile) => {
     return user.user_roles?.map(role => role.role) || ["user"];

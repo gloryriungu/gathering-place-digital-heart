@@ -349,96 +349,20 @@ export const ITUserManagement = () => {
                             {new Date(user.created_at).toLocaleDateString()}
                           </TableCell>
                           <TableCell>
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button
-                                   variant="outline"
-                                   size="sm"
-                                   onClick={() => {
-                                     setSelectedUserId(user.user_id);
-                                     setSelectedRole(roles[0] || "user");
-                                     setSelectedDepartments([]);
-                                   }}
-                                 >
-                                   <Briefcase className="h-4 w-4 mr-1" />
-                                   Change Role
-                                 </Button>
-                              </DialogTrigger>
-                                <DialogContent className="max-w-2xl">
-                                 <DialogHeader>
-                                   <DialogTitle>Update User Role & Department Access</DialogTitle>
-                                   <DialogDescription>
-                                     Change the role and department access for {user.first_name} {user.last_name}
-                                   </DialogDescription>
-                                 </DialogHeader>
-                                 <div className="space-y-6">
-                                   <div className="space-y-2">
-                                     <Label>Select New Role</Label>
-                                     <Select value={selectedRole} onValueChange={setSelectedRole}>
-                                       <SelectTrigger>
-                                         <SelectValue placeholder="Select a role" />
-                                       </SelectTrigger>
-                                       <SelectContent>
-                                         {roleOptions.map((role) => (
-                                           <SelectItem key={role.value} value={role.value}>
-                                             <div>
-                                               <div className="font-medium">{role.label}</div>
-                                               <div className="text-sm text-muted-foreground">
-                                                 {role.description}
-                                               </div>
-                                             </div>
-                                           </SelectItem>
-                                         ))}
-                                       </SelectContent>
-                                     </Select>
-                                   </div>
-
-                                   {departments.length > 0 && (
-                                     <div className="space-y-3">
-                                       <div className="flex items-center gap-2">
-                                         <Building2 className="h-4 w-4" />
-                                         <Label>Department Access (Optional)</Label>
-                                       </div>
-                                       <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto">
-                                         {departments.map((dept) => (
-                                           <div key={dept.id} className="flex items-center space-x-2 p-2 border rounded">
-                                             <Checkbox
-                                               id={`dept-${dept.id}`}
-                                               checked={selectedDepartments.includes(dept.id)}
-                                               onCheckedChange={(checked) => {
-                                                 if (checked) {
-                                                   setSelectedDepartments(prev => [...prev, dept.id]);
-                                                 } else {
-                                                   setSelectedDepartments(prev => prev.filter(id => id !== dept.id));
-                                                 }
-                                               }}
-                                             />
-                                             <label htmlFor={`dept-${dept.id}`} className="text-sm cursor-pointer">
-                                               <div className="font-medium">{dept.name}</div>
-                                               <div className="text-xs text-muted-foreground">{dept.description}</div>
-                                             </label>
-                                           </div>
-                                         ))}
-                                       </div>
-                                       <p className="text-xs text-muted-foreground">
-                                         Select departments this user should have access to manage or coordinate.
-                                       </p>
-                                     </div>
-                                   )}
-
-                                   <div className="flex gap-2">
-                                     <Button
-                                       onClick={() => updateUserRole(selectedUserId, selectedRole, selectedDepartments)}
-                                       className="flex-1"
-                                       disabled={isUpdating}
-                                     >
-                                       {isUpdating ? "Updating..." : "Update Role & Access"}
-                                     </Button>
-                                   </div>
-                                 </div>
-                               </DialogContent>
-                            </Dialog>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedUserId(user.user_id);
+                                setSelectedRoles(roles.length ? roles : ["user"]);
+                                setDialogOpen(true);
+                              }}
+                            >
+                              <Briefcase className="h-4 w-4 mr-1" />
+                              Manage Portals
+                            </Button>
                           </TableCell>
+
                         </TableRow>
                       );
                     })}

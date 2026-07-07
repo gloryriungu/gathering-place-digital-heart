@@ -26,21 +26,12 @@ interface UserProfile {
   }>;
 }
 
-interface Department {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  is_visible: boolean;
-}
-
 export const ITUserManagement = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedRole, setSelectedRole] = useState<string>("");
-  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();
 

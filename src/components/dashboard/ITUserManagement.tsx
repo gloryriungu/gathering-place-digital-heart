@@ -5,10 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { UserPlus, Users, Shield, RefreshCw, CheckCircle, XCircle, Briefcase, Building2 } from "lucide-react";
+import { Users, Shield, RefreshCw, Briefcase } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -27,21 +26,12 @@ interface UserProfile {
   }>;
 }
 
-interface Department {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  is_visible: boolean;
-}
-
 export const ITUserManagement = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedRole, setSelectedRole] = useState<string>("");
-  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>("");
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const { toast } = useToast();
 
@@ -164,53 +154,25 @@ export const ITUserManagement = () => {
     }
   };
 
-  const fetchDepartments = async () => {
-    try {
-      const { data: depts, error } = await supabase
-        .from("serve_departments")
-        .select("*")
-        .eq("is_visible", true)
-        .order("display_order", { ascending: true });
-
-      if (error) {
-        await logSystemEvent(
-          'fetch_departments_failed',
-          `Failed to fetch departments: ${error.message}`,
-          'error',
-          { error }
-        );
-        return;
-      }
-
-      setDepartments(depts || []);
-      await logSystemEvent(
-        'departments_fetched',
-        `Successfully fetched ${depts?.length || 0} departments`,
-        'info',
-        { department_count: depts?.length || 0 }
-      );
-    } catch (error: any) {
-      await logSystemEvent(
-        'fetch_departments_error',
-        `Unexpected error while fetching departments: ${error.message}`,
-        'error',
-        { error: error.message }
-      );
-    }
-  };
-
-  const updateUserRole = async (userId: string, newRole: string, departments: string[] = []) => {
+  const updateUserRoles = async (userId: string, newRoles: string[]) => {
     if (isUpdating) return;
-    
+
+    if (newRoles.length === 0) {
+      toast({
+        title: "Select at least one role",
+        description: "Users must have at least one role (use 'User' for basic access).",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsUpdating(true);
       const currentUser = await supabase.auth.getUser();
-      
-      // Get user details for logging
       const targetUser = users.find(u => u.user_id === userId);
       const userName = targetUser ? `${targetUser.first_name} ${targetUser.last_name}` : 'Unknown User';
-      
-      // First remove existing roles
+
+      // Replace the user's role set atomically: delete all, then insert selected.
       const { error: deleteError } = await supabase
         .from("user_roles")
         .delete()
@@ -219,79 +181,48 @@ export const ITUserManagement = () => {
       if (deleteError) {
         await logSystemEvent(
           'role_update_failed',
-          `Failed to remove existing roles for user ${userName}: ${deleteError.message}`,
+          `Failed to clear roles for ${userName}: ${deleteError.message}`,
           'error',
-          { 
-            target_user_id: userId,
-            target_user_name: userName,
-            admin_user_id: currentUser.data.user?.id,
-            error: deleteError 
-          }
+          { target_user_id: userId, admin_user_id: currentUser.data.user?.id, error: deleteError }
         );
         throw deleteError;
       }
 
-      // Then add the new role with proper type casting
-      const { error: insertError } = await supabase
-        .from("user_roles")
-        .insert({ 
-          user_id: userId, 
-          role: newRole as "user" | "admin" | "pastor" | "senior_pastor" | "founder" | "registration" | "accounts" | "sunday_school" | "teacher" | "it" | "media" | "marketing"
-        });
+      const rows = newRoles.map(role => ({
+        user_id: userId,
+        role: role as "user" | "admin" | "pastor" | "senior_pastor" | "founder" | "registration" | "accounts" | "sunday_school" | "teacher" | "it" | "media" | "marketing",
+      }));
+
+      const { error: insertError } = await supabase.from("user_roles").insert(rows);
 
       if (insertError) {
         await logSystemEvent(
           'role_update_failed',
-          `Failed to assign new role '${newRole}' to user ${userName}: ${insertError.message}`,
+          `Failed to assign roles [${newRoles.join(', ')}] to ${userName}: ${insertError.message}`,
           'error',
-          { 
-            target_user_id: userId,
-            target_user_name: userName,
-            new_role: newRole,
-            departments: departments,
-            admin_user_id: currentUser.data.user?.id,
-            error: insertError 
-          }
+          { target_user_id: userId, new_roles: newRoles, admin_user_id: currentUser.data.user?.id, error: insertError }
         );
         throw insertError;
       }
 
-      // Log successful role change
       await logSystemEvent(
         'user_role_updated',
-        `Successfully updated role for user ${userName} to '${newRole}'${departments.length > 0 ? ` with departments: ${departments.join(', ')}` : ''}`,
+        `Updated roles for ${userName}: ${newRoles.join(', ')}`,
         'info',
-        { 
-          target_user_id: userId,
-          target_user_name: userName,
-          new_role: newRole,
-          departments: departments,
-          admin_user_id: currentUser.data.user?.id
-        }
+        { target_user_id: userId, new_roles: newRoles, admin_user_id: currentUser.data.user?.id }
       );
 
       toast({
         title: "Success",
-        description: `User role updated successfully to ${newRole}`,
+        description: `Assigned ${newRoles.length} portal${newRoles.length > 1 ? 's' : ''} to ${userName}.`,
       });
-      
-      fetchUsers(); // Refresh the list
-      
+
+      setDialogOpen(false);
+      fetchUsers();
     } catch (error: any) {
-      await logSystemEvent(
-        'role_update_critical_error',
-        `Critical error during role update for user ID ${userId}: ${error.message}`,
-        'error',
-        { 
-          target_user_id: userId,
-          error: error.message,
-          stack: error.stack
-        }
-      );
-      
       toast({
         title: "Error",
-        description: "Failed to update user role. This has been logged for IT review.",
+        description: "Failed to update user roles. This has been logged for IT review.",
         variant: "destructive",
       });
     } finally {
@@ -301,8 +232,8 @@ export const ITUserManagement = () => {
 
   useEffect(() => {
     fetchUsers();
-    fetchDepartments();
   }, []);
+
 
   const getUserRoles = (user: UserProfile) => {
     return user.user_roles?.map(role => role.role) || ["user"];
@@ -418,96 +349,20 @@ export const ITUserManagement = () => {
                             {new Date(user.created_at).toLocaleDateString()}
                           </TableCell>
                           <TableCell>
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button
-                                   variant="outline"
-                                   size="sm"
-                                   onClick={() => {
-                                     setSelectedUserId(user.user_id);
-                                     setSelectedRole(roles[0] || "user");
-                                     setSelectedDepartments([]);
-                                   }}
-                                 >
-                                   <Briefcase className="h-4 w-4 mr-1" />
-                                   Change Role
-                                 </Button>
-                              </DialogTrigger>
-                                <DialogContent className="max-w-2xl">
-                                 <DialogHeader>
-                                   <DialogTitle>Update User Role & Department Access</DialogTitle>
-                                   <DialogDescription>
-                                     Change the role and department access for {user.first_name} {user.last_name}
-                                   </DialogDescription>
-                                 </DialogHeader>
-                                 <div className="space-y-6">
-                                   <div className="space-y-2">
-                                     <Label>Select New Role</Label>
-                                     <Select value={selectedRole} onValueChange={setSelectedRole}>
-                                       <SelectTrigger>
-                                         <SelectValue placeholder="Select a role" />
-                                       </SelectTrigger>
-                                       <SelectContent>
-                                         {roleOptions.map((role) => (
-                                           <SelectItem key={role.value} value={role.value}>
-                                             <div>
-                                               <div className="font-medium">{role.label}</div>
-                                               <div className="text-sm text-muted-foreground">
-                                                 {role.description}
-                                               </div>
-                                             </div>
-                                           </SelectItem>
-                                         ))}
-                                       </SelectContent>
-                                     </Select>
-                                   </div>
-
-                                   {departments.length > 0 && (
-                                     <div className="space-y-3">
-                                       <div className="flex items-center gap-2">
-                                         <Building2 className="h-4 w-4" />
-                                         <Label>Department Access (Optional)</Label>
-                                       </div>
-                                       <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto">
-                                         {departments.map((dept) => (
-                                           <div key={dept.id} className="flex items-center space-x-2 p-2 border rounded">
-                                             <Checkbox
-                                               id={`dept-${dept.id}`}
-                                               checked={selectedDepartments.includes(dept.id)}
-                                               onCheckedChange={(checked) => {
-                                                 if (checked) {
-                                                   setSelectedDepartments(prev => [...prev, dept.id]);
-                                                 } else {
-                                                   setSelectedDepartments(prev => prev.filter(id => id !== dept.id));
-                                                 }
-                                               }}
-                                             />
-                                             <label htmlFor={`dept-${dept.id}`} className="text-sm cursor-pointer">
-                                               <div className="font-medium">{dept.name}</div>
-                                               <div className="text-xs text-muted-foreground">{dept.description}</div>
-                                             </label>
-                                           </div>
-                                         ))}
-                                       </div>
-                                       <p className="text-xs text-muted-foreground">
-                                         Select departments this user should have access to manage or coordinate.
-                                       </p>
-                                     </div>
-                                   )}
-
-                                   <div className="flex gap-2">
-                                     <Button
-                                       onClick={() => updateUserRole(selectedUserId, selectedRole, selectedDepartments)}
-                                       className="flex-1"
-                                       disabled={isUpdating}
-                                     >
-                                       {isUpdating ? "Updating..." : "Update Role & Access"}
-                                     </Button>
-                                   </div>
-                                 </div>
-                               </DialogContent>
-                            </Dialog>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedUserId(user.user_id);
+                                setSelectedRoles(roles.length ? roles : ["user"]);
+                                setDialogOpen(true);
+                              }}
+                            >
+                              <Briefcase className="h-4 w-4 mr-1" />
+                              Manage Portals
+                            </Button>
                           </TableCell>
+
                         </TableRow>
                       );
                     })}
@@ -541,6 +396,61 @@ export const ITUserManagement = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Manage Portal Access</DialogTitle>
+            <DialogDescription>
+              Select every department portal this user should be able to switch between.
+              They'll be able to move between portals from the top-nav Portal switcher without signing out.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {roleOptions.map((role) => {
+                const checked = selectedRoles.includes(role.value);
+                return (
+                  <label
+                    key={role.value}
+                    className={`flex items-start gap-3 p-3 rounded-md border cursor-pointer transition-colors ${
+                      checked ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
+                    }`}
+                  >
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={(v) => {
+                        setSelectedRoles(prev =>
+                          v ? Array.from(new Set([...prev, role.value])) : prev.filter(r => r !== role.value)
+                        );
+                      }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium">{role.label}</div>
+                      <div className="text-xs text-muted-foreground">{role.description}</div>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Tip: assign 2+ portals so the user sees the "Switch Portal" dropdown in their top navigation.
+            </p>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => updateUserRoles(selectedUserId, selectedRoles)}
+                className="flex-1"
+                disabled={isUpdating}
+              >
+                {isUpdating ? "Updating..." : `Save ${selectedRoles.length} Portal${selectedRoles.length === 1 ? '' : 's'}`}
+              </Button>
+              <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={isUpdating}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

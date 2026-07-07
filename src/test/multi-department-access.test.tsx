@@ -207,7 +207,10 @@ describe("Multi-department portal access", () => {
     expect(await screen.findByText("MARKETING PAGE")).toBeInTheDocument();
 
     await userEvent.click(await screen.findByRole("button", { name: /portal/i }));
-    await userEvent.click(await screen.findByText(/Media Dashboard/i));
+    const mediaItem = (await screen.findAllByRole("menuitem")).find((el) =>
+      /Media Dashboard/i.test(el.textContent || "")
+    )!;
+    await userEvent.click(mediaItem);
 
     await waitFor(() =>
       expect(screen.getByTestId("location").textContent).toBe(

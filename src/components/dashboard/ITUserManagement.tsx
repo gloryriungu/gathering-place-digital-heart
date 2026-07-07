@@ -396,6 +396,61 @@ export const ITUserManagement = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Manage Portal Access</DialogTitle>
+            <DialogDescription>
+              Select every department portal this user should be able to switch between.
+              They'll be able to move between portals from the top-nav Portal switcher without signing out.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {roleOptions.map((role) => {
+                const checked = selectedRoles.includes(role.value);
+                return (
+                  <label
+                    key={role.value}
+                    className={`flex items-start gap-3 p-3 rounded-md border cursor-pointer transition-colors ${
+                      checked ? "border-primary bg-primary/5" : "border-border hover:bg-muted/50"
+                    }`}
+                  >
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={(v) => {
+                        setSelectedRoles(prev =>
+                          v ? Array.from(new Set([...prev, role.value])) : prev.filter(r => r !== role.value)
+                        );
+                      }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium">{role.label}</div>
+                      <div className="text-xs text-muted-foreground">{role.description}</div>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Tip: assign 2+ portals so the user sees the "Switch Portal" dropdown in their top navigation.
+            </p>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => updateUserRoles(selectedUserId, selectedRoles)}
+                className="flex-1"
+                disabled={isUpdating}
+              >
+                {isUpdating ? "Updating..." : `Save ${selectedRoles.length} Portal${selectedRoles.length === 1 ? '' : 's'}`}
+              </Button>
+              <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={isUpdating}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

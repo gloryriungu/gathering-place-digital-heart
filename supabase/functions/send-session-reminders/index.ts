@@ -10,6 +10,7 @@ const allowedOrigins = [
   'https://stg.tot.co.ke',
   'http://localhost:5173',
   'https://id-preview--1002bdcc-1ba9-4425-9337-cf483dae12d9.lovable.app',
+  'https://1002bdcc-1ba9-4425-9337-cf483dae12d9.lovableproject.com',
 ];
 
 function getCorsHeaders(req: Request) {

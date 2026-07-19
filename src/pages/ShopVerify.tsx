@@ -236,7 +236,7 @@ export default function ShopVerify() {
                 </Button>
                 <Button 
                   variant="outline" 
-                  onClick={() => navigate('/dashboard')} 
+                  onClick={() => navigate(digitalPurchases.length > 0 ? '/dashboard?tab=my-downloads' : '/dashboard?tab=overview')} 
                   className="w-full"
                 >
                   {digitalPurchases.length > 0 ? 'View My Downloads' : 'View Order History'}

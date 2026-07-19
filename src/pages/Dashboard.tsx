@@ -131,7 +131,10 @@ const Dashboard = () => {
   const { isAuthenticated, userRole: authUserRole, loading, signOut, refreshRole } = useAuth();
   const navigate = useNavigate();
   const [userRole, setUserRole] = useState<string>("user");
-  const [activeTab, setActiveTab] = useState("overview");
+  const initialTab = typeof window !== 'undefined'
+    ? (new URLSearchParams(window.location.search).get('tab') || 'overview')
+    : 'overview';
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [tabConfigs, setTabConfigs] = useState<Record<string, boolean> | null>(null);
   useInactivityLogout();
 
@@ -140,6 +143,14 @@ const Dashboard = () => {
       navigate('/auth');
     }
   }, [isAuthenticated, loading, navigate]);
+
+  // React to ?tab= changes after mount (e.g., post-checkout redirect)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get('tab');
+    if (t && t !== activeTab) setActiveTab(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [window.location.search]);
 
   // Redirect media users to media dashboard
   useEffect(() => {

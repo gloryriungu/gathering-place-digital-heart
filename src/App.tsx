@@ -88,6 +88,7 @@ const App = () => (
             <WhatsAppButton />
             <CookieConsent />
             <BrowserRouter>
+          <ProfileCompletionGuard />
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />

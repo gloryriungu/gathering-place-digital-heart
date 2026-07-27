@@ -216,8 +216,8 @@ export const Navigation = memo(() => {
 
             {/* CTAs */}
             <PortalSwitcher variant="outline" className="bg-transparent text-white hover:bg-white hover:text-black font-semibold border-white/30 h-9 px-3" />
-            <Button variant="ghost" className="text-white hover:bg-white/10 font-semibold h-9 px-3" asChild>
-              <Link to="/auth">SIGN IN</Link>
+            <Button variant="ghost" className="text-white hover:bg-white/10 font-semibold h-9 px-3" onClick={handleAuthClick}>
+              {user ? "SIGN OUT" : "SIGN IN"}
             </Button>
             <Button className="bg-white text-black hover:bg-gray-100 font-semibold h-9 px-4" asChild>
               <Link to="/visit-us">VISIT US</Link>

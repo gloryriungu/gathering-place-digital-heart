@@ -19,7 +19,7 @@
  */
 
 import { useState, memo, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, ShoppingCart, Heart } from "lucide-react";
 import {
@@ -34,17 +34,26 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import logo from "@/assets/logo.png";
 import { PortalSwitcher } from "@/components/shared/PortalSwitcher";
+import type { User } from "@supabase/supabase-js";
 
 export const Navigation = memo(() => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [cartItems, setCartItems] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [isGetInvolvedOpen, setIsGetInvolvedOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const { socialLinks } = useSocialMedia();
 
   useEffect(() => {
+    // Track auth state
+    supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null));
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
     fetchWishlistCount();
-    
+
     // Subscribe to wishlist changes
     const channel = supabase
       .channel('wishlist-changes')
@@ -62,6 +71,7 @@ export const Navigation = memo(() => {
       .subscribe();
 
     return () => {
+      authListener.subscription.unsubscribe();
       supabase.removeChannel(channel);
     };
   }, []);
@@ -84,6 +94,16 @@ export const Navigation = memo(() => {
   const toggleMenu = useCallback(() => setIsOpen(!isOpen), [isOpen]);
   const closeMenu = useCallback(() => setIsOpen(false), []);
   const toggleGetInvolved = useCallback(() => setIsGetInvolvedOpen(!isGetInvolvedOpen), [isGetInvolvedOpen]);
+
+  const handleAuthClick = useCallback(async () => {
+    if (user) {
+      await supabase.auth.signOut();
+      navigate("/");
+    } else {
+      navigate("/auth");
+    }
+    closeMenu();
+  }, [user, navigate, closeMenu]);
 
   const navItems = [
     { name: "ABOUT", href: "/about" },
@@ -196,8 +216,8 @@ export const Navigation = memo(() => {
 
             {/* CTAs */}
             <PortalSwitcher variant="outline" className="bg-transparent text-white hover:bg-white hover:text-black font-semibold border-white/30 h-9 px-3" />
-            <Button variant="ghost" className="text-white hover:bg-white/10 font-semibold h-9 px-3" asChild>
-              <Link to="/auth">SIGN IN</Link>
+            <Button variant="ghost" className="text-white hover:bg-white/10 font-semibold h-9 px-3" onClick={handleAuthClick}>
+              {user ? "SIGN OUT" : "SIGN IN"}
             </Button>
             <Button className="bg-white text-black hover:bg-gray-100 font-semibold h-9 px-4" asChild>
               <Link to="/visit-us">VISIT US</Link>
@@ -227,13 +247,12 @@ export const Navigation = memo(() => {
                 </Link>
               ))}
 
-              <Link
-                to="/auth"
-                className="block px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
-                onClick={closeMenu}
+              <button
+                className="block w-full text-left px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
+                onClick={handleAuthClick}
               >
-                SIGN IN
-              </Link>
+                {user ? "SIGN OUT" : "SIGN IN"}
+              </button>
 
               {/* Mobile Get Involved Collapsible Section */}
               <Collapsible open={isGetInvolvedOpen} onOpenChange={toggleGetInvolved}>

@@ -8,6 +8,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import { ProfileCompletionGuard } from "@/components/auth/ProfileCompletionGuard";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import CookieConsent from "@/components/CookieConsent";
+import { AIAssistant } from "@/components/AIAssistant";
 import { Suspense, lazy } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HelmetProvider } from 'react-helmet-async';
@@ -87,6 +88,10 @@ const App = () => (
             <Sonner />
             <WhatsAppButton />
             <CookieConsent />
+            <AIAssistant
+              welcomeMessage="Welcome to TOT Int! I can help you with questions, generate assessments, and create content. What would you like to know?"
+              apiEndpoint="https://web-production-61663.up.railway.app/process/"
+            />
             <BrowserRouter>
           <ProfileCompletionGuard />
           <Suspense fallback={<PageLoader />}>

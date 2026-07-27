@@ -46,8 +46,14 @@ export const Navigation = memo(() => {
   const { socialLinks } = useSocialMedia();
 
   useEffect(() => {
+    // Track auth state
+    supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null));
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
     fetchWishlistCount();
-    
+
     // Subscribe to wishlist changes
     const channel = supabase
       .channel('wishlist-changes')
@@ -65,6 +71,7 @@ export const Navigation = memo(() => {
       .subscribe();
 
     return () => {
+      authListener.subscription.unsubscribe();
       supabase.removeChannel(channel);
     };
   }, []);

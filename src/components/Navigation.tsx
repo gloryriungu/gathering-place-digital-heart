@@ -19,7 +19,7 @@
  */
 
 import { useState, memo, useCallback } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, ShoppingCart, Heart } from "lucide-react";
 import {
@@ -34,6 +34,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import logo from "@/assets/logo.png";
 import { PortalSwitcher } from "@/components/shared/PortalSwitcher";
+import type { User } from "@supabase/supabase-js";
 
 export const Navigation = memo(() => {
   const [isOpen, setIsOpen] = useState(false);

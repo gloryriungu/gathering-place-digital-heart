@@ -95,6 +95,16 @@ export const Navigation = memo(() => {
   const closeMenu = useCallback(() => setIsOpen(false), []);
   const toggleGetInvolved = useCallback(() => setIsGetInvolvedOpen(!isGetInvolvedOpen), [isGetInvolvedOpen]);
 
+  const handleAuthClick = useCallback(async () => {
+    if (user) {
+      await supabase.auth.signOut();
+      navigate("/");
+    } else {
+      navigate("/auth");
+    }
+    closeMenu();
+  }, [user, navigate, closeMenu]);
+
   const navItems = [
     { name: "ABOUT", href: "/about" },
     { name: "WATCH", href: "/watch" },

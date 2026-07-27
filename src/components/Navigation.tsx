@@ -37,10 +37,12 @@ import { PortalSwitcher } from "@/components/shared/PortalSwitcher";
 import type { User } from "@supabase/supabase-js";
 
 export const Navigation = memo(() => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [cartItems, setCartItems] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [isGetInvolvedOpen, setIsGetInvolvedOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
   const { socialLinks } = useSocialMedia();
 
   useEffect(() => {

@@ -247,13 +247,12 @@ export const Navigation = memo(() => {
                 </Link>
               ))}
 
-              <Link
-                to="/auth"
-                className="block px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
-                onClick={closeMenu}
+              <button
+                className="block w-full text-left px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
+                onClick={handleAuthClick}
               >
-                SIGN IN
-              </Link>
+                {user ? "SIGN OUT" : "SIGN IN"}
+              </button>
 
               {/* Mobile Get Involved Collapsible Section */}
               <Collapsible open={isGetInvolvedOpen} onOpenChange={toggleGetInvolved}>

@@ -46,13 +46,11 @@ export const Navigation = memo(() => {
   const { socialLinks } = useSocialMedia();
 
   useEffect(() => {
-
-
     fetchWishlistCount();
 
-    // Subscribe to wishlist changes
+    // Subscribe to wishlist changes (unique channel name avoids re-using a subscribed channel)
     const channel = supabase
-      .channel('wishlist-changes')
+      .channel(`wishlist-changes-${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         {

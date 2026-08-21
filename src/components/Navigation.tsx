@@ -19,7 +19,7 @@
  */
 
 import { useState, memo, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, ShoppingCart, Heart } from "lucide-react";
 import {

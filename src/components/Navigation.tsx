@@ -19,7 +19,7 @@
  */
 
 import { useState, memo, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ChevronDown, ShoppingCart, Heart } from "lucide-react";
 import {
@@ -38,6 +38,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 
 export const Navigation = memo(() => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [cartItems, setCartItems] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
@@ -98,6 +99,14 @@ export const Navigation = memo(() => {
     }
     closeMenu();
   }, [user, signOut, navigate, closeMenu]);
+
+  // Portal/dashboard pages already provide their own Sign Out control,
+  // so avoid rendering a duplicate auth button in the public nav there.
+  const isPortalRoute = /^\/(dashboard|admin|pastors|media-dashboard|marketing-dashboard|registration-dashboard|requisitions)/.test(
+    location.pathname
+  );
+  const showAuthButton = !(user && isPortalRoute);
+
 
   const navItems = [
     { name: "ABOUT", href: "/about" },
@@ -210,9 +219,11 @@ export const Navigation = memo(() => {
 
             {/* CTAs */}
             <PortalSwitcher variant="outline" className="bg-transparent text-white hover:bg-white hover:text-black font-semibold border-white/30 h-9 px-3" />
-            <Button variant="ghost" className="text-white hover:bg-white/10 font-semibold h-9 px-3" onClick={handleAuthClick}>
-              {user ? "SIGN OUT" : "SIGN IN"}
-            </Button>
+            {showAuthButton && (
+              <Button variant="ghost" className="text-white hover:bg-white/10 font-semibold h-9 px-3" onClick={handleAuthClick}>
+                {user ? "SIGN OUT" : "SIGN IN"}
+              </Button>
+            )}
             <Button className="bg-white text-black hover:bg-gray-100 font-semibold h-9 px-4" asChild>
               <Link to="/visit-us">VISIT US</Link>
             </Button>
@@ -241,12 +252,14 @@ export const Navigation = memo(() => {
                 </Link>
               ))}
 
-              <button
-                className="block w-full text-left px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
-                onClick={handleAuthClick}
-              >
-                {user ? "SIGN OUT" : "SIGN IN"}
-              </button>
+              {showAuthButton && (
+                <button
+                  className="block w-full text-left px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
+                  onClick={handleAuthClick}
+                >
+                  {user ? "SIGN OUT" : "SIGN IN"}
+                </button>
+              )}
 
               {/* Mobile Get Involved Collapsible Section */}
               <Collapsible open={isGetInvolvedOpen} onOpenChange={toggleGetInvolved}>

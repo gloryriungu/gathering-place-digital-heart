@@ -100,6 +100,14 @@ export const Navigation = memo(() => {
     closeMenu();
   }, [user, signOut, navigate, closeMenu]);
 
+  // Portal/dashboard pages already provide their own Sign Out control,
+  // so avoid rendering a duplicate auth button in the public nav there.
+  const isPortalRoute = /^\/(dashboard|admin|pastors|media-dashboard|marketing-dashboard|registration-dashboard|requisitions)/.test(
+    location.pathname
+  );
+  const showAuthButton = !(user && isPortalRoute);
+
+
   const navItems = [
     { name: "ABOUT", href: "/about" },
     { name: "WATCH", href: "/watch" },

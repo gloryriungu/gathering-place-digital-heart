@@ -67,10 +67,10 @@ export const Navigation = memo(() => {
       .subscribe();
 
     return () => {
-      authListener.subscription.unsubscribe();
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [user]);
+
 
   const fetchWishlistCount = async () => {
     const { data: { user } } = await supabase.auth.getUser();

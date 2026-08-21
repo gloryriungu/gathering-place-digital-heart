@@ -38,6 +38,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 
 export const Navigation = memo(() => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [cartItems, setCartItems] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);

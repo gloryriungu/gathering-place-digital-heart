@@ -34,7 +34,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import logo from "@/assets/logo.png";
 import { PortalSwitcher } from "@/components/shared/PortalSwitcher";
-import type { User } from "@supabase/supabase-js";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export const Navigation = memo(() => {
   const navigate = useNavigate();
@@ -42,15 +42,11 @@ export const Navigation = memo(() => {
   const [cartItems, setCartItems] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [isGetInvolvedOpen, setIsGetInvolvedOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
+  const { user, signOut } = useAuth();
   const { socialLinks } = useSocialMedia();
 
   useEffect(() => {
-    // Track auth state
-    supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null));
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
+
 
     fetchWishlistCount();
 
@@ -71,10 +67,10 @@ export const Navigation = memo(() => {
       .subscribe();
 
     return () => {
-      authListener.subscription.unsubscribe();
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [user]);
+
 
   const fetchWishlistCount = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -97,13 +93,13 @@ export const Navigation = memo(() => {
 
   const handleAuthClick = useCallback(async () => {
     if (user) {
-      await supabase.auth.signOut();
+      await signOut();
       navigate("/");
     } else {
       navigate("/auth");
     }
     closeMenu();
-  }, [user, navigate, closeMenu]);
+  }, [user, signOut, navigate, closeMenu]);
 
   const navItems = [
     { name: "ABOUT", href: "/about" },

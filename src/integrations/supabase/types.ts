@@ -286,6 +286,36 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_history: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string
+          download_url: string | null
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string
+          download_url?: string | null
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string
+          download_url?: string | null
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       church_events: {
         Row: {
           created_at: string | null

@@ -93,13 +93,13 @@ export const Navigation = memo(() => {
 
   const handleAuthClick = useCallback(async () => {
     if (user) {
-      await supabase.auth.signOut();
+      await signOut();
       navigate("/");
     } else {
       navigate("/auth");
     }
     closeMenu();
-  }, [user, navigate, closeMenu]);
+  }, [user, signOut, navigate, closeMenu]);
 
   const navItems = [
     { name: "ABOUT", href: "/about" },

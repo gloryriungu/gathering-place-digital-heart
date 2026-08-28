@@ -1,0 +1,1 @@
+DROP TRIGGER IF EXISTS trigger_set_ticket_number ON public.support_tickets;

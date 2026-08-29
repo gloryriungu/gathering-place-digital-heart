@@ -16,6 +16,7 @@ interface UserProfile {
   user_id: string;
   first_name: string;
   last_name: string;
+  email?: string;
   phone: string;
   address: string;
   county: string;
@@ -124,11 +125,20 @@ export const ITUserManagement = () => {
         return;
       }
 
-      // Combine the data
-      const usersWithRoles = profiles?.map(profile => ({
-        ...profile,
-        user_roles: userRoles?.filter(role => role.user_id === profile.user_id) || []
-      })) || [];
+      // Combine the data and fetch emails via RPC
+      const usersWithRoles = await Promise.all(
+        (profiles || []).map(async (profile) => {
+          const { data: email } = await supabase
+            .rpc('get_user_email', { _user_id: profile.user_id })
+            .single();
+
+          return {
+            ...profile,
+            email: email || undefined,
+            user_roles: userRoles?.filter(role => role.user_id === profile.user_id) || []
+          };
+        })
+      );
 
       setUsers(usersWithRoles);
       await logSystemEvent(
@@ -310,6 +320,7 @@ export const ITUserManagement = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
                       <TableHead>Contact</TableHead>
                       <TableHead>Location</TableHead>
                       <TableHead>Current Role</TableHead>
@@ -327,6 +338,11 @@ export const ITUserManagement = () => {
                               <div className="font-medium">
                                 {user.first_name} {user.last_name}
                               </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">
+                              <div>{user.email || '—'}</div>
                             </div>
                           </TableCell>
                           <TableCell>

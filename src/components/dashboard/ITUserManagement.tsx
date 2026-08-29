@@ -125,11 +125,20 @@ export const ITUserManagement = () => {
         return;
       }
 
-      // Combine the data
-      const usersWithRoles = profiles?.map(profile => ({
-        ...profile,
-        user_roles: userRoles?.filter(role => role.user_id === profile.user_id) || []
-      })) || [];
+      // Combine the data and fetch emails via RPC
+      const usersWithRoles = await Promise.all(
+        (profiles || []).map(async (profile) => {
+          const { data: email } = await supabase
+            .rpc('get_user_email', { _user_id: profile.user_id })
+            .single();
+
+          return {
+            ...profile,
+            email: email || undefined,
+            user_roles: userRoles?.filter(role => role.user_id === profile.user_id) || []
+          };
+        })
+      );
 
       setUsers(usersWithRoles);
       await logSystemEvent(

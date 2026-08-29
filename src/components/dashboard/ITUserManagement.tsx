@@ -342,6 +342,11 @@ export const ITUserManagement = () => {
                           </TableCell>
                           <TableCell>
                             <div className="text-sm">
+                              <div>{user.email || '—'}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">
                               <div>{user.phone}</div>
                             </div>
                           </TableCell>

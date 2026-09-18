@@ -1,36 +1,36 @@
-## Problem
+## Goal
 
-When someone signs up from **Join Us** (email + password), they fill in first/last name, phone, address, county, etc. The `handle_new_user` trigger writes all of that into `profiles`. Yet after email confirmation and first sign-in, they land on `/auth/complete-profile` and are asked to fill the same fields again.
+Make linked email-and-Google accounts behave correctly, allow profile completion to save, and stop trapping users on the completion page.
 
-Root cause is in `src/components/auth/AuthProvider.tsx` → `checkProfileCompletion`:
+## Confirmed causes
 
-- It flags `needsProfileCompletion = true` whenever `profiles.phone / address / county` are empty **or** when the `.single()` query errors (e.g. profile row not yet created due to a slight trigger race after email confirmation).
-- It makes no distinction between email sign-ups (who already supplied everything) and Google OAuth sign-ups (who legitimately need the extra step).
+- The `profiles` save is rejected because its access rules evaluate `has_role`, but `authenticated` users currently have no permission to execute that function.
+- An account that originally used email/password can gain a Google identity. The current provider check scans every identity, so that linked account is incorrectly treated as a Google-only signup requiring profile completion.
+- `ProfileCompletionGuard` redirects incomplete Google users back to `/auth/complete-profile` from almost every page. This conflicts with the chosen behavior: users may continue anywhere and complete their profile later.
 
-The `/auth/complete-profile` page is designed for Google users only — the Google callback in `signInWithGoogle` already routes there explicitly.
+## Changes
 
-## Fix
+1. **Repair the database permission safely**
+   - Grant only signed-in users permission to execute `public.has_role(uuid, app_role)`.
+   - Keep anonymous access revoked.
+   - Retain the function's fixed search path and security-definer behavior so role-based access rules work without exposing the roles table.
 
-Restrict the "needs profile completion" flag to **OAuth (Google) users only**. Email/password accounts must never be redirected to `ProfileCompletion`.
+2. **Distinguish new Google accounts from linked accounts**
+   - Update the profile-completion decision to use the account's primary sign-in provider rather than treating the presence of any Google identity as proof that the account is Google-only.
+   - Email/password accounts linked to Google will not be forced into profile completion.
+   - Google-primary accounts with missing phone, address, or county will still be offered the existing completion form.
 
-### Changes
+3. **Remove forced navigation lock-in**
+   - Stop the global guard from forcing incomplete users back to the completion page.
+   - Keep the Google callback landing on the existing completion page, but allow all navigation and dashboard access before completion.
+   - Add a clear “Complete later” action on the form so users can leave intentionally.
 
-**`src/components/auth/AuthProvider.tsx`**
+4. **Keep completion state accurate**
+   - Refresh the profile-completion status immediately after a successful save so the form does not remain logically incomplete during the same session.
+   - Preserve existing email/password, password recovery, role, and portal-switching behavior.
 
-1. In `checkProfileCompletion(userId)`, first inspect the current user's auth provider:
-   - `provider = user.app_metadata?.provider` (and/or scan `user.identities` for a `google` identity).
-   - If provider is `email` (or anything other than an OAuth social provider), set `needsProfileCompletion = false` and return early — regardless of what's in `profiles`.
-   - Only for OAuth providers (`google`, etc.), keep the existing "phone/address/county missing" check.
-2. Pass the `User` object into `checkProfileCompletion` (instead of just `userId`) so we can read `app_metadata`/`identities` without an extra round-trip. Update the two call sites in the `onAuthStateChange` listener and in the initial `getSession()` block.
-3. Treat a missing `profiles` row for an email user as "not incomplete" (the row will be created by the trigger; email users supplied everything at signup, so we should not push them into the OAuth-only completion form).
-
-**No other files need to change.** In particular:
-
-- `src/pages/Auth.tsx` already routes to `/auth/complete-profile` only when `needsProfileCompletion` is true, so fixing the flag fixes the redirect.
-- `signInWithGoogle` keeps its explicit `redirectTo: /auth/complete-profile` — Google users still see the form the first time.
-- `ProfileCompletion.tsx` stays as-is; it already redirects to `/dashboard` if `needsProfileCompletion` is false, so any Google user who has already filled it won't see it again.
-
-## Result
-
-- **Email signup → verify email → sign in → `/dashboard`** (no extra form).
-- **Google signup → `/auth/complete-profile` (once) → `/dashboard`** (unchanged behaviour).
+5. **Verify the complete flow**
+   - Confirm the profile update succeeds as an authenticated user without the `has_role` error.
+   - Confirm an email account later linked to Google is not forced to complete the profile.
+   - Confirm a new Google-primary account reaches the form but can complete it or continue elsewhere.
+   - Confirm anonymous callers still cannot execute the role-check function.

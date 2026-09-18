@@ -23,6 +23,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   refreshRole: () => Promise<void>;
+  refreshProfileCompletion: () => Promise<void>;
   switchActiveRole: (role: string) => void;
   isAuthenticated: boolean;
   needsProfileCompletion: boolean;
@@ -125,10 +126,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Only OAuth (e.g. Google) users need the extra profile-completion step.
       // Email/password sign-ups already provide phone/address/county in the Join Us form.
       const provider = authUser.app_metadata?.provider;
-      const identities = authUser.identities ?? [];
-      const isOAuthUser =
-        (provider && provider !== 'email') ||
-        identities.some((i: any) => i.provider && i.provider !== 'email');
+      const isOAuthUser = provider === 'google';
 
       if (!isOAuthUser) {
         setNeedsProfileCompletion(false);
@@ -348,6 +346,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const refreshProfileCompletion = async () => {
+    if (user) {
+      await checkProfileCompletion(user);
+    }
+  };
+
   const signInWithGoogle = async (): Promise<{ error: any }> => {
     try {
       // Use direct OAuth redirect instead of popup to avoid opening additional pages
@@ -435,6 +439,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signInWithGoogle,
     signOut,
     refreshRole,
+    refreshProfileCompletion,
     switchActiveRole,
     isAuthenticated: !!user,
     needsProfileCompletion,

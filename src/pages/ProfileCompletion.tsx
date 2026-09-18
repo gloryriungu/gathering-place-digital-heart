@@ -23,7 +23,7 @@ const kenyaCounties = [
 ];
 
 const ProfileCompletion = () => {
-  const { user, isAuthenticated, needsProfileCompletion } = useAuth();
+  const { user, isAuthenticated, needsProfileCompletion, refreshProfileCompletion } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
@@ -87,6 +87,7 @@ const ProfileCompletion = () => {
           variant: "destructive"
         });
       } else {
+        await refreshProfileCompletion();
         toast({
           title: "Profile Complete",
           description: "Welcome to our church family!",
@@ -233,6 +234,15 @@ const ProfileCompletion = () => {
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Completing Profile..." : "Complete Profile"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => navigate('/dashboard')}
+                  disabled={isLoading}
+                >
+                  Complete Later
                 </Button>
               </form>
             </CardContent>

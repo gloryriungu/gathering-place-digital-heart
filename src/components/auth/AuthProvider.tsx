@@ -126,7 +126,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Only OAuth (e.g. Google) users need the extra profile-completion step.
       // Email/password sign-ups already provide phone/address/county in the Join Us form.
       const provider = authUser.app_metadata?.provider;
-      const isOAuthUser = provider === 'google';
+      const providers = Array.isArray(authUser.app_metadata?.providers)
+        ? authUser.app_metadata.providers
+        : [];
+      const hasEmailIdentity = providers.includes('email') ||
+        (authUser.identities ?? []).some((identity) => identity.provider === 'email');
+      const isOAuthUser = provider === 'google' && !hasEmailIdentity;
 
       if (!isOAuthUser) {
         setNeedsProfileCompletion(false);

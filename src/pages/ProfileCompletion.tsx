@@ -239,6 +239,31 @@ const ProfileCompletion = () => {
                       </div>
                     </div>
 
+                {saveError && (
+                  <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 space-y-3">
+                    <div className="flex gap-2">
+                      <AlertCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-destructive">{saveError.title}</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{saveError.description}</p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      asChild
+                    >
+                      <a href={`mailto:${SUPPORT_EMAIL}?subject=Help%20completing%20my%20profile`}>
+                        <LifeBuoy className="h-4 w-4 mr-2" />
+                        Contact support
+                      </a>
+                    </Button>
+                  </div>
+                )}
+
+
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Completing Profile..." : "Complete Profile"}
                 </Button>

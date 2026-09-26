@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { getSignInErrorMessage } from '@/lib/authErrors';
 
 // Storage key for password recovery mode - set by index.html before any JS loads
 const RECOVERY_STORAGE_KEY = 'password_recovery_mode';
@@ -327,9 +328,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
+        const friendly = getSignInErrorMessage(error);
         toast({
-          title: "Sign In Error",
-          description: error.message,
+          title: friendly.title,
+          description: friendly.description,
           variant: "destructive"
         });
       } else {
@@ -341,9 +343,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       return { error };
     } catch (error: any) {
+      const friendly = getSignInErrorMessage(error);
       toast({
-        title: "Sign In Error",
-        description: "An unexpected error occurred",
+        title: friendly.title,
+        description: friendly.description,
         variant: "destructive"
       });
       return { error };

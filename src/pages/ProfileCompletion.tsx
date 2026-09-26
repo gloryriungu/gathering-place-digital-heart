@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MapPin, Phone, User, Camera } from "lucide-react";
+import { MapPin, Phone, User, Camera, AlertCircle, LifeBuoy } from "lucide-react";
+import { getProfileSaveErrorMessage, SUPPORT_EMAIL, type FriendlyError } from "@/lib/authErrors";
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,6 +28,7 @@ const ProfileCompletion = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [saveError, setSaveError] = useState<FriendlyError | null>(null);
 
   // Profile form state
   const [profileForm, setProfileForm] = useState({
@@ -62,6 +64,7 @@ const ProfileCompletion = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setSaveError(null);
 
     try {
       // Update or insert profile data
@@ -81,9 +84,11 @@ const ProfileCompletion = () => {
         });
 
       if (error) {
+        const friendly = getProfileSaveErrorMessage(error);
+        setSaveError(friendly);
         toast({
-          title: "Profile Update Error",
-          description: error.message,
+          title: friendly.title,
+          description: friendly.description,
           variant: "destructive"
         });
       } else {
@@ -96,9 +101,11 @@ const ProfileCompletion = () => {
       }
     } catch (error) {
       console.error('Profile completion error:', error);
+      const friendly = getProfileSaveErrorMessage(error);
+      setSaveError(friendly);
       toast({
-        title: "Profile Update Error",
-        description: "An unexpected error occurred",
+        title: friendly.title,
+        description: friendly.description,
         variant: "destructive"
       });
     } finally {
@@ -231,6 +238,31 @@ const ProfileCompletion = () => {
                         </p>
                       </div>
                     </div>
+
+                {saveError && (
+                  <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 space-y-3">
+                    <div className="flex gap-2">
+                      <AlertCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-destructive">{saveError.title}</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{saveError.description}</p>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      asChild
+                    >
+                      <a href={`mailto:${SUPPORT_EMAIL}?subject=Help%20completing%20my%20profile`}>
+                        <LifeBuoy className="h-4 w-4 mr-2" />
+                        Contact support
+                      </a>
+                    </Button>
+                  </div>
+                )}
+
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Completing Profile..." : "Complete Profile"}

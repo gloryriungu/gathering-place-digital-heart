@@ -8,6 +8,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import CookieConsent from "@/components/CookieConsent";
 import { AIAssistant } from "@/components/AIAssistant";
+import { ProfileStatusBanner } from "@/components/auth/ProfileStatusBanner";
 import { Suspense, lazy } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { HelmetProvider } from 'react-helmet-async';
@@ -92,6 +93,7 @@ const App = () => (
               apiEndpoint="https://web-production-61663.up.railway.app/process/"
             />
             <BrowserRouter>
+          <ProfileStatusBanner />
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />

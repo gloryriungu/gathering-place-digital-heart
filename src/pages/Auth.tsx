@@ -8,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, LogIn, UserPlus, MapPin, Phone, User, ArrowLeft, Mail, KeyRound, Camera } from "lucide-react";
+import { Eye, EyeOff, LogIn, UserPlus, MapPin, Phone, User, ArrowLeft, Mail, KeyRound, Camera, AlertCircle, LifeBuoy } from "lucide-react";
+import { getSignInErrorMessage, SUPPORT_EMAIL, type FriendlyError } from "@/lib/authErrors";
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
@@ -36,6 +37,7 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
+  const [signInError, setSignInError] = useState<FriendlyError | null>(null);
   
   // Initialize from sessionStorage - set by index.html BEFORE any JS loads
   const [resetPasswordMode, setResetPasswordMode] = useState(() => {
@@ -104,15 +106,19 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setSignInError(null);
 
     try {
       const { error } = await signIn(loginForm.email, loginForm.password);
-      
+
       if (!error) {
         navigate('/dashboard');
+      } else {
+        setSignInError(getSignInErrorMessage(error));
       }
     } catch (error) {
       console.error('Sign in error:', error);
+      setSignInError(getSignInErrorMessage(error));
     } finally {
       setIsLoading(false);
     }
@@ -552,6 +558,38 @@ const Auth = () => {
                         Forgot password?
                       </Button>
                     </div>
+
+                    {signInError && (
+                      <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 space-y-3">
+                        <div className="flex gap-2">
+                          <AlertCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium text-destructive">{signInError.title}</p>
+                            <p className="text-xs text-muted-foreground leading-relaxed">{signInError.description}</p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          {signInError.action === 'reset-password' && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="flex-1"
+                              onClick={() => setForgotPasswordMode(true)}
+                            >
+                              Reset password
+                            </Button>
+                          )}
+                          <Button type="button" variant="outline" size="sm" className="flex-1" asChild>
+                            <a href={`mailto:${SUPPORT_EMAIL}?subject=Help%20signing%20in`}>
+                              <LifeBuoy className="h-4 w-4 mr-2" />
+                              Contact support
+                            </a>
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
 
                     <Button type="submit" className="w-full" disabled={isLoading}>
                       {isLoading ? "Signing in..." : "Sign In"}

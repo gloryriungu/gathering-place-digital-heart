@@ -106,15 +106,19 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setSignInError(null);
 
     try {
       const { error } = await signIn(loginForm.email, loginForm.password);
-      
+
       if (!error) {
         navigate('/dashboard');
+      } else {
+        setSignInError(getSignInErrorMessage(error));
       }
     } catch (error) {
       console.error('Sign in error:', error);
+      setSignInError(getSignInErrorMessage(error));
     } finally {
       setIsLoading(false);
     }

@@ -8,7 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, LogIn, UserPlus, MapPin, Phone, User, ArrowLeft, Mail, KeyRound, Camera } from "lucide-react";
+import { Eye, EyeOff, LogIn, UserPlus, MapPin, Phone, User, ArrowLeft, Mail, KeyRound, Camera, AlertCircle, LifeBuoy } from "lucide-react";
+import { getSignInErrorMessage, SUPPORT_EMAIL, type FriendlyError } from "@/lib/authErrors";
 import { Navigation } from "@/components/Navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
@@ -36,6 +37,7 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("login");
   const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
+  const [signInError, setSignInError] = useState<FriendlyError | null>(null);
   
   // Initialize from sessionStorage - set by index.html BEFORE any JS loads
   const [resetPasswordMode, setResetPasswordMode] = useState(() => {

@@ -327,9 +327,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
+        const friendly = getSignInErrorMessage(error);
         toast({
-          title: "Sign In Error",
-          description: error.message,
+          title: friendly.title,
+          description: friendly.description,
           variant: "destructive"
         });
       } else {

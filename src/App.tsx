@@ -93,6 +93,7 @@ const App = () => (
               apiEndpoint="https://web-production-61663.up.railway.app/process/"
             />
             <BrowserRouter>
+          <ProfileStatusBanner />
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />

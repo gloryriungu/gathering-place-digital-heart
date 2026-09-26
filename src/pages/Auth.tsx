@@ -553,6 +553,38 @@ const Auth = () => {
                       </Button>
                     </div>
 
+                    {signInError && (
+                      <div className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 space-y-3">
+                        <div className="flex gap-2">
+                          <AlertCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+                          <div className="space-y-1">
+                            <p className="text-sm font-medium text-destructive">{signInError.title}</p>
+                            <p className="text-xs text-muted-foreground leading-relaxed">{signInError.description}</p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          {signInError.action === 'reset-password' && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="flex-1"
+                              onClick={() => setForgotPasswordMode(true)}
+                            >
+                              Reset password
+                            </Button>
+                          )}
+                          <Button type="button" variant="outline" size="sm" className="flex-1" asChild>
+                            <a href={`mailto:${SUPPORT_EMAIL}?subject=Help%20signing%20in`}>
+                              <LifeBuoy className="h-4 w-4 mr-2" />
+                              Contact support
+                            </a>
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+
                     <Button type="submit" className="w-full" disabled={isLoading}>
                       {isLoading ? "Signing in..." : "Sign In"}
                     </Button>

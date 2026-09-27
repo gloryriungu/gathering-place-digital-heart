@@ -2317,6 +2317,45 @@ export type Database = {
         }
         Relationships: []
       }
+      site_feature_flags: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          display_order: number
+          is_active: boolean
+          key: string
+          label: string
+          path: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          is_active?: boolean
+          key: string
+          label: string
+          path?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          is_active?: boolean
+          key?: string
+          label?: string
+          path?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       social_media_handles: {
         Row: {
           created_at: string

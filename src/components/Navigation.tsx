@@ -269,7 +269,7 @@ export const Navigation = memo(() => {
                 </Link>
               ))}
 
-              {showAuthButton && (
+              {showAuthButton && showSignIn && (
                 <button
                   className="block w-full text-left px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
                   onClick={handleAuthClick}
@@ -279,6 +279,7 @@ export const Navigation = memo(() => {
               )}
 
               {/* Mobile Get Involved Collapsible Section */}
+              {showGetInvolved && (
               <Collapsible open={isGetInvolvedOpen} onOpenChange={toggleGetInvolved}>
                 <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide">
                   GET INVOLVED
@@ -297,6 +298,8 @@ export const Navigation = memo(() => {
                   ))}
                 </CollapsibleContent>
               </Collapsible>
+              )}
+
 
               {/* Mobile Social Links */}
               <div className="px-3 py-3">
@@ -318,6 +321,7 @@ export const Navigation = memo(() => {
               </div>
 
               {/* Mobile Cart */}
+              {showShop && (
               <div className="px-3 py-3">
                 <Link
                   to="/shop"
@@ -333,6 +337,8 @@ export const Navigation = memo(() => {
                   )}
                 </Link>
               </div>
+              )}
+
 
               <div className="pt-4 px-3 space-y-3">
                 <div className="flex justify-center">

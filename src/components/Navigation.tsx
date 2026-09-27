@@ -35,6 +35,8 @@ import { useEffect } from "react";
 import logo from "@/assets/logo.png";
 import { PortalSwitcher } from "@/components/shared/PortalSwitcher";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+
 
 export const Navigation = memo(() => {
   const navigate = useNavigate();
@@ -44,7 +46,9 @@ export const Navigation = memo(() => {
   const [wishlistCount, setWishlistCount] = useState(0);
   const [isGetInvolvedOpen, setIsGetInvolvedOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { isVisible } = useFeatureFlags();
   const { socialLinks } = useSocialMedia();
+
 
   useEffect(() => {
     fetchWishlistCount();
@@ -108,27 +112,34 @@ export const Navigation = memo(() => {
   const showAuthButton = !(user && isPortalRoute);
 
 
-  const navItems = [
-    { name: "ABOUT", href: "/about" },
-    { name: "WATCH", href: "/watch" },
-    { name: "EVENTS", href: "/events" },
-    { name: "GIVE", href: "/give" },
-    { name: "SHOP", href: "/shop" },
+  const allNavItems = [
+    { key: "about", name: "ABOUT", href: "/about" },
+    { key: "watch", name: "WATCH", href: "/watch" },
+    { key: "events", name: "EVENTS", href: "/events" },
+    { key: "give", name: "GIVE", href: "/give" },
+    { key: "shop", name: "SHOP", href: "/shop" },
   ];
 
-  const getInvolvedItems = [
-    { name: "JOIN THE FAMILY", href: "/join-the-family" },
-    { name: "SERVE WITH US", href: "/serve-with-us" },
-    { name: "BAPTISM", href: "/baptism" },
-    { name: "MINISTRIES", href: "/ministries" },
-    { name: "COUNSELING & MENTAL HEALTH", href: "/counseling-mental-health" },
-    { name: "PARTNERS", href: "/partners" },
-    { name: "BABY DEDICATIONS", href: "/baby-dedication" },
-    { name: "PROPHETIC SCHOOL", href: "/prophetic-school" },
-    { name: "NEWSLETTER", href: "/newsletter" },
-    { name: "NOTICE OF FILMING", href: "/notice-of-filming" },
-    { name: "FAQ", href: "/faq" },
+  const allGetInvolvedItems = [
+    { key: "join_family", name: "JOIN THE FAMILY", href: "/join-the-family" },
+    { key: "serve_with_us", name: "SERVE WITH US", href: "/serve-with-us" },
+    { key: "baptism", name: "BAPTISM", href: "/baptism" },
+    { key: "ministries", name: "MINISTRIES", href: "/ministries" },
+    { key: "counseling", name: "COUNSELING & MENTAL HEALTH", href: "/counseling-mental-health" },
+    { key: "partners", name: "PARTNERS", href: "/partners" },
+    { key: "baby_dedication", name: "BABY DEDICATIONS", href: "/baby-dedication" },
+    { key: "prophetic_school", name: "PROPHETIC SCHOOL", href: "/prophetic-school" },
+    { key: "newsletter", name: "NEWSLETTER", href: "/newsletter" },
+    { key: "notice_of_filming", name: "NOTICE OF FILMING", href: "/notice-of-filming" },
+    { key: "faq", name: "FAQ", href: "/faq" },
   ];
+
+  const navItems = allNavItems.filter((item) => isVisible(item.key));
+  const getInvolvedItems = allGetInvolvedItems.filter((item) => isVisible(item.key));
+  const showGetInvolved = isVisible("get_involved") && getInvolvedItems.length > 0;
+  const showShop = isVisible("shop");
+  const showSignIn = Boolean(user) || isVisible("sign_in_button");
+
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-md border-b border-white/10">

@@ -80,7 +80,9 @@ import {
   Ticket,
   Mail,
   CreditCard,
-  Cookie
+  Cookie,
+  Globe
+
 } from "lucide-react";
 import { AttendanceTracker } from "@/components/dashboard/AttendanceTracker";
 import { FinancialContributions } from "@/components/dashboard/FinancialContributions";

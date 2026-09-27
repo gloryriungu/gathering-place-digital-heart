@@ -209,6 +209,7 @@ export const Navigation = memo(() => {
             </div>
 
             {/* Wishlist & Cart Icons */}
+            {showShop && (
             <div className="flex items-center gap-3">
               <Link to="/wishlist" className="relative text-white/80 hover:text-white transition-colors" aria-label="Wishlist">
                 <Heart className="h-[18px] w-[18px]" />
@@ -227,17 +228,19 @@ export const Navigation = memo(() => {
                 )}
               </Link>
             </div>
+            )}
 
             {/* Divider */}
             <span className="h-6 w-px bg-white/15" aria-hidden="true" />
 
             {/* CTAs */}
             <PortalSwitcher variant="outline" className="bg-transparent text-white hover:bg-white hover:text-black font-semibold border-white/30 h-9 px-3" />
-            {showAuthButton && (
+            {showAuthButton && showSignIn && (
               <Button variant="ghost" className="text-white hover:bg-white/10 font-semibold h-9 px-3" onClick={handleAuthClick}>
                 {user ? "SIGN OUT" : "SIGN IN"}
               </Button>
             )}
+
             <Button className="bg-white text-black hover:bg-gray-100 font-semibold h-9 px-4" asChild>
               <Link to="/visit-us">VISIT US</Link>
             </Button>

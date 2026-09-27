@@ -114,6 +114,8 @@ import { AdvancedAnalytics } from "@/components/founder/AdvancedAnalytics";
 import { DemographicsAnalytics } from "@/components/founder/DemographicsAnalytics";
 import { BudgetProposals } from "@/components/budget/BudgetProposals";
 import { DepartmentTabManager } from "@/components/admin/DepartmentTabManager";
+import { SiteVisibilityManager } from "@/components/admin/SiteVisibilityManager";
+
 import { UserProfile } from "@/components/dashboard/UserProfile";
 import { ApplicationStatus } from "@/components/dashboard/ApplicationStatus";
 import { ActivityLogVisibilityManager } from "@/components/admin/ActivityLogVisibilityManager";
@@ -327,6 +329,8 @@ const Dashboard = () => {
         { value: "security", label: "Security", icon: Shield },
         { value: "cookie-consent", label: "Cookie Consent", icon: Cookie },
         { value: "tab-management", label: "Tab Management", icon: Settings },
+        { value: "site-visibility", label: "Site Visibility", icon: Globe },
+
         { value: "requisitions", label: "Requisitions", icon: FileText },
         { value: "inventory", label: "All Inventory", icon: Settings },
       ],
@@ -518,6 +522,11 @@ const Dashboard = () => {
             <TabsContent value="tab-management">
               <DepartmentTabManager />
             </TabsContent>
+
+            <TabsContent value="site-visibility">
+              <SiteVisibilityManager />
+            </TabsContent>
+
 
             <TabsContent value="profile">
               <UserProfile />

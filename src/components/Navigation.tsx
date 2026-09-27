@@ -165,6 +165,7 @@ export const Navigation = memo(() => {
             ))}
 
             {/* Get Involved Dropdown */}
+            {showGetInvolved && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="text-white/90 hover:text-white font-semibold text-[13px] tracking-[0.08em] transition-colors flex items-center gap-1">
@@ -185,6 +186,8 @@ export const Navigation = memo(() => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+            )}
+
           </div>
 
           {/* Right cluster: icons + CTAs */}

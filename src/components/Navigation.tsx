@@ -35,6 +35,8 @@ import { useEffect } from "react";
 import logo from "@/assets/logo.png";
 import { PortalSwitcher } from "@/components/shared/PortalSwitcher";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+
 
 export const Navigation = memo(() => {
   const navigate = useNavigate();
@@ -44,7 +46,9 @@ export const Navigation = memo(() => {
   const [wishlistCount, setWishlistCount] = useState(0);
   const [isGetInvolvedOpen, setIsGetInvolvedOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { isVisible } = useFeatureFlags();
   const { socialLinks } = useSocialMedia();
+
 
   useEffect(() => {
     fetchWishlistCount();
@@ -108,27 +112,34 @@ export const Navigation = memo(() => {
   const showAuthButton = !(user && isPortalRoute);
 
 
-  const navItems = [
-    { name: "ABOUT", href: "/about" },
-    { name: "WATCH", href: "/watch" },
-    { name: "EVENTS", href: "/events" },
-    { name: "GIVE", href: "/give" },
-    { name: "SHOP", href: "/shop" },
+  const allNavItems = [
+    { key: "about", name: "ABOUT", href: "/about" },
+    { key: "watch", name: "WATCH", href: "/watch" },
+    { key: "events", name: "EVENTS", href: "/events" },
+    { key: "give", name: "GIVE", href: "/give" },
+    { key: "shop", name: "SHOP", href: "/shop" },
   ];
 
-  const getInvolvedItems = [
-    { name: "JOIN THE FAMILY", href: "/join-the-family" },
-    { name: "SERVE WITH US", href: "/serve-with-us" },
-    { name: "BAPTISM", href: "/baptism" },
-    { name: "MINISTRIES", href: "/ministries" },
-    { name: "COUNSELING & MENTAL HEALTH", href: "/counseling-mental-health" },
-    { name: "PARTNERS", href: "/partners" },
-    { name: "BABY DEDICATIONS", href: "/baby-dedication" },
-    { name: "PROPHETIC SCHOOL", href: "/prophetic-school" },
-    { name: "NEWSLETTER", href: "/newsletter" },
-    { name: "NOTICE OF FILMING", href: "/notice-of-filming" },
-    { name: "FAQ", href: "/faq" },
+  const allGetInvolvedItems = [
+    { key: "join_family", name: "JOIN THE FAMILY", href: "/join-the-family" },
+    { key: "serve_with_us", name: "SERVE WITH US", href: "/serve-with-us" },
+    { key: "baptism", name: "BAPTISM", href: "/baptism" },
+    { key: "ministries", name: "MINISTRIES", href: "/ministries" },
+    { key: "counseling", name: "COUNSELING & MENTAL HEALTH", href: "/counseling-mental-health" },
+    { key: "partners", name: "PARTNERS", href: "/partners" },
+    { key: "baby_dedication", name: "BABY DEDICATIONS", href: "/baby-dedication" },
+    { key: "prophetic_school", name: "PROPHETIC SCHOOL", href: "/prophetic-school" },
+    { key: "newsletter", name: "NEWSLETTER", href: "/newsletter" },
+    { key: "notice_of_filming", name: "NOTICE OF FILMING", href: "/notice-of-filming" },
+    { key: "faq", name: "FAQ", href: "/faq" },
   ];
+
+  const navItems = allNavItems.filter((item) => isVisible(item.key));
+  const getInvolvedItems = allGetInvolvedItems.filter((item) => isVisible(item.key));
+  const showGetInvolved = isVisible("get_involved") && getInvolvedItems.length > 0;
+  const showShop = isVisible("shop");
+  const showSignIn = Boolean(user) || isVisible("sign_in_button");
+
 
   return (
     <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
@@ -154,6 +165,7 @@ export const Navigation = memo(() => {
             ))}
 
             {/* Get Involved Dropdown */}
+            {showGetInvolved && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="text-white/90 hover:text-white font-semibold text-[13px] tracking-[0.08em] transition-colors flex items-center gap-1">
@@ -174,6 +186,8 @@ export const Navigation = memo(() => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+            )}
+
           </div>
 
           {/* Right cluster: icons + CTAs */}
@@ -195,6 +209,7 @@ export const Navigation = memo(() => {
             </div>
 
             {/* Wishlist & Cart Icons */}
+            {showShop && (
             <div className="flex items-center gap-3">
               <Link to="/wishlist" className="relative text-white/80 hover:text-white transition-colors" aria-label="Wishlist">
                 <Heart className="h-[18px] w-[18px]" />
@@ -213,17 +228,19 @@ export const Navigation = memo(() => {
                 )}
               </Link>
             </div>
+            )}
 
             {/* Divider */}
             <span className="h-6 w-px bg-white/15" aria-hidden="true" />
 
             {/* CTAs */}
             <PortalSwitcher variant="outline" className="bg-transparent text-white hover:bg-white hover:text-black font-semibold border-white/30 h-9 px-3" />
-            {showAuthButton && (
+            {showAuthButton && showSignIn && (
               <Button variant="ghost" className="text-white hover:bg-white/10 font-semibold h-9 px-3" onClick={handleAuthClick}>
                 {user ? "SIGN OUT" : "SIGN IN"}
               </Button>
             )}
+
             <Button className="bg-white text-black hover:bg-gray-100 font-semibold h-9 px-4" asChild>
               <Link to="/visit-us">VISIT US</Link>
             </Button>
@@ -252,7 +269,7 @@ export const Navigation = memo(() => {
                 </Link>
               ))}
 
-              {showAuthButton && (
+              {showAuthButton && showSignIn && (
                 <button
                   className="block w-full text-left px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
                   onClick={handleAuthClick}
@@ -262,6 +279,7 @@ export const Navigation = memo(() => {
               )}
 
               {/* Mobile Get Involved Collapsible Section */}
+              {showGetInvolved && (
               <Collapsible open={isGetInvolvedOpen} onOpenChange={toggleGetInvolved}>
                 <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide">
                   GET INVOLVED
@@ -280,6 +298,8 @@ export const Navigation = memo(() => {
                   ))}
                 </CollapsibleContent>
               </Collapsible>
+              )}
+
 
               {/* Mobile Social Links */}
               <div className="px-3 py-3">
@@ -301,6 +321,7 @@ export const Navigation = memo(() => {
               </div>
 
               {/* Mobile Cart */}
+              {showShop && (
               <div className="px-3 py-3">
                 <Link
                   to="/shop"
@@ -316,6 +337,8 @@ export const Navigation = memo(() => {
                   )}
                 </Link>
               </div>
+              )}
+
 
               <div className="pt-4 px-3 space-y-3">
                 <div className="flex justify-center">

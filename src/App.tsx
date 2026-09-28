@@ -104,9 +104,10 @@ const App = () => (
               <Route path="/give" element={<Give />} />
               <Route path="/give/verify" element={<GiveVerify />} />
               <Route path="/giving-history" element={<GivingHistory />} />
-              <Route path="/shop" element={<Shop />} />
+              <Route path="/shop" element={<FeatureRouteGuard featureKey="shop"><Shop /></FeatureRouteGuard>} />
               <Route path="/shop/verify" element={<ShopVerify />} />
-              <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/wishlist" element={<FeatureRouteGuard featureKey="shop"><Wishlist /></FeatureRouteGuard>} />
+
               <Route path="/visit-us" element={<VisitUs />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/auth/complete-profile" element={<ProfileCompletion />} />
@@ -118,17 +119,18 @@ const App = () => (
               <Route path="/registration-dashboard" element={<RegistrationDashboard />} />
               <Route path="/requisitions" element={<RequisitionsPage />} />
               
-              <Route path="/join-the-family" element={<JoinTheFamily />} />
-              <Route path="/serve-with-us" element={<ServeWithUs />} />
-              <Route path="/ministries" element={<Ministries />} />
-              <Route path="/partners" element={<Partners />} />
-              <Route path="/baptism" element={<Baptism />} />
-              <Route path="/baby-dedication" element={<BabyDedication />} />
-              <Route path="/prophetic-school" element={<PropheticSchool />} />
-              <Route path="/counseling-mental-health" element={<CounselingMentalHealth />} />
-              <Route path="/newsletter" element={<Newsletter />} />
-              <Route path="/notice-of-filming" element={<NoticeOfFilming />} />
-              <Route path="/faq" element={<FAQ />} />
+              <Route path="/join-the-family" element={<FeatureRouteGuard featureKey="join_family"><JoinTheFamily /></FeatureRouteGuard>} />
+              <Route path="/serve-with-us" element={<FeatureRouteGuard featureKey="serve_with_us"><ServeWithUs /></FeatureRouteGuard>} />
+              <Route path="/ministries" element={<FeatureRouteGuard featureKey="ministries"><Ministries /></FeatureRouteGuard>} />
+              <Route path="/partners" element={<FeatureRouteGuard featureKey="partners"><Partners /></FeatureRouteGuard>} />
+              <Route path="/baptism" element={<FeatureRouteGuard featureKey="baptism"><Baptism /></FeatureRouteGuard>} />
+              <Route path="/baby-dedication" element={<FeatureRouteGuard featureKey="baby_dedication"><BabyDedication /></FeatureRouteGuard>} />
+              <Route path="/prophetic-school" element={<FeatureRouteGuard featureKey="prophetic_school"><PropheticSchool /></FeatureRouteGuard>} />
+              <Route path="/counseling-mental-health" element={<FeatureRouteGuard featureKey="counseling"><CounselingMentalHealth /></FeatureRouteGuard>} />
+              <Route path="/newsletter" element={<FeatureRouteGuard featureKey="newsletter"><Newsletter /></FeatureRouteGuard>} />
+              <Route path="/notice-of-filming" element={<FeatureRouteGuard featureKey="notice_of_filming"><NoticeOfFilming /></FeatureRouteGuard>} />
+              <Route path="/faq" element={<FeatureRouteGuard featureKey="faq"><FAQ /></FeatureRouteGuard>} />
+
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
               <Route path="/admin/portal-access" element={<PortalAccessManagement />} />

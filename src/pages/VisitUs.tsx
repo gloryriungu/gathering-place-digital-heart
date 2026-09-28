@@ -256,8 +256,8 @@ const VisitUs = () => {
           </div>
           
           <div className="grid lg:grid-cols-2 gap-8">
-            {/* Map */}
-            <div className="h-[400px] rounded-xl overflow-hidden shadow-lg border border-border">
+            {/* Map — isolate keeps Leaflet's high z-indexes from covering the fixed nav */}
+            <div className="h-[400px] rounded-xl overflow-hidden shadow-lg border border-border isolate relative z-0">
               <LeafletMap lat={content.map_latitude} lng={content.map_longitude} zoom={content.map_zoom} addressLine1={content.address_line1} />
             </div>
 

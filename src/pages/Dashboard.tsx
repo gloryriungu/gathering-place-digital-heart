@@ -239,6 +239,7 @@ const Dashboard = () => {
   const getRoleBasedTabs = () => {
     const baseTabs = [
       { value: "overview", label: "Overview", icon: Calendar },
+      { value: "milestones", label: "My Milestones", icon: CalendarHeart },
       { value: "give", label: "Give", icon: Heart },
       { value: "my-downloads", label: "My Downloads", icon: BookOpen },
       { value: "profile", label: "Profile", icon: Users },
@@ -532,6 +533,10 @@ const Dashboard = () => {
 
             <TabsContent value="profile">
               <UserProfile />
+            </TabsContent>
+
+            <TabsContent value="milestones">
+              <MyMilestones />
             </TabsContent>
 
             <TabsContent value="my-downloads">

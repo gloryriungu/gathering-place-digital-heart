@@ -129,6 +129,8 @@ import { ProgramResourcesEditor } from "@/components/pastor/ProgramResourcesEdit
 import { ProgramQuestionsEditor } from "@/components/pastor/ProgramQuestionsEditor";
 import { CandidateProgressViewer } from "@/components/pastor/CandidateProgressViewer";
 import { MyDownloads } from "@/components/dashboard/MyDownloads";
+import { MyMilestones } from "@/components/dashboard/MyMilestones";
+import { CalendarHeart } from "lucide-react";
 import { CookieConsentManager } from "@/components/admin/CookieConsentManager";
 
 const Dashboard = () => {

@@ -2601,6 +2601,45 @@ export type Database = {
           },
         ]
       }
+      user_milestones: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          milestone_date: string
+          note: string | null
+          recurring: boolean
+          reminder_enabled: boolean
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          milestone_date: string
+          note?: string | null
+          recurring?: boolean
+          reminder_enabled?: boolean
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          milestone_date?: string
+          note?: string | null
+          recurring?: boolean
+          reminder_enabled?: boolean
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

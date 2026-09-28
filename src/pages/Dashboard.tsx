@@ -129,6 +129,8 @@ import { ProgramResourcesEditor } from "@/components/pastor/ProgramResourcesEdit
 import { ProgramQuestionsEditor } from "@/components/pastor/ProgramQuestionsEditor";
 import { CandidateProgressViewer } from "@/components/pastor/CandidateProgressViewer";
 import { MyDownloads } from "@/components/dashboard/MyDownloads";
+import { MyMilestones } from "@/components/dashboard/MyMilestones";
+import { CalendarHeart } from "lucide-react";
 import { CookieConsentManager } from "@/components/admin/CookieConsentManager";
 
 const Dashboard = () => {
@@ -239,6 +241,7 @@ const Dashboard = () => {
   const getRoleBasedTabs = () => {
     const baseTabs = [
       { value: "overview", label: "Overview", icon: Calendar },
+      { value: "milestones", label: "My Milestones", icon: CalendarHeart },
       { value: "give", label: "Give", icon: Heart },
       { value: "my-downloads", label: "My Downloads", icon: BookOpen },
       { value: "profile", label: "Profile", icon: Users },
@@ -532,6 +535,10 @@ const Dashboard = () => {
 
             <TabsContent value="profile">
               <UserProfile />
+            </TabsContent>
+
+            <TabsContent value="milestones">
+              <MyMilestones />
             </TabsContent>
 
             <TabsContent value="my-downloads">

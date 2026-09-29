@@ -34,6 +34,7 @@ import { ServiceTimes } from "@/components/ServiceTimes";
 import { LatestSermon } from "@/components/LatestSermon";
 import { Announcements } from "@/components/Announcements";
 import { Navigation } from "@/components/Navigation";
+import { LiveMarquee } from "@/components/LiveMarquee";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Suspense, lazy, memo } from "react";
@@ -89,6 +90,7 @@ const Index = memo(() => {
       />
       <Navigation />
       <Hero />
+      <LiveMarquee />
       <ServiceTimes />
       <LatestSermon />
       <Announcements />

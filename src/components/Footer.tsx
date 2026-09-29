@@ -95,7 +95,7 @@ export const Footer = () => {
   const locationLines = data.location.split("\n");
 
   return (
-    <footer className="bg-gray-900 text-white">
+    <footer className="bg-plum-deep text-cream">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Church Info */}

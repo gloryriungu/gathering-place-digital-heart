@@ -142,7 +142,7 @@ export const Navigation = memo(() => {
 
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-black/90 backdrop-blur-md border-b border-white/10">
+    <nav className="fixed top-0 w-full z-50 bg-primary/95 backdrop-blur-md border-b border-primary-foreground/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 gap-4">
           {/* Logo */}
@@ -158,7 +158,7 @@ export const Navigation = memo(() => {
               <Link
                 key={item.name}
                 to={item.href}
-                className="text-white/90 hover:text-white font-semibold text-[13px] tracking-[0.08em] transition-colors"
+                className={`px-3 py-1.5 rounded-full font-semibold text-[13px] tracking-[0.08em] transition-all duration-300 ${location.pathname.startsWith(item.href) ? "bg-gradient-amber text-accent-foreground" : "text-primary-foreground/85 hover:text-accent"}`}
               >
                 {item.name}
               </Link>
@@ -241,7 +241,7 @@ export const Navigation = memo(() => {
               </Button>
             )}
 
-            <Button className="bg-white text-black hover:bg-gray-100 font-semibold h-9 px-4" asChild>
+            <Button className="font-semibold h-9 px-5" asChild>
               <Link to="/visit-us">VISIT US</Link>
             </Button>
           </div>
@@ -256,7 +256,7 @@ export const Navigation = memo(() => {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="lg:hidden bg-black/95 backdrop-blur-md max-h-[calc(100vh-5rem)] overflow-y-auto">
+          <div className="lg:hidden bg-primary backdrop-blur-md max-h-[calc(100vh-5rem)] overflow-y-auto">
             <div className="px-2 pt-2 pb-6 space-y-4">
               {navItems.map((item) => (
                 <Link
@@ -344,7 +344,7 @@ export const Navigation = memo(() => {
                 <div className="flex justify-center">
                   <PortalSwitcher variant="outline" className="w-full bg-white text-black hover:bg-gray-100 font-semibold border-white" />
                 </div>
-                <Button className="w-full bg-white text-black hover:bg-gray-100 font-bold" asChild>
+                <Button className="w-full font-bold" asChild>
                   <Link to="/visit-us" onClick={closeMenu}>
                     VISIT US
                   </Link>

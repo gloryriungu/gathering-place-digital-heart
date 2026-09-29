@@ -9,6 +9,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import CookieConsent from "@/components/CookieConsent";
 import { AIAssistant } from "@/components/AIAssistant";
 import { ProfileStatusBanner } from "@/components/auth/ProfileStatusBanner";
+import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { FeatureRouteGuard } from "@/components/shared/FeatureRouteGuard";
 
 import { Suspense, lazy } from "react";
@@ -95,7 +96,8 @@ const App = () => (
               apiEndpoint="https://web-production-61663.up.railway.app/process/"
             />
             <BrowserRouter>
-          <ProfileStatusBanner />
+          <ScrollReveal />
+              <ProfileStatusBanner />
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />

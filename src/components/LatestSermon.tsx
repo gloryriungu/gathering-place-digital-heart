@@ -43,11 +43,33 @@ interface SermonContent {
   video_url?: string;
 }
 
+const FALLBACK_THUMB =
+  "https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80";
+
+const defaultContent: SermonContent = {
+  id: "default",
+  title: "Champions of Faith: Living Above Limitations",
+  description:
+    "In this powerful message, Pastor Timothy teaches us how to rise above every limitation through faith in God's promises and live as the champions we are called to be in Christ Jesus.",
+  content_data: {
+    section_title: "LATEST MESSAGE",
+    section_description:
+      "Be transformed by God's Word through biblical, practical and life-changing messages that equip you for victorious living.",
+    pastor: "Pastor Timothy Kitui",
+    date: "January 21, 2024",
+    duration: "52:30",
+    youtube_url: "",
+    video_thumbnail: FALLBACK_THUMB,
+  },
+};
+
+const thumbOf = (s: SermonContent) => s.image_url || s.content_data?.video_thumbnail || FALLBACK_THUMB;
+
 export const LatestSermon = memo(() => {
-  const [sermonContent, setSermonContent] = useState<SermonContent | null>(null);
+  const [sermons, setSermons] = useState<SermonContent[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchLatestSermon = useCallback(async () => {
+  const fetchSermons = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from("media_content")
@@ -55,14 +77,9 @@ export const LatestSermon = memo(() => {
         .eq("content_type", "live_stream")
         .eq("status", "published")
         .order("created_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error fetching sermon content:", error);
-      } else {
-        setSermonContent(data as SermonContent);
-      }
+        .limit(4);
+      if (error) console.error("Error fetching sermon content:", error);
+      else setSermons((data || []) as SermonContent[]);
     } catch (error) {
       console.error("Error fetching sermon content:", error);
     } finally {
@@ -71,169 +88,128 @@ export const LatestSermon = memo(() => {
   }, []);
 
   useEffect(() => {
-    fetchLatestSermon();
-
-    // Set up real-time subscription with debouncing
+    fetchSermons();
     let timeoutId: NodeJS.Timeout;
     const channel = supabase
       .channel("sermon-content-changes")
       .on(
         "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "media_content",
-          filter: "content_type=eq.live_stream",
-        },
+        { event: "*", schema: "public", table: "media_content", filter: "content_type=eq.live_stream" },
         () => {
           clearTimeout(timeoutId);
-          timeoutId = setTimeout(fetchLatestSermon, 300);
+          timeoutId = setTimeout(fetchSermons, 300);
         },
       )
       .subscribe();
-
     return () => {
       clearTimeout(timeoutId);
       supabase.removeChannel(channel);
     };
-  }, [fetchLatestSermon]);
+  }, [fetchSermons]);
 
   if (loading) {
     return (
-      <section className="py-20 bg-black text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="space-y-8">
-              <div>
-                <Skeleton className="h-16 w-80 mb-6" />
-                <Skeleton className="h-6 w-full mb-4" />
-                <Skeleton className="h-6 w-3/4" />
-              </div>
-              <div className="space-y-6">
-                <Skeleton className="h-10 w-full" />
-                <div className="flex gap-6">
-                  <Skeleton className="h-6 w-32" />
-                  <Skeleton className="h-6 w-32" />
-                </div>
-                <Skeleton className="h-20 w-full" />
-                <div className="flex gap-4">
-                  <Skeleton className="h-12 w-32" />
-                  <Skeleton className="h-12 w-32" />
-                </div>
-              </div>
-            </div>
-            <div className="relative">
-              <Skeleton className="aspect-video rounded-lg" />
-            </div>
-          </div>
+      <section className="py-20 bg-lavender">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <Skeleton className="h-12 w-80" />
+          <Skeleton className="h-96 w-full rounded-2xl" />
         </div>
       </section>
     );
   }
 
-  // Fallback content if no data exists
-  const defaultContent = {
-    title: "Champions of Faith: Living Above Limitations",
-    description:
-      "In this powerful message, Pastor Timothy teaches us how to rise above every limitation through faith in God's promises and live as the champions we are called to be in Christ Jesus.",
-    content_data: {
-      section_title: "LATEST MESSAGE",
-      section_description: "Be transformed by God's Word through our biblical, practical, and life-changing messages that equip you for victorious living.",
-      pastor: "Pastor Timothy Kitui",
-      date: "January 21, 2024",
-      duration: "52:30",
-      youtube_url: "",
-      video_thumbnail:
-        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
-    },
-  };
-
-  const content = sermonContent || defaultContent;
-  const sectionTitle = content.content_data?.section_title || defaultContent.content_data.section_title;
-  const sectionDescription = content.content_data?.section_description || defaultContent.content_data.section_description;
-  const thumbnail =
-    sermonContent?.image_url || content.content_data?.video_thumbnail || defaultContent.content_data.video_thumbnail;
-  const videoUrl = sermonContent?.video_url || content.content_data?.youtube_url;
+  const content = sermons[0] || defaultContent;
+  const others = sermons.slice(1, 4);
+  const sectionTitle = content.content_data?.section_title || defaultContent.content_data.section_title!;
+  const sectionDescription =
+    content.content_data?.section_description || defaultContent.content_data.section_description;
+  const videoUrl = content.video_url || content.content_data?.youtube_url;
+  const embed = videoUrl ? getYouTubeEmbedUrl(videoUrl) : null;
 
   return (
-    <section className="py-20 bg-black text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Content */}
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">{sectionTitle}</h2>
-              <p className="text-xl text-gray-300 mb-8">
-                {sectionDescription}
-              </p>
-            </div>
+    <section className="relative py-20 md:py-28 bg-lavender overflow-hidden">
+      <span aria-hidden className="pointer-events-none select-none absolute top-6 left-1/2 -translate-x-1/2 font-display font-bold text-[8rem] md:text-[14rem] leading-none text-primary/[0.05] whitespace-nowrap">
+        SERMONS
+      </span>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div>
+            <p className="eyebrow mb-3">{sectionTitle}</p>
+            <h2 className="text-4xl md:text-5xl font-bold text-primary">
+              Be Transformed by <span className="text-accent italic">the Word</span>
+            </h2>
+            <p className="text-lg text-muted-foreground mt-3 max-w-xl">{sectionDescription}</p>
+          </div>
+          <Button asChild variant="outline" className="self-start md:self-auto">
+            <Link to="/watch">All Messages <ArrowRight className="h-4 w-4 ml-2" /></Link>
+          </Button>
+        </div>
 
-            <div className="space-y-6">
-              <h3 className="text-2xl md:text-3xl font-bold leading-tight">"{content.title}"</h3>
-
-              <div className="flex flex-wrap gap-6 text-gray-300">
-                <div className="flex items-center">
-                  <User className="h-5 w-5 mr-2" />
-                  <span className="font-medium">
-                    {content.content_data?.pastor || defaultContent.content_data.pastor}
+        {/* Featured split card */}
+        <div className="card-lift grid lg:grid-cols-2 rounded-2xl overflow-hidden bg-gradient-plum text-primary-foreground">
+          <div className="relative aspect-video lg:aspect-auto lg:min-h-[380px] bg-plum-deep group">
+            {embed ? (
+              <iframe
+                src={embed}
+                title={content.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full"
+              />
+            ) : (
+              <Link to="/watch" className="absolute inset-0">
+                <LazyImage src={thumbOf(content)} alt={content.title} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-plum-deep/40 group-hover:bg-plum-deep/20 transition-colors" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="h-20 w-20 rounded-full bg-gradient-amber flex items-center justify-center text-accent-foreground group-hover:scale-110 transition-transform">
+                    <Play className="h-8 w-8 ml-1" />
                   </span>
                 </div>
-                <div className="flex items-center">
-                  <Calendar className="h-5 w-5 mr-2" />
-                  <span className="font-medium">{content.content_data?.date || defaultContent.content_data.date}</span>
-                </div>
-              </div>
-
-              <p className="text-lg text-gray-300 leading-relaxed">{content.description}</p>
-
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button asChild size="lg" className="bg-white text-black hover:bg-gray-100 font-bold">
-                  <Link to="/watch">
-                    <Play className="h-5 w-5 mr-2" />
-                    WATCH NOW
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="outline" className="bg-white text-black hover:bg-gray-100 font-bold">
-                  <Link to="/watch">
-                    ALL MESSAGES
-                    <ArrowRight className="h-5 w-5 ml-2" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
+              </Link>
+            )}
           </div>
-
-          {/* Video Preview */}
-          <div className="relative">
-            <div className="aspect-video bg-gray-800 rounded-lg overflow-hidden group cursor-pointer">
-              {videoUrl && getYouTubeEmbedUrl(videoUrl) ? (
-                <iframe
-                  width="100%"
-                  height="100%"
-                  src={getYouTubeEmbedUrl(videoUrl) || ''}
-                  title={content.title}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full"
-                />
-              ) : (
-                <>
-                  <LazyImage src={thumbnail} alt={content.title} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <Play className="h-8 w-8 text-black ml-1" />
-                    </div>
-                  </div>
-                  <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded text-sm font-bold">
-                    {content.content_data?.duration || defaultContent.content_data.duration}
-                  </div>
-                </>
-              )}
+          <div className="p-8 md:p-12 flex flex-col justify-center gap-5">
+            <span className="self-start rounded-full bg-gradient-amber px-3 py-1 text-[11px] font-bold tracking-wider text-accent-foreground uppercase">
+              Featured Message
+            </span>
+            <h3 className="text-2xl md:text-4xl font-bold leading-tight">{content.title}</h3>
+            <div className="flex flex-wrap gap-5 text-primary-foreground/75 text-sm">
+              <span className="flex items-center"><User className="h-4 w-4 mr-2 text-accent" />{content.content_data?.pastor || defaultContent.content_data.pastor}</span>
+              <span className="flex items-center"><Calendar className="h-4 w-4 mr-2 text-accent" />{content.content_data?.date || defaultContent.content_data.date}</span>
             </div>
+            <p className="text-primary-foreground/85 leading-relaxed line-clamp-4">{content.description}</p>
+            <Button asChild size="lg" className="self-start">
+              <Link to="/watch"><Play className="h-5 w-5 mr-2" />Watch Now</Link>
+            </Button>
           </div>
         </div>
+
+        {others.length > 0 && (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+            {others.map((s) => (
+              <Link key={s.id} to="/watch" className="card-lift group rounded-2xl bg-card border border-border overflow-hidden block">
+                <div className="relative aspect-video">
+                  <LazyImage src={thumbOf(s)} alt={s.title} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-plum-deep/30 group-hover:bg-plum-deep/10 transition-colors" />
+                  <span className="absolute inset-0 m-auto h-14 w-14 rounded-full bg-gradient-amber flex items-center justify-center text-accent-foreground group-hover:scale-110 transition-transform">
+                    <Play className="h-6 w-6 ml-0.5" />
+                  </span>
+                  {s.content_data?.duration && (
+                    <span className="absolute bottom-3 right-3 rounded-full bg-plum-deep/85 text-primary-foreground px-2.5 py-0.5 text-xs font-bold">
+                      {s.content_data.duration}
+                    </span>
+                  )}
+                </div>
+                <div className="p-5">
+                  <h4 className="font-display text-lg font-bold text-primary leading-snug line-clamp-2">{s.title}</h4>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {[s.content_data?.pastor, s.content_data?.date].filter(Boolean).join(" · ")}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

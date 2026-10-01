@@ -1,22 +1,11 @@
 /**
  * ConnectSection Component
- * 
- * Language: TypeScript + React
- * 
- * Purpose:
- * - Homepage section showcasing connection opportunities
- * - Highlights Life Groups, Serve Teams, Prayer Ministry, and Discipleship
- * - Encourages community engagement and spiritual growth
- * 
- * Key Features:
- * - Four connection pathways with icons and descriptions
- * - Call-to-action buttons linking to relevant pages
- * - Hover animations for interactive experience
- * - Responsive grid layout
+ *
+ * Homepage section showcasing connection opportunities.
+ * Restyled to the plum / amber / Playfair design system.
  */
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Heart, HandHeart, MessageCircle, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -24,69 +13,100 @@ const ConnectSection = () => {
   const connectOptions = [
     {
       icon: Users,
-      title: "LIFE GROUPS",
+      title: "Life Groups",
       description: "Connect with other believers in intimate small groups for fellowship, prayer, and spiritual growth.",
-      action: "JOIN A GROUP",
-      link: "/ministries"
+      action: "Join a Group",
+      link: "/ministries",
     },
     {
       icon: HandHeart,
-      title: "SERVE TEAMS",
+      title: "Serve Teams",
       description: "Use your gifts and talents to serve God and others through various ministry opportunities.",
-      action: "START SERVING",
-      link: "/serve-with-us"
+      action: "Start Serving",
+      link: "/serve-with-us",
     },
     {
       icon: Heart,
-      title: "PRAYER MINISTRY",
+      title: "Prayer Ministry",
       description: "Experience the power of prayer and intercession through our dedicated prayer teams and warriors.",
-      action: "JOIN PRAYER",
-      link: "/ministries"
+      action: "Join Prayer",
+      link: "/ministries",
     },
     {
       icon: MessageCircle,
-      title: "DISCIPLESHIP",
+      title: "Discipleship",
       description: "Grow deeper in your faith through mentorship, Bible study, and spiritual formation programs.",
-      action: "GET DISCIPLED",
-      link: "/ministries"
-    }
+      action: "Get Discipled",
+      link: "/ministries",
+    },
   ];
 
   return (
-    <section className="py-20 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-6xl font-black mb-6 text-black tracking-tight">
-            GET CONNECTED
+    <section className="relative py-20 md:py-28 bg-background overflow-hidden">
+      {/* Watermark */}
+      <span
+        aria-hidden
+        className="pointer-events-none select-none absolute -top-4 left-1/2 -translate-x-1/2 font-display font-bold uppercase tracking-tight text-[18vw] leading-none text-primary/[0.04]"
+      >
+        Connect
+      </span>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-14">
+          <p className="eyebrow mb-3">Find Your Place</p>
+          <h2 className="text-4xl md:text-5xl font-bold text-primary mb-4">
+            More Than a Church, <span className="text-accent italic">We're Family</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            TOT International is more than a church - we're a family. Discover your place in our community and grow in your relationship with God and others.
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Discover your place in our community and grow in your relationship with God and with others.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {connectOptions.map((option, index) => {
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+          {connectOptions.map((option) => {
             const IconComponent = option.icon;
             return (
-              <Card key={index} className="text-center border-2 border-black hover:shadow-xl transition-all hover:-translate-y-1 group">
-                <CardHeader className="pb-4">
-                  <div className="mx-auto w-16 h-16 bg-black rounded-full flex items-center justify-center mb-6 group-hover:bg-gray-800 transition-colors">
-                    <IconComponent className="h-8 w-8 text-white" />
-                  </div>
-                  <CardTitle className="text-xl font-black text-black">{option.title}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <p className="text-gray-600 leading-relaxed">{option.description}</p>
-                  <Button asChild className="w-full bg-black text-white hover:bg-gray-800 font-bold">
+              <div
+                key={option.title}
+                className="card-lift group flex flex-col rounded-2xl bg-card border border-border overflow-hidden"
+              >
+                <div className="bg-gradient-plum px-6 py-7 flex flex-col items-center text-center">
+                  <span className="h-14 w-14 rounded-full bg-gradient-amber flex items-center justify-center text-accent-foreground mb-4 transition-transform duration-300 group-hover:scale-110">
+                    <IconComponent className="h-6 w-6" />
+                  </span>
+                  <h3 className="text-sm font-sans font-bold tracking-[0.2em] uppercase text-primary-foreground">
+                    {option.title}
+                  </h3>
+                </div>
+                <div className="flex-1 px-6 py-6 text-center">
+                  <p className="text-muted-foreground leading-relaxed">{option.description}</p>
+                </div>
+                <div className="px-6 pb-6">
+                  <Button asChild className="w-full">
                     <Link to={option.link}>
                       {option.action}
-                      <ArrowRight className="h-4 w-4 ml-2" />
+                      <ArrowRight className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             );
           })}
+        </div>
+
+        <div className="mt-10 rounded-2xl border-2 border-accent bg-card p-6 md:p-8 flex flex-col md:flex-row md:items-center gap-5 justify-between">
+          <div>
+            <p className="eyebrow mb-1">New Here?</p>
+            <p className="font-display text-xl font-bold text-primary">
+              Let us welcome you personally on your first visit
+            </p>
+            <p className="text-muted-foreground">We'll save you a seat and introduce you to the family.</p>
+          </div>
+          <Button asChild size="lg" className="shrink-0">
+            <Link to="/visit-us">
+              Plan Your Visit <ArrowRight className="h-4 w-4 ml-2" />
+            </Link>
+          </Button>
         </div>
       </div>
     </section>

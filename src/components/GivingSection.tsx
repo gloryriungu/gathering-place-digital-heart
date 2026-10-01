@@ -1,100 +1,117 @@
 /**
  * GivingSection Component
- * 
- * Language: TypeScript + React
- * 
- * Purpose:
- * - Homepage section explaining how tithes and offerings are used
- * - Showcases the impact of financial partnership
- * - Encourages visitors to support the church's mission
- * 
- * Key Features:
- * - Visual breakdown of giving allocation (Missions 35%, Ministry 30%, Community 20%, Operations 15%)
- * - Call-to-action buttons for giving and learning more
- * - Dark background with contrasting white cards
- * - Links to giving page
+ *
+ * Homepage section explaining how tithes and offerings are used.
+ * Restyled to the plum / amber / Playfair design system.
  */
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Heart, DollarSign, Target, Users, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const GivingSection = () => {
   const givingImpact = [
     {
+      number: "01",
       icon: Users,
-      title: "MISSIONS",
-      description: "Supporting global missions and church planting initiatives",
-      percentage: "35%"
+      title: "Missions",
+      description: "Supporting global missions and church planting initiatives.",
+      percentage: "35%",
     },
     {
+      number: "02",
       icon: Target,
-      title: "MINISTRY",
-      description: "Funding life-changing ministry programs and events",
-      percentage: "30%"
+      title: "Ministry",
+      description: "Funding life-changing ministry programs and events.",
+      percentage: "30%",
     },
     {
+      number: "03",
       icon: Heart,
-      title: "COMMUNITY",
-      description: "Caring for the needy and community outreach programs",
-      percentage: "20%"
+      title: "Community",
+      description: "Caring for the needy and community outreach programs.",
+      percentage: "20%",
     },
     {
+      number: "04",
       icon: DollarSign,
-      title: "OPERATIONS",
-      description: "Church facilities, staff, and operational expenses",
-      percentage: "15%"
-    }
+      title: "Operations",
+      description: "Church facilities, staff, and operational expenses.",
+      percentage: "15%",
+    },
   ];
 
   return (
-    <section className="py-20 bg-black text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">
-            PARTNERSHIP IN<br />GOD'S WORK
+    <section className="relative py-20 md:py-28 bg-gradient-plum text-primary-foreground overflow-hidden">
+      {/* Geometric accents */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full border border-accent/20"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -right-28 bottom-0 h-96 w-96 rounded-full border border-accent/10"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none select-none absolute -top-4 left-1/2 -translate-x-1/2 font-display font-bold uppercase text-[18vw] leading-none text-primary-foreground/[0.05]"
+      >
+        Giving
+      </span>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-14">
+          <p className="eyebrow mb-3">Generosity &amp; Kingdom Impact</p>
+          <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            Partner With the <span className="text-accent italic">Mission</span>
           </h2>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-            Your faithful giving enables us to fulfill our mission of raising champions for Christ and expanding God's kingdom around the world.
+          <p className="text-lg text-primary-foreground/75 max-w-2xl mx-auto">
+            Your faithful giving enables us to raise champions for Christ and expand God's kingdom around the world.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-          {givingImpact.map((impact, index) => {
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 mb-12">
+          {givingImpact.map((impact) => {
             const IconComponent = impact.icon;
             return (
-              <Card key={index} className="text-center bg-white border-2 border-black">
-                <CardHeader className="pb-4">
-                  <div className="mx-auto w-16 h-16 bg-black rounded-full flex items-center justify-center mb-6">
-                    <IconComponent className="h-8 w-8 text-white" />
-                  </div>
-                  <div className="text-4xl font-black text-black mb-2">{impact.percentage}</div>
-                  <CardTitle className="text-xl font-black text-black">{impact.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 text-sm leading-relaxed">{impact.description}</p>
-                </CardContent>
-              </Card>
+              <div key={impact.title} className="glass-card card-lift relative p-7 overflow-hidden">
+                <span
+                  aria-hidden
+                  className="absolute -top-3 right-3 font-display font-bold text-6xl text-accent/15 select-none"
+                >
+                  {impact.number}
+                </span>
+                <span className="h-12 w-12 rounded-full bg-gradient-amber flex items-center justify-center text-accent-foreground mb-5">
+                  <IconComponent className="h-5 w-5" />
+                </span>
+                <div className="font-display text-4xl font-bold text-accent mb-1">{impact.percentage}</div>
+                <h3 className="text-sm font-sans font-bold tracking-[0.2em] uppercase mb-3">{impact.title}</h3>
+                <p className="text-sm leading-relaxed text-primary-foreground/70">{impact.description}</p>
+              </div>
             );
           })}
         </div>
 
-        <div className="bg-white text-black rounded-lg p-12 text-center">
-          <h3 className="text-3xl md:text-4xl font-black mb-6">READY TO GIVE?</h3>
-          <p className="text-lg mb-8 text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Join us in partnership as we advance God's kingdom through your generous giving. Every seed you sow makes an eternal difference.
+        <div className="rounded-2xl border-2 border-accent/60 bg-primary-foreground/5 backdrop-blur-md p-8 md:p-10 text-center">
+          <h3 className="font-display text-3xl md:text-4xl font-bold mb-4">Ready to Give?</h3>
+          <p className="text-primary-foreground/75 max-w-2xl mx-auto mb-8 leading-relaxed">
+            Join us in partnership as we advance God's kingdom. Every seed you sow makes an eternal difference.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="bg-black text-white hover:bg-gray-800 font-bold px-8">
+            <Button asChild size="lg">
               <Link to="/give">
                 <Heart className="h-5 w-5 mr-2" />
-                GIVE NOW
+                Give Now
               </Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="border-2 border-black text-black hover:bg-black hover:text-white font-bold px-8">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="rounded-full border-2 border-accent bg-transparent text-primary-foreground hover:bg-accent hover:text-accent-foreground"
+            >
               <Link to="/give">
-                LEARN ABOUT GIVING
+                Learn About Giving
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Link>
             </Button>

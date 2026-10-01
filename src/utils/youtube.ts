@@ -40,3 +40,14 @@ export const getYouTubeEmbedUrl = (url: string): string | null => {
   
   return `https://www.youtube.com/embed/${videoId}`;
 };
+
+/**
+ * Returns a high-resolution thumbnail image for any YouTube URL
+ */
+export const getYouTubeThumbnail = (url?: string | null): string | null => {
+  if (!url) return null;
+  const videoId = extractYouTubeVideoId(url);
+  if (!videoId) return null;
+
+  return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+};

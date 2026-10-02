@@ -21,43 +21,43 @@ const Give = () => {
     title: "Tithe",
     description: "Honor God with your first fruits and faithful stewardship",
     icon: Heart,
-    color: "text-red-600"
+    color: "text-amber"
   }, {
     type: "offering",
     title: "Offering",
     description: "Support ongoing ministry operations and programs",
     icon: Gift,
-    color: "text-blue-600"
+    color: "text-amber"
   }, {
     type: "seed",
     title: "Seed",
     description: "Sow a seed of faith for your future harvest",
     icon: Sprout,
-    color: "text-green-600"
+    color: "text-amber"
   }, {
     type: "mission",
     title: "Missions",
     description: "Partner in church planting across East Africa & beyond",
     icon: Globe,
-    color: "text-purple-600"
+    color: "text-amber"
   }, {
     type: "gift",
     title: "Special Gift",
     description: "One-time special gift to bless the ministry",
     icon: Package,
-    color: "text-orange-600"
+    color: "text-amber"
   }, {
     type: "thanksgiving",
     title: "Thanksgiving",
     description: "Express gratitude to God through generous giving",
     icon: HandHeart,
-    color: "text-pink-600"
+    color: "text-amber"
   }, {
     type: "others",
     title: "Custom Contribution",
     description: "Building fund, youth ministry, or specify your own",
     icon: Edit,
-    color: "text-indigo-600"
+    color: "text-amber"
   }];
   const impactAllocations = [{
     percentage: "35%",
@@ -155,10 +155,10 @@ const Give = () => {
       
       <div className="pt-20">
         {/* Hero Section */}
-        <section className="relative bg-primary text-primary-foreground py-20 md:py-32">
+        <section className="relative bg-gradient-plum text-cream py-20 md:py-32 overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-black mb-6 animate-fade-in">
+              <h1 className="font-display text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
                 GIVE WITH IMPACT
               </h1>
               <p className="text-xl md:text-2xl text-primary-foreground/80 max-w-4xl mx-auto mb-8">
@@ -182,10 +182,10 @@ const Give = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <Button onClick={() => handleGiveClick()} size="lg" className="bg-background text-foreground hover:bg-background/90 font-bold text-lg px-8 py-6">
+                <Button onClick={() => handleGiveClick()} size="lg" className="font-bold text-lg px-8 py-6">
                   Give Now
                 </Button>
-                <Button variant="outline" size="lg" className="border-primary-foreground hover:bg-primary-foreground font-bold text-lg px-8 py-6 text-secondary-foreground" onClick={() => document.getElementById('impact')?.scrollIntoView({
+                <Button variant="outline" size="lg" className="border-amber bg-transparent text-cream hover:bg-amber hover:text-primary font-bold text-lg px-8 py-6" onClick={() => document.getElementById('impact')?.scrollIntoView({
                 behavior: 'smooth'
               })}>
                   See Your Impact
@@ -215,7 +215,7 @@ const Give = () => {
         <section id="impact" className="py-20 bg-muted/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+              <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
                 Where Your Giving Goes
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -253,7 +253,7 @@ const Give = () => {
         <section className="py-20 bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+              <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
                 Choose Your Contribution Type
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -299,7 +299,7 @@ const Give = () => {
         <section className="py-20 bg-muted/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+              <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
                 How It Works
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -350,24 +350,24 @@ const Give = () => {
             {/* Payment Methods */}
             <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
               <Card className="p-8 text-center">
-                <Smartphone className="h-16 w-16 mx-auto mb-4 text-green-600" />
+                <Smartphone className="h-16 w-16 mx-auto mb-4 text-amber" />
                 <h3 className="text-2xl font-bold text-foreground mb-2">M-Pesa</h3>
                 <p className="text-muted-foreground mb-4">
                   Instant mobile money via STK push. No card needed.
                 </p>
                 <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <CheckCircle className="h-4 w-4 text-amber" />
                   <span>Instant Processing</span>
                 </div>
               </Card>
               <Card className="p-8 text-center">
-                <CreditCard className="h-16 w-16 mx-auto mb-4 text-blue-600" />
+                <CreditCard className="h-16 w-16 mx-auto mb-4 text-amber" />
                 <h3 className="text-2xl font-bold text-foreground mb-2">Card Payment</h3>
                 <p className="text-muted-foreground mb-4">
                   Visa/Mastercard accepted. Powered by Paystack.
                 </p>
                 <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                  <Shield className="h-4 w-4 text-blue-600" />
+                  <Shield className="h-4 w-4 text-amber" />
                   <span>256-bit Encryption</span>
                 </div>
               </Card>
@@ -379,7 +379,7 @@ const Give = () => {
         <section className="py-20 bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+              <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
                 Why We Give
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -389,21 +389,21 @@ const Give = () => {
             
             <div className="grid md:grid-cols-3 gap-8">
               <Card className="p-8 text-center">
-                <Heart className="h-16 w-16 mx-auto mb-6 text-red-600" />
+                <Heart className="h-16 w-16 mx-auto mb-6 text-amber" />
                 <h3 className="text-2xl font-bold text-foreground mb-4">Honor God</h3>
                 <p className="text-muted-foreground">
                   Giving is an act of worship that honors God and acknowledges Him as the source of all blessings.
                 </p>
               </Card>
               <Card className="p-8 text-center">
-                <Users className="h-16 w-16 mx-auto mb-6 text-blue-600" />
+                <Users className="h-16 w-16 mx-auto mb-6 text-amber" />
                 <h3 className="text-2xl font-bold text-foreground mb-4">Build Kingdom</h3>
                 <p className="text-muted-foreground">
                   Your giving helps build God's kingdom, supporting ministries that transform lives and communities.
                 </p>
               </Card>
               <Card className="p-8 text-center">
-                <Globe className="h-16 w-16 mx-auto mb-6 text-purple-600" />
+                <Globe className="h-16 w-16 mx-auto mb-6 text-amber" />
                 <h3 className="text-2xl font-bold text-foreground mb-4">Reach Nations</h3>
                 <p className="text-muted-foreground">
                   Together we reach more people with the Gospel and plant churches across East Africa and beyond.
@@ -426,7 +426,7 @@ const Give = () => {
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
               </svg>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-8">
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-8">
               What God Says About Giving
             </h2>
             <blockquote className="text-2xl md:text-3xl font-light mb-6 leading-relaxed">
@@ -441,7 +441,7 @@ const Give = () => {
         <section className="py-20 bg-background">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+              <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
                 Frequently Asked Questions
               </h2>
               <p className="text-lg text-muted-foreground">
@@ -465,7 +465,7 @@ const Give = () => {
         {/* Footer CTA Section */}
         <section className="py-20 bg-muted/30">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
+            <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-6">
               Ready to Make a Difference?
             </h2>
             <p className="text-lg text-muted-foreground mb-8">

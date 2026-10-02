@@ -154,7 +154,7 @@ const Watch = () => {
       <Navigation />
       <div className="pt-20">
         {/* Hero Section */}
-        <section className="relative bg-black text-white overflow-hidden min-h-[calc(100vh-5rem)] flex items-center">
+        <section className="relative bg-plum-deep text-cream overflow-hidden min-h-[calc(100vh-5rem)] flex items-center">
           {watchData.hero_poster_url &&
           <div className="absolute inset-0">
               <img
@@ -162,18 +162,18 @@ const Watch = () => {
               alt=""
               className="w-full h-full object-cover opacity-40" />
 
-              <div className="absolute inset-0 bg-black/50" />
+              <div className="absolute inset-0 bg-plum-deep/60" />
             </div>
           }
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-black mb-6">{watchData.hero_title}</h1>
-              <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto mb-8">
+              <h1 className="font-display text-4xl md:text-6xl font-bold mb-6">{watchData.hero_title}</h1>
+              <p className="text-xl md:text-2xl text-cream/80 max-w-4xl mx-auto mb-8">
                 {watchData.hero_subtitle}
               </p>
               {watchData.hero_button_text &&
               <Button
-                className="bg-white text-black hover:bg-gray-100 font-bold text-lg px-8 py-4"
+                className="bg-gradient-amber text-primary hover:opacity-90 font-bold text-lg px-8 py-4"
                 onClick={() => {
                   if (watchData.hero_button_url) {
                     window.open(watchData.hero_button_url, '_blank');
@@ -192,17 +192,17 @@ const Watch = () => {
 
         {/* Live Service */}
         {hasWatchPageData && isLive &&
-        <section id="live-service-section" className="py-20 bg-white">
+        <section id="live-service-section" className="py-20 bg-card">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">{watchData.live_service_title}</h2>
-              <p className="text-lg text-gray-700 max-w-3xl mx-auto">
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">{watchData.live_service_title}</h2>
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 {watchData.live_service_description}
               </p>
             </div>
             
             <div className="max-w-4xl mx-auto">
-              <div className="aspect-video bg-black rounded-lg overflow-hidden mb-8">
+              <div className="aspect-video bg-plum-deep rounded-lg overflow-hidden mb-8">
                 {isLive && liveStreamUrl && getYouTubeEmbedUrl(liveStreamUrl) ?
                 <iframe
                   width="100%"
@@ -215,40 +215,40 @@ const Watch = () => {
                   className="w-full h-full" /> :
 
 
-                <div className="flex items-center justify-center h-full text-center text-white">
+                <div className="flex items-center justify-center h-full text-center text-cream">
                     <div>
                       <Play className="h-20 w-20 mx-auto mb-4 opacity-60" />
                       <p className="text-xl">TOT International Live Stream</p>
-                      <p className="text-gray-400">Next service: Sunday 9:00 AM EAT</p>
+                      <p className="text-cream/80">Next service: Sunday 9:00 AM EAT</p>
                     </div>
                   </div>
                 }
               </div>
               
               <div className="grid md:grid-cols-2 gap-8 text-center">
-                <div className="bg-gray-50 p-6 rounded-lg">
-                  <Calendar className="h-8 w-8 mx-auto mb-4 text-black" />
-                  <h3 className="text-xl font-bold text-black mb-2">Service Times</h3>
+                <div className="bg-lavender p-6 rounded-lg">
+                  <Calendar className="h-8 w-8 mx-auto mb-4 text-primary" />
+                  <h3 className="text-xl font-bold text-primary mb-2">Service Times</h3>
                   {watchData.service_times.split('\n').map((time, index) =>
-                  <p key={index} className="text-gray-700">{time}</p>
+                  <p key={index} className="text-muted-foreground">{time}</p>
                   )}
                 </div>
-                <div className="bg-gray-50 p-6 rounded-lg">
-                  <Clock className="h-8 w-8 mx-auto mb-4 text-black" />
-                  <h3 className="text-xl font-bold text-black mb-2">Duration</h3>
-                  <p className="text-gray-700">Approximately 2 hours</p>
-                  <p className="text-gray-700">Including worship & message</p>
+                <div className="bg-lavender p-6 rounded-lg">
+                  <Clock className="h-8 w-8 mx-auto mb-4 text-primary" />
+                  <h3 className="text-xl font-bold text-primary mb-2">Duration</h3>
+                  <p className="text-muted-foreground">Approximately 2 hours</p>
+                  <p className="text-muted-foreground">Including worship & message</p>
                 </div>
               </div>
             </div>
           </div>
         </section>
         }
-        <section className="py-20 bg-gray-50">
+        <section className="py-20 bg-lavender">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">Recent Messages</h2>
-              <p className="text-lg text-gray-700 max-w-3xl mx-auto">
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">Recent Messages</h2>
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 Catch up on powerful messages from Bishop Fred Akama and other anointed ministers.
               </p>
             </div>
@@ -256,20 +256,20 @@ const Watch = () => {
             {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8 max-w-2xl mx-auto">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="text"
                   placeholder="Search by message name..."
                   value={searchName}
                   onChange={(e) => setSearchName(e.target.value)}
-                  className="pl-10 bg-white border-gray-300"
+                  className="pl-10 bg-card border-border"
                 />
               </div>
               <Input
                 type="date"
                 value={filterDate}
                 onChange={(e) => setFilterDate(e.target.value)}
-                className="bg-white border-gray-300 sm:w-48"
+                className="bg-card border-border sm:w-48"
               />
             </div>
             
@@ -295,8 +295,8 @@ const Watch = () => {
                 <>
                   <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {displayed.map((sermon, index) => (
-                      <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                        <div className="aspect-video bg-black flex items-center justify-center">
+                      <div key={index} className="bg-card rounded-lg shadow-lg overflow-hidden">
+                        <div className="aspect-video bg-plum-deep flex items-center justify-center">
                           {sermon.video_url && getYouTubeEmbedUrl(sermon.video_url) ? (
                             <iframe
                               width="100%"
@@ -309,19 +309,19 @@ const Watch = () => {
                               className="w-full h-full"
                             />
                           ) : (
-                            <Play className="h-12 w-12 text-white opacity-60" />
+                            <Play className="h-12 w-12 text-cream opacity-60" />
                           )}
                         </div>
                         <div className="p-6">
-                          <h3 className="text-xl font-bold text-black mb-2">{sermon.title}</h3>
-                          <p className="text-gray-700 mb-4">{sermon.description}</p>
-                          <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
+                          <h3 className="text-xl font-bold text-primary mb-2">{sermon.title}</h3>
+                          <p className="text-muted-foreground mb-4">{sermon.description}</p>
+                          <div className="flex justify-between items-center text-sm text-muted-foreground mb-4">
                             <span>{sermon.date}</span>
                             <span>{sermon.duration}</span>
                           </div>
                           {sermon.video_url && (
                             <Button
-                              className="w-full bg-black text-white hover:bg-gray-800"
+                              className="w-full bg-gradient-amber text-primary hover:opacity-90"
                               onClick={() => window.open(sermon.video_url, '_blank')}
                             >
                               <Play className="mr-2 h-4 w-4" />
@@ -334,14 +334,14 @@ const Watch = () => {
                   </div>
 
                   {displayed.length === 0 && (
-                    <p className="text-center text-gray-500 py-12">No messages found matching your filters.</p>
+                    <p className="text-center text-muted-foreground py-12">No messages found matching your filters.</p>
                   )}
 
                   {hasMore && !showAll && (
                     <div className="text-center mt-12">
                       <Button
                         variant="outline"
-                        className="border-black text-black hover:bg-black hover:text-white"
+                        className="border-amber text-primary hover:bg-amber hover:text-primary"
                         onClick={() => setShowAll(true)}
                       >
                         View All Messages
@@ -353,7 +353,7 @@ const Watch = () => {
                     <div className="text-center mt-12">
                       <Button
                         variant="outline"
-                        className="border-black text-black hover:bg-black hover:text-white"
+                        className="border-amber text-primary hover:bg-amber hover:text-primary"
                         onClick={() => setShowAll(false)}
                       >
                         Show Less

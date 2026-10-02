@@ -159,19 +159,19 @@ const Events = () => {
   const getCategoryColor = (category: string) => {
     switch (category) {
       case "Weekly":
-        return "bg-blue-100 text-blue-800";
+        return "bg-amber/20 text-primary";
       case "Conference":
-        return "bg-purple-100 text-purple-800";
+        return "bg-amber/20 text-primary";
       case "Youth":
-        return "bg-green-100 text-green-800";
+        return "bg-amber/20 text-primary";
       case "Prayer":
-        return "bg-orange-100 text-orange-800";
+        return "bg-amber/20 text-primary";
       case "Marriage":
-        return "bg-pink-100 text-pink-800";
+        return "bg-amber/20 text-primary";
       case "Outreach":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-amber/20 text-primary";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-lavender text-muted-foreground";
     }
   };
   const eventsSchema = {
@@ -205,11 +205,11 @@ const Events = () => {
       <Navigation />
       <div className="pt-20">
         {/* Hero Section */}
-        <section className="relative bg-black text-white py-20">
+        <section className="relative bg-gradient-plum text-cream py-24 overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-black mb-6">EVENTS</h1>
-              <p className="text-xl md:text-2xl text-gray-300 max-w-4xl mx-auto">
+              <h1 className="font-display text-4xl md:text-6xl font-bold mb-6">EVENTS</h1>
+              <p className="text-xl md:text-2xl text-cream/80 max-w-4xl mx-auto">
                 Connect, grow, and serve together through our life-changing events and ministry gatherings.
               </p>
             </div>
@@ -217,11 +217,11 @@ const Events = () => {
         </section>
 
         {/* Upcoming Events */}
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-card">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">Upcoming Events</h2>
-              <p className="text-lg text-gray-700 max-w-3xl mx-auto">
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">Upcoming Events</h2>
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 Don't miss these powerful opportunities to encounter God and connect with the TOT family.
               </p>
             </div>
@@ -231,14 +231,14 @@ const Events = () => {
                     <Skeleton className="h-8 w-64 mb-4" />
                     <Skeleton className="h-4 w-full mb-2" />
                     <Skeleton className="h-4 w-3/4" />
-                  </Card>) : events.length > 0 ? events.map(event => <div key={event.id} className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                  </Card>) : events.length > 0 ? events.map(event => <div key={event.id} className="bg-card border border-border rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
                     <div className="flex flex-col lg:flex-row gap-6">
                       {event.image_url && <div className="lg:w-80 flex-shrink-0">
-                          <img src={event.image_url} alt={event.title} className="w-full h-full object-contain bg-gray-50" />
+                          <img src={event.image_url} alt={event.title} className="w-full h-full object-contain bg-lavender" />
                         </div>}
                       <div className="flex-1 p-6">
                         <div className="flex items-center gap-3 mb-3">
-                          <h3 className="text-2xl font-bold text-black">{event.title}</h3>
+                          <h3 className="text-2xl font-bold text-primary">{event.title}</h3>
                           {event.content_data.category && <Badge>{event.content_data.category}</Badge>}
                           {event.content_data.enable_rsvp && <Badge variant="secondary">
                               <Users className="h-3 w-3 mr-1" />
@@ -252,10 +252,10 @@ const Events = () => {
                           const displayText = !shouldTruncate || isExpanded
                             ? event.description
                             : event.description.slice(0, 100) + '...';
-                          return <p className="text-gray-700 mb-4 max-w-2xl">{displayText}</p>;
+                          return <p className="text-muted-foreground mb-4 max-w-2xl">{displayText}</p>;
                         })()}
                         
-                        <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-600">
+                        <div className="grid md:grid-cols-3 gap-4 text-sm text-muted-foreground">
                           {event.content_data.date && <div className="flex items-center gap-2">
                               <Calendar className="h-4 w-4" />
                               <span>{event.content_data.date}</span>
@@ -272,26 +272,26 @@ const Events = () => {
                       </div>
                       
                       <div className="flex flex-col gap-2 p-6 lg:p-0">
-                        {event.content_data.enable_rsvp ? <Button asChild className="bg-black text-white hover:bg-gray-800">
+                        {event.content_data.enable_rsvp ? <Button asChild className="bg-gradient-amber text-primary hover:opacity-90">
                             <Link to={`/events/${event.id}/register`}>Register Now</Link>
                           </Button> : <Button variant="outline" onClick={() => toggleExpanded(event.id)}>
                             {expandedEvents.has(event.id) ? 'Show Less' : 'Learn More'}
                           </Button>}
                       </div>
                     </div>
-                  </div>) : staticEvents.map((event, index) => <div key={index} className="bg-white border border-gray-200 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+                  </div>) : staticEvents.map((event, index) => <div key={index} className="bg-card border border-border rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-2xl font-bold text-black">{event.title}</h3>
+                        <h3 className="text-2xl font-bold text-primary">{event.title}</h3>
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${getCategoryColor(event.category)}`}>
                           {event.category}
                         </span>
                       </div>
                       
-                      <p className="text-gray-700 mb-4 max-w-2xl">{event.description}</p>
+                      <p className="text-muted-foreground mb-4 max-w-2xl">{event.description}</p>
                       
-                      <div className="grid md:grid-cols-3 gap-4 text-sm text-gray-600">
+                      <div className="grid md:grid-cols-3 gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4" />
                           <span>{event.date}</span>
@@ -308,7 +308,7 @@ const Events = () => {
                     </div>
                     
                     <div className="mt-4 lg:mt-0 lg:ml-6">
-                      <Button className="bg-black text-white hover:bg-gray-800 w-full lg:w-auto">
+                      <Button className="bg-gradient-amber text-primary hover:opacity-90 w-full lg:w-auto">
                         {event.recurring ? "Learn More" : "Register Now"}
                       </Button>
                     </div>
@@ -319,42 +319,42 @@ const Events = () => {
         </section>
 
         {/* Event Categories */}
-        <section className="py-20 bg-gray-50">
+        <section className="py-20 bg-lavender">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">Ministry Areas</h2>
-              <p className="text-lg text-gray-700 max-w-3xl mx-auto">
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">Ministry Areas</h2>
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 Discover different ways to grow in your faith and serve in God's kingdom.
               </p>
             </div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white p-6 rounded-lg text-center shadow-lg">
-                <Users className="h-12 w-12 mx-auto mb-4 text-black" />
-                <h3 className="text-xl font-bold text-black mb-2">Worship Services</h3>
-                <p className="text-gray-700">Weekly worship gatherings and special services</p>
+              <div className="bg-card p-6 rounded-lg text-center shadow-lg">
+                <Users className="h-12 w-12 mx-auto mb-4 text-primary" />
+                <h3 className="text-xl font-bold text-primary mb-2">Worship Services</h3>
+                <p className="text-muted-foreground">Weekly worship gatherings and special services</p>
               </div>
-              <div className="bg-white p-6 rounded-lg text-center shadow-lg">
-                <Calendar className="h-12 w-12 mx-auto mb-4 text-black" />
-                <h3 className="text-xl font-bold text-black mb-2">Conferences</h3>
-                <p className="text-gray-700">Annual conferences and revival meetings</p>
+              <div className="bg-card p-6 rounded-lg text-center shadow-lg">
+                <Calendar className="h-12 w-12 mx-auto mb-4 text-primary" />
+                <h3 className="text-xl font-bold text-primary mb-2">Conferences</h3>
+                <p className="text-muted-foreground">Annual conferences and revival meetings</p>
               </div>
-              <div className="bg-white p-6 rounded-lg text-center shadow-lg">
-                <Users className="h-12 w-12 mx-auto mb-4 text-black" />
-                <h3 className="text-xl font-bold text-black mb-2">Life Groups</h3>
-                <p className="text-gray-700">Small group fellowship and discipleship</p>
+              <div className="bg-card p-6 rounded-lg text-center shadow-lg">
+                <Users className="h-12 w-12 mx-auto mb-4 text-primary" />
+                <h3 className="text-xl font-bold text-primary mb-2">Life Groups</h3>
+                <p className="text-muted-foreground">Small group fellowship and discipleship</p>
               </div>
-              <div className="bg-white p-6 rounded-lg text-center shadow-lg">
-                <MapPin className="h-12 w-12 mx-auto mb-4 text-black" />
-                <h3 className="text-xl font-bold text-black mb-2">Outreach</h3>
-                <p className="text-gray-700">Community service and evangelism events</p>
+              <div className="bg-card p-6 rounded-lg text-center shadow-lg">
+                <MapPin className="h-12 w-12 mx-auto mb-4 text-primary" />
+                <h3 className="text-xl font-bold text-primary mb-2">Outreach</h3>
+                <p className="text-muted-foreground">Community service and evangelism events</p>
               </div>
             </div>
           </div>
         </section>
 
         {/* Contact for Events */}
-        <section className="py-20 bg-white">
+        <section className="py-20 bg-card">
           
         </section>
       </div>

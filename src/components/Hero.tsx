@@ -165,13 +165,13 @@ export const Hero = memo(() => {
       </div>
 
       {/* Content */}
-      <div className="relative flex items-center min-h-[calc(100vh-5rem)] py-16">
+      <div className="relative flex items-center min-h-[calc(100vh-5rem)] py-8 md:py-12">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 xl:px-16">
-          <div className="max-w-3xl">
-            <p className="eyebrow mb-5 flex items-center gap-3">
+          <div className="max-w-2xl">
+            <p className="eyebrow mb-4 flex items-center gap-3">
               <span className="h-px w-10 bg-accent" /> Welcome Home
             </p>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-[1.05]">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
               {(() => {
                 const h = content.heading || defaultContent.heading;
                 const words = h.split(" ");
@@ -180,7 +180,7 @@ export const Hero = memo(() => {
                 return <>{words.slice(0, cut).join(" ")}{" "}<span className="text-accent italic">{words.slice(cut).join(" ")}</span></>;
               })()}
             </h1>
-            <p className="text-lg md:text-xl mb-10 max-w-2xl text-primary-foreground/85 leading-relaxed">
+            <p className="text-base md:text-lg mb-6 max-w-xl text-primary-foreground/85 leading-relaxed">
               {content.subheading || defaultContent.subheading}
             </p>
 

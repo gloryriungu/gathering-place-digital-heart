@@ -21,43 +21,43 @@ const Give = () => {
     title: "Tithe",
     description: "Honor God with your first fruits and faithful stewardship",
     icon: Heart,
-    color: "text-red-600"
+    color: "text-amber"
   }, {
     type: "offering",
     title: "Offering",
     description: "Support ongoing ministry operations and programs",
     icon: Gift,
-    color: "text-blue-600"
+    color: "text-amber"
   }, {
     type: "seed",
     title: "Seed",
     description: "Sow a seed of faith for your future harvest",
     icon: Sprout,
-    color: "text-green-600"
+    color: "text-amber"
   }, {
     type: "mission",
     title: "Missions",
     description: "Partner in church planting across East Africa & beyond",
     icon: Globe,
-    color: "text-purple-600"
+    color: "text-amber"
   }, {
     type: "gift",
     title: "Special Gift",
     description: "One-time special gift to bless the ministry",
     icon: Package,
-    color: "text-orange-600"
+    color: "text-amber"
   }, {
     type: "thanksgiving",
     title: "Thanksgiving",
     description: "Express gratitude to God through generous giving",
     icon: HandHeart,
-    color: "text-pink-600"
+    color: "text-amber"
   }, {
     type: "others",
     title: "Custom Contribution",
     description: "Building fund, youth ministry, or specify your own",
     icon: Edit,
-    color: "text-indigo-600"
+    color: "text-amber"
   }];
   const impactAllocations = [{
     percentage: "35%",
@@ -350,24 +350,24 @@ const Give = () => {
             {/* Payment Methods */}
             <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
               <Card className="p-8 text-center">
-                <Smartphone className="h-16 w-16 mx-auto mb-4 text-green-600" />
+                <Smartphone className="h-16 w-16 mx-auto mb-4 text-amber" />
                 <h3 className="text-2xl font-bold text-foreground mb-2">M-Pesa</h3>
                 <p className="text-muted-foreground mb-4">
                   Instant mobile money via STK push. No card needed.
                 </p>
                 <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <CheckCircle className="h-4 w-4 text-amber" />
                   <span>Instant Processing</span>
                 </div>
               </Card>
               <Card className="p-8 text-center">
-                <CreditCard className="h-16 w-16 mx-auto mb-4 text-blue-600" />
+                <CreditCard className="h-16 w-16 mx-auto mb-4 text-amber" />
                 <h3 className="text-2xl font-bold text-foreground mb-2">Card Payment</h3>
                 <p className="text-muted-foreground mb-4">
                   Visa/Mastercard accepted. Powered by Paystack.
                 </p>
                 <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                  <Shield className="h-4 w-4 text-blue-600" />
+                  <Shield className="h-4 w-4 text-amber" />
                   <span>256-bit Encryption</span>
                 </div>
               </Card>
@@ -389,21 +389,21 @@ const Give = () => {
             
             <div className="grid md:grid-cols-3 gap-8">
               <Card className="p-8 text-center">
-                <Heart className="h-16 w-16 mx-auto mb-6 text-red-600" />
+                <Heart className="h-16 w-16 mx-auto mb-6 text-amber" />
                 <h3 className="text-2xl font-bold text-foreground mb-4">Honor God</h3>
                 <p className="text-muted-foreground">
                   Giving is an act of worship that honors God and acknowledges Him as the source of all blessings.
                 </p>
               </Card>
               <Card className="p-8 text-center">
-                <Users className="h-16 w-16 mx-auto mb-6 text-blue-600" />
+                <Users className="h-16 w-16 mx-auto mb-6 text-amber" />
                 <h3 className="text-2xl font-bold text-foreground mb-4">Build Kingdom</h3>
                 <p className="text-muted-foreground">
                   Your giving helps build God's kingdom, supporting ministries that transform lives and communities.
                 </p>
               </Card>
               <Card className="p-8 text-center">
-                <Globe className="h-16 w-16 mx-auto mb-6 text-purple-600" />
+                <Globe className="h-16 w-16 mx-auto mb-6 text-amber" />
                 <h3 className="text-2xl font-bold text-foreground mb-4">Reach Nations</h3>
                 <p className="text-muted-foreground">
                   Together we reach more people with the Gospel and plant churches across East Africa and beyond.

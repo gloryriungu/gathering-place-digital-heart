@@ -158,7 +158,7 @@ const Give = () => {
         <section className="relative bg-primary text-primary-foreground py-20 md:py-32">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-black mb-6 animate-fade-in">
+              <h1 className="font-display text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
                 GIVE WITH IMPACT
               </h1>
               <p className="text-xl md:text-2xl text-primary-foreground/80 max-w-4xl mx-auto mb-8">
@@ -215,7 +215,7 @@ const Give = () => {
         <section id="impact" className="py-20 bg-muted/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+              <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
                 Where Your Giving Goes
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -253,7 +253,7 @@ const Give = () => {
         <section className="py-20 bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+              <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
                 Choose Your Contribution Type
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -299,7 +299,7 @@ const Give = () => {
         <section className="py-20 bg-muted/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+              <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
                 How It Works
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -379,7 +379,7 @@ const Give = () => {
         <section className="py-20 bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+              <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
                 Why We Give
               </h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
@@ -426,7 +426,7 @@ const Give = () => {
                 <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
               </svg>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-8">
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-8">
               What God Says About Giving
             </h2>
             <blockquote className="text-2xl md:text-3xl font-light mb-6 leading-relaxed">
@@ -441,7 +441,7 @@ const Give = () => {
         <section className="py-20 bg-background">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+              <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
                 Frequently Asked Questions
               </h2>
               <p className="text-lg text-muted-foreground">
@@ -465,7 +465,7 @@ const Give = () => {
         {/* Footer CTA Section */}
         <section className="py-20 bg-muted/30">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
+            <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-6">
               Ready to Make a Difference?
             </h2>
             <p className="text-lg text-muted-foreground mb-8">

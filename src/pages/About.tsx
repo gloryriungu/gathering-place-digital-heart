@@ -145,7 +145,7 @@ const About = () => {
         <section className="relative bg-gradient-plum text-cream py-24 overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-black mb-6">{content.hero_title}</h1>
+              <h1 className="font-display text-4xl md:text-6xl font-bold mb-6">{content.hero_title}</h1>
               <p className="text-xl md:text-2xl text-cream/80 max-w-4xl mx-auto">
                 {content.hero_subtitle}
               </p>
@@ -158,7 +158,7 @@ const About = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-primary mb-6">{content.story_title}</h2>
+                <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-6">{content.story_title}</h2>
                 <div className="text-lg text-muted-foreground whitespace-pre-line">
                   {content.story_content}
                 </div>
@@ -184,7 +184,7 @@ const About = () => {
         <section className="py-20 bg-lavender">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">What We Believe</h2>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">What We Believe</h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 Our faith is anchored on the unchanging Word of God and the transformative power of Jesus Christ.
               </p>
@@ -204,7 +204,7 @@ const About = () => {
         <section className="py-20 bg-card">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">Our Leadership</h2>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">Our Leadership</h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 God has raised up anointed leaders to guide and shepherd our church family with wisdom, love, and biblical truth.
               </p>
@@ -236,13 +236,13 @@ const About = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid md:grid-cols-2 gap-12">
               <div className="text-center">
-                <h2 className="text-3xl md:text-4xl font-bold mb-6">OUR VISION</h2>
+                <h2 className="font-display text-3xl md:text-4xl font-bold mb-6">OUR VISION</h2>
                 <p className="text-lg text-cream/80 leading-relaxed">
                   {content.vision_text}
                 </p>
               </div>
               <div className="text-center">
-                <h2 className="text-3xl md:text-4xl font-bold mb-6">OUR MISSION</h2>
+                <h2 className="font-display text-3xl md:text-4xl font-bold mb-6">OUR MISSION</h2>
                 <p className="text-lg text-cream/80 leading-relaxed">
                   {content.mission_text}
                 </p>

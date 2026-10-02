@@ -208,7 +208,7 @@ const Events = () => {
         <section className="relative bg-gradient-plum text-cream py-24 overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-black mb-6">EVENTS</h1>
+              <h1 className="font-display text-4xl md:text-6xl font-bold mb-6">EVENTS</h1>
               <p className="text-xl md:text-2xl text-cream/80 max-w-4xl mx-auto">
                 Connect, grow, and serve together through our life-changing events and ministry gatherings.
               </p>
@@ -220,7 +220,7 @@ const Events = () => {
         <section className="py-20 bg-card">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">Upcoming Events</h2>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">Upcoming Events</h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 Don't miss these powerful opportunities to encounter God and connect with the TOT family.
               </p>
@@ -322,7 +322,7 @@ const Events = () => {
         <section className="py-20 bg-lavender">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">Ministry Areas</h2>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">Ministry Areas</h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 Discover different ways to grow in your faith and serve in God's kingdom.
               </p>

@@ -167,7 +167,7 @@ const Watch = () => {
           }
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <h1 className="text-4xl md:text-6xl font-black mb-6">{watchData.hero_title}</h1>
+              <h1 className="font-display text-4xl md:text-6xl font-bold mb-6">{watchData.hero_title}</h1>
               <p className="text-xl md:text-2xl text-cream/80 max-w-4xl mx-auto mb-8">
                 {watchData.hero_subtitle}
               </p>
@@ -195,7 +195,7 @@ const Watch = () => {
         <section id="live-service-section" className="py-20 bg-card">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">{watchData.live_service_title}</h2>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">{watchData.live_service_title}</h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 {watchData.live_service_description}
               </p>
@@ -247,7 +247,7 @@ const Watch = () => {
         <section className="py-20 bg-lavender">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
-              <h2 className="text-3xl md:text-4xl font-bold text-primary mb-4">Recent Messages</h2>
+              <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">Recent Messages</h2>
               <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
                 Catch up on powerful messages from Bishop Fred Akama and other anointed ministers.
               </p>
@@ -256,7 +256,7 @@ const Watch = () => {
             {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8 max-w-2xl mx-auto">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-cream/80" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="text"
                   placeholder="Search by message name..."

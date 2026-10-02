@@ -141,8 +141,19 @@ export const Navigation = memo(() => {
   const showSignIn = Boolean(user) || isVisible("sign_in_button");
 
 
+  const isHome = location.pathname === "/";
+  const [heroRevealed, setHeroRevealed] = useState<boolean>(() => typeof window !== "undefined" && Boolean((window as any).__heroRevealed));
+  useEffect(() => {
+    if (!isHome) return;
+    setHeroRevealed(Boolean((window as any).__heroRevealed));
+    const onReveal = () => setHeroRevealed(true);
+    window.addEventListener("hero-revealed", onReveal);
+    return () => window.removeEventListener("hero-revealed", onReveal);
+  }, [isHome]);
+  const navHidden = isHome && !heroRevealed;
+
   return (
-    <nav className="fixed top-0 w-full z-50 bg-primary/95 backdrop-blur-md border-b border-primary-foreground/10">
+    <nav className={`fixed top-0 w-full z-50 bg-primary/95 backdrop-blur-md border-b border-primary-foreground/10 transition-all duration-500 ${navHidden ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 gap-4">
           {/* Logo */}

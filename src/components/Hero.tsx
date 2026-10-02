@@ -19,7 +19,7 @@
 
 import { useEffect, useState, memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Play, MapPin } from "lucide-react";
+import { Play, MapPin, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
@@ -48,6 +48,29 @@ export const Hero = memo(() => {
   const [heroContent, setHeroContent] = useState<HeroContent | null>(null);
   const [loading, setLoading] = useState(true);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [revealed, setRevealed] = useState<boolean>(() => typeof window !== "undefined" && (Boolean((window as any).__heroRevealed) || window.scrollY > 30));
+
+  const reveal = useCallback(() => {
+    (window as any).__heroRevealed = true;
+    setRevealed(true);
+    window.dispatchEvent(new Event("hero-revealed"));
+  }, []);
+
+  useEffect(() => {
+    if (revealed) { reveal(); return; }
+    const onScroll = () => { if (window.scrollY > 10) reveal(); };
+    const opts = { passive: true } as AddEventListenerOptions;
+    window.addEventListener("scroll", onScroll, opts);
+    window.addEventListener("wheel", reveal, opts);
+    window.addEventListener("touchstart", reveal, opts);
+    window.addEventListener("keydown", reveal);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("wheel", reveal);
+      window.removeEventListener("touchstart", reveal);
+      window.removeEventListener("keydown", reveal);
+    };
+  }, [revealed, reveal]);
 
   const fetchHeroContent = useCallback(async () => {
     try {
@@ -132,7 +155,7 @@ export const Hero = memo(() => {
   const backgroundVideo = (content as any).background_video || (content as any).video_url || defaultContent.video_url;
   const backgroundImage = (content as any).background_image || (content as any).image_url || defaultContent.image_url;
 
-  return <section className="relative min-h-screen bg-primary text-primary-foreground overflow-hidden pt-20">
+  return <section onClick={reveal} className="relative min-h-screen bg-primary text-primary-foreground overflow-hidden">
       {/* Background Image (immediate) */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-300"
@@ -155,17 +178,25 @@ export const Hero = memo(() => {
         </video>
       )}
       
-      <div className="absolute inset-0 bg-gradient-to-r from-plum-deep/90 via-primary/70 to-primary/30"></div>
+      <div className={`absolute inset-0 bg-gradient-to-r from-plum-deep/90 via-primary/70 to-primary/30 transition-opacity duration-700 ${revealed ? "opacity-100" : "opacity-0"}`}></div>
 
       {/* Decorative line arcs */}
-      <div aria-hidden className="pointer-events-none absolute -right-40 top-1/2 -translate-y-1/2 hidden md:block">
+      <div aria-hidden className={`pointer-events-none absolute -right-40 top-1/2 -translate-y-1/2 hidden md:block transition-opacity duration-700 ${revealed ? "opacity-100" : "opacity-0"}`}>
         <div className="h-[640px] w-[640px] rounded-full border border-accent/25" />
         <div className="absolute inset-16 rounded-full border border-accent/20" />
         <div className="absolute inset-32 rounded-full border border-accent/15" />
       </div>
 
+      {/* Tap / scroll cue */}
+      {!revealed && (
+        <button type="button" onClick={reveal} className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-primary-foreground/90 animate-pulse">
+          <span className="rounded-full border border-accent/60 bg-primary/30 backdrop-blur-sm px-5 py-2 text-xs font-semibold tracking-[0.2em]">TAP OR SCROLL TO ENTER</span>
+          <ChevronDown className="h-5 w-5 text-accent" />
+        </button>
+      )}
+
       {/* Content */}
-      <div className="relative flex items-center min-h-[calc(100vh-5rem)] py-8 md:py-12">
+      <div className={`relative flex items-center min-h-screen pt-20 py-8 md:py-12 transition-all duration-700 ${revealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6 pointer-events-none"}`}>
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 xl:px-16">
           <div className="max-w-2xl">
             <p className="eyebrow mb-4 flex items-center gap-3">

@@ -155,7 +155,7 @@ const Give = () => {
       
       <div className="pt-20">
         {/* Hero Section */}
-        <section className="relative bg-primary text-primary-foreground py-20 md:py-32">
+        <section className="relative bg-gradient-plum text-cream py-20 md:py-32 overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <h1 className="font-display text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
@@ -182,10 +182,10 @@ const Give = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-                <Button onClick={() => handleGiveClick()} size="lg" className="bg-background text-foreground hover:bg-background/90 font-bold text-lg px-8 py-6">
+                <Button onClick={() => handleGiveClick()} size="lg" className="font-bold text-lg px-8 py-6">
                   Give Now
                 </Button>
-                <Button variant="outline" size="lg" className="border-primary-foreground hover:bg-primary-foreground font-bold text-lg px-8 py-6 text-secondary-foreground" onClick={() => document.getElementById('impact')?.scrollIntoView({
+                <Button variant="outline" size="lg" className="border-amber bg-transparent text-cream hover:bg-amber hover:text-primary font-bold text-lg px-8 py-6" onClick={() => document.getElementById('impact')?.scrollIntoView({
                 behavior: 'smooth'
               })}>
                   See Your Impact

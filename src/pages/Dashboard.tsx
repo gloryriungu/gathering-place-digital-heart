@@ -130,6 +130,7 @@ import { ProgramQuestionsEditor } from "@/components/pastor/ProgramQuestionsEdit
 import { CandidateProgressViewer } from "@/components/pastor/CandidateProgressViewer";
 import { MyDownloads } from "@/components/dashboard/MyDownloads";
 import { MyMilestones } from "@/components/dashboard/MyMilestones";
+import FaithJournal from "@/components/dashboard/FaithJournal";
 import { CalendarHeart } from "lucide-react";
 import { CookieConsentManager } from "@/components/admin/CookieConsentManager";
 

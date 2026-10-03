@@ -2601,6 +2601,45 @@ export type Database = {
           },
         ]
       }
+      user_journal_entries: {
+        Row: {
+          answered_date: string | null
+          answered_notes: string | null
+          category: string
+          content: string
+          created_at: string
+          id: string
+          is_answered: boolean
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answered_date?: string | null
+          answered_notes?: string | null
+          category?: string
+          content: string
+          created_at?: string
+          id?: string
+          is_answered?: boolean
+          title: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          answered_date?: string | null
+          answered_notes?: string | null
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_answered?: boolean
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_milestones: {
         Row: {
           category: string

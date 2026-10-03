@@ -130,6 +130,7 @@ import { ProgramQuestionsEditor } from "@/components/pastor/ProgramQuestionsEdit
 import { CandidateProgressViewer } from "@/components/pastor/CandidateProgressViewer";
 import { MyDownloads } from "@/components/dashboard/MyDownloads";
 import { MyMilestones } from "@/components/dashboard/MyMilestones";
+import FaithJournal from "@/components/dashboard/FaithJournal";
 import { CalendarHeart } from "lucide-react";
 import { CookieConsentManager } from "@/components/admin/CookieConsentManager";
 
@@ -242,6 +243,7 @@ const Dashboard = () => {
     const baseTabs = [
       { value: "overview", label: "Overview", icon: Calendar },
       { value: "milestones", label: "My Milestones", icon: CalendarHeart },
+      { value: "journal", label: "Faith Journal", icon: BookOpen },
       { value: "give", label: "Give", icon: Heart },
       { value: "my-downloads", label: "My Downloads", icon: BookOpen },
       { value: "profile", label: "Profile", icon: Users },
@@ -539,6 +541,10 @@ const Dashboard = () => {
 
             <TabsContent value="milestones">
               <MyMilestones />
+            </TabsContent>
+
+            <TabsContent value="journal">
+              <FaithJournal />
             </TabsContent>
 
             <TabsContent value="my-downloads">

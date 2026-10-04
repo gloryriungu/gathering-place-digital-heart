@@ -39,6 +39,7 @@ const contributionTypes = [
   { value: "building_fund", label: "Building Fund" },
   { value: "community_outreach", label: "Community Outreach" },
   { value: "special_offering", label: "Special Offering" },
+  { value: "sunday_school", label: "Sunday School" },
   { value: "others", label: "Others" },
 ];
 

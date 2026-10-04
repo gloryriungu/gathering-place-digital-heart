@@ -102,10 +102,17 @@ export function getContributionTypeLabel(type: string): string {
   const labels: Record<string, string> = {
     tithe: 'Tithe',
     offering: 'Offering',
+    gift: 'Gift',
+    gift_1: 'Gift 1',
+    gift_2: 'Gift 2',
+    seed: 'Seed',
+    mission: 'Mission',
+    thanksgiving: 'Thanksgiving',
     building_fund: 'Building Fund',
     missions: 'Missions',
     community_outreach: 'Community Outreach',
     special_offering: 'Special Offering',
+    sunday_school: 'Sunday School',
   };
   return labels[type] || type;
 }

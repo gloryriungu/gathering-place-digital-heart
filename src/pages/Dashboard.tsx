@@ -131,7 +131,8 @@ import { CandidateProgressViewer } from "@/components/pastor/CandidateProgressVi
 import { MyDownloads } from "@/components/dashboard/MyDownloads";
 import { MyMilestones } from "@/components/dashboard/MyMilestones";
 import FaithJournal from "@/components/dashboard/FaithJournal";
-import { CalendarHeart } from "lucide-react";
+import { CalendarHeart, Sparkles } from "lucide-react";
+import QuarterInReview from "@/components/dashboard/QuarterInReview";
 import { CookieConsentManager } from "@/components/admin/CookieConsentManager";
 
 const Dashboard = () => {
@@ -244,6 +245,7 @@ const Dashboard = () => {
       { value: "overview", label: "Overview", icon: Calendar },
       { value: "milestones", label: "My Milestones", icon: CalendarHeart },
       { value: "journal", label: "Faith Journal", icon: BookOpen },
+      { value: "quarter-review", label: "Quarter in Review", icon: Sparkles },
       { value: "give", label: "Give", icon: Heart },
       { value: "my-downloads", label: "My Downloads", icon: BookOpen },
       { value: "profile", label: "Profile", icon: Users },
@@ -545,6 +547,10 @@ const Dashboard = () => {
 
             <TabsContent value="journal">
               <FaithJournal />
+            </TabsContent>
+
+            <TabsContent value="quarter-review">
+              <QuarterInReview />
             </TabsContent>
 
             <TabsContent value="my-downloads">

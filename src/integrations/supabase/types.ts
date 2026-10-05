@@ -1827,6 +1827,48 @@ export type Database = {
           },
         ]
       }
+      quarterly_reviews: {
+        Row: {
+          completed_at: string
+          created_at: string
+          favorite_space: string
+          id: string
+          metrics_snapshot: Json
+          quarter: string
+          session_duration: string
+          spiritual_theme_word: string | null
+          typical_time_of_day: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          favorite_space: string
+          id?: string
+          metrics_snapshot?: Json
+          quarter: string
+          session_duration: string
+          spiritual_theme_word?: string | null
+          typical_time_of_day: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          favorite_space?: string
+          id?: string
+          metrics_snapshot?: Json
+          quarter?: string
+          session_duration?: string
+          spiritual_theme_word?: string | null
+          typical_time_of_day?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       rate_limit_tracking: {
         Row: {
           created_at: string

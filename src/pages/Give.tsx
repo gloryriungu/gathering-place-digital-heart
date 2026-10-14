@@ -149,7 +149,7 @@ const Give = () => {
                   Give Now
                 </Button>
                 <Button variant="outline" size="lg" className="border-amber bg-transparent text-cream hover:bg-amber hover:text-primary font-bold text-lg px-8 py-6" onClick={() => {
-                const el = document.getElementById('how-it-works');
+                const el = document.getElementById('why-we-give');
                 if (el) window.scrollTo({
                   top: el.getBoundingClientRect().top + window.scrollY - 96,
                   behavior: 'smooth'
@@ -305,7 +305,7 @@ const Give = () => {
         </section>
 
         {/* Why We Give */}
-        <section className="py-20 bg-background">
+        <section id="why-we-give" className="py-20 bg-background">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">

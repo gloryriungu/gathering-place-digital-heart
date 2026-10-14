@@ -2,7 +2,7 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, Gift, Users, Globe, Sprout, Package, Edit, Smartphone, CreditCard, Shield, Lock, CheckCircle, TrendingUp, DollarSign, HandHeart, ChevronDown } from "lucide-react";
+import { Heart, Gift, Users, Globe, Sprout, Package, Edit, Smartphone, CreditCard, Shield, Lock, CheckCircle, DollarSign, HandHeart, ChevronDown } from "lucide-react";
 import { GivingForm } from "@/components/giving/GivingForm";
 import { useState } from "react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -58,27 +58,6 @@ const Give = () => {
     description: "Building fund, youth ministry, or specify your own",
     icon: Edit,
     color: "text-amber"
-  }];
-  const impactAllocations = [{
-    percentage: "35%",
-    title: "MISSIONS",
-    description: "Global missions & church planting",
-    icon: Globe
-  }, {
-    percentage: "30%",
-    title: "MINISTRY",
-    description: "Life-changing programs & events",
-    icon: Users
-  }, {
-    percentage: "20%",
-    title: "COMMUNITY",
-    description: "Outreach & feeding initiatives",
-    icon: Heart
-  }, {
-    percentage: "15%",
-    title: "OPERATIONS",
-    description: "Facilities & staff support",
-    icon: TrendingUp
   }];
   const testimonials = [{
     quote: "Giving has transformed my life. I've experienced God's faithfulness in ways I never imagined.",
@@ -211,44 +190,6 @@ const Give = () => {
                   <span>100% Secure</span>
                 </div>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Impact Allocation Section */}
-        <section id="impact" className="py-20 bg-muted/30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">
-                Where Your Giving Goes
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                Every contribution is strategically allocated to maximize kingdom impact
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {impactAllocations.map((allocation, index) => {
-              const IconComponent = allocation.icon;
-              return <Card key={index} className="p-8 text-center hover:shadow-lg transition-all">
-                    <div className="mb-4">
-                      <IconComponent className="h-12 w-12 mx-auto text-primary" />
-                    </div>
-                    <div className="text-5xl font-black text-primary mb-2">
-                      {allocation.percentage}
-                    </div>
-                    <h3 className="text-xl font-bold text-foreground mb-2">
-                      {allocation.title}
-                    </h3>
-                    <p className="text-muted-foreground text-sm">
-                      {allocation.description}
-                    </p>
-                  </Card>;
-            })}
-            </div>
-
-            <div className="text-center mt-8">
-              
             </div>
           </div>
         </section>

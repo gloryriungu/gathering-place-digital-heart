@@ -114,7 +114,7 @@ export const Navigation = memo(() => {
 
   const allNavItems = [
     { key: "about", name: "ABOUT", href: "/about" },
-    { key: "watch", name: "WATCH", href: "/watch" },
+    { key: "watch", name: "SERMONS", href: "/watch" },
     { key: "events", name: "EVENTS", href: "/events" },
     { key: "give", name: "GIVE", href: "/give" },
     { key: "shop", name: "SHOP", href: "/shop" },

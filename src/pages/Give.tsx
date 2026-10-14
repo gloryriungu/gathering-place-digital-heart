@@ -409,20 +409,6 @@ const Give = () => {
                 View Giving History
               </Button>
             </div>
-            <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-              <button className="hover:text-foreground transition-colors">
-                Contact Finance Team
-              </button>
-              <span className="text-muted-foreground/30">|</span>
-              <button className="hover:text-foreground transition-colors">
-                View Financial Reports
-              </button>
-              <span className="text-muted-foreground/30">|</span>
-              <button className="hover:text-foreground transition-colors">
-                Download Tax Receipt
-              </button>
-            </div>
-          </div>
         </section>
       </div>
 

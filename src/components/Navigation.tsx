@@ -156,15 +156,21 @@ export const Navigation = memo(() => {
     <nav className={`fixed top-0 w-full z-50 bg-primary/95 backdrop-blur-md border-b border-primary-foreground/10 transition-all duration-500 ${navHidden ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20 gap-4">
-          {/* Logo */}
-          <div className="flex-shrink-0">
-            <Link to="/" className="flex items-center">
-              <img src={logo} alt="TOT International" className="h-11 w-11 lg:h-12 lg:w-12 object-contain" />
-            </Link>
-          </div>
+          {/* Logo + brand identity */}
+          <Link to="/" className="flex items-center gap-2.5 lg:gap-3 min-w-0">
+            <img src={logo} alt="TOT International" className="h-11 w-11 lg:h-12 lg:w-12 object-contain flex-shrink-0" />
+            <div className="min-w-0 leading-tight">
+              <div className="font-display font-semibold text-primary-foreground text-[10px] sm:text-sm lg:text-base xl:text-lg tracking-wide whitespace-nowrap">
+                TENT OF TESTIMONIES INTERNATIONAL
+              </div>
+              <div className="text-accent text-[8px] sm:text-[10px] lg:text-[11px] tracking-[0.25em] uppercase whitespace-nowrap">
+                Home of Supernatural Solutions
+              </div>
+            </div>
+          </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-6 xl:gap-8">
+          <div className="hidden lg:flex items-center gap-4 xl:gap-6">
             {navItems.map((item) => (
               <Link
                 key={item.name}
@@ -203,8 +209,8 @@ export const Navigation = memo(() => {
 
           {/* Right cluster: icons + CTAs */}
           <div className="hidden lg:flex items-center gap-4">
-            {/* Social Links — only on wide screens to keep the bar uncluttered */}
-            <div className="hidden 2xl:flex items-center gap-3 pr-3 border-r border-white/15">
+            {/* Social Links — shown together with the divider so nothing vanishes independently of zoom */}
+            <div className="hidden xl:flex items-center gap-2.5 pr-3 border-r border-white/15">
               {socialLinks.map((social) => (
                 <a
                   key={social.platform}
@@ -240,9 +246,6 @@ export const Navigation = memo(() => {
               </Link>
             </div>
             )}
-
-            {/* Divider */}
-            <span className="h-6 w-px bg-white/15" aria-hidden="true" />
 
             {/* CTAs */}
             <PortalSwitcher variant="outline" className="bg-transparent text-white hover:bg-white hover:text-black font-semibold border-white/30 h-9 px-3" />

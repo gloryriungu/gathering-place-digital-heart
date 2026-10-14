@@ -192,7 +192,7 @@ const Give = () => {
                   behavior: 'smooth'
                 });
               }}>
-                  See Your Impact
+                  Why Give
                 </Button>
               </div>
 

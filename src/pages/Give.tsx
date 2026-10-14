@@ -185,9 +185,13 @@ const Give = () => {
                 <Button onClick={() => handleGiveClick()} size="lg" className="font-bold text-lg px-8 py-6">
                   Give Now
                 </Button>
-                <Button variant="outline" size="lg" className="border-amber bg-transparent text-cream hover:bg-amber hover:text-primary font-bold text-lg px-8 py-6" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({
-                behavior: 'smooth'
-              })}>
+                <Button variant="outline" size="lg" className="border-amber bg-transparent text-cream hover:bg-amber hover:text-primary font-bold text-lg px-8 py-6" onClick={() => {
+                const el = document.getElementById('how-it-works');
+                if (el) window.scrollTo({
+                  top: el.getBoundingClientRect().top + window.scrollY - 96,
+                  behavior: 'smooth'
+                });
+              }}>
                   See Your Impact
                 </Button>
               </div>

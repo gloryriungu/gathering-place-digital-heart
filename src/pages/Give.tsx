@@ -143,22 +143,6 @@ const Give = () => {
               <p className="text-xl md:text-2xl text-primary-foreground/80 max-w-4xl mx-auto mb-8">
                 Partner with us in advancing God's kingdom. Your faithful giving transforms lives across East Africa and beyond.
               </p>
-              
-              {/* Stats */}
-              <div className="flex flex-wrap justify-center gap-8 mb-10">
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold">500+</div>
-                  <div className="text-sm text-primary-foreground/70">Active Partners</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold">35%</div>
-                  <div className="text-sm text-primary-foreground/70">Goes to Missions</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold">100%</div>
-                  <div className="text-sm text-primary-foreground/70">Goes to Ministry</div>
-                </div>
-              </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
                 <Button onClick={() => handleGiveClick()} size="lg" className="font-bold text-lg px-8 py-6">

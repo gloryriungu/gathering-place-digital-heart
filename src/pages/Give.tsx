@@ -409,6 +409,7 @@ const Give = () => {
                 View Giving History
               </Button>
             </div>
+          </div>
         </section>
       </div>
 

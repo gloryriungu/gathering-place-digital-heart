@@ -185,9 +185,13 @@ const Give = () => {
                 <Button onClick={() => handleGiveClick()} size="lg" className="font-bold text-lg px-8 py-6">
                   Give Now
                 </Button>
-                <Button variant="outline" size="lg" className="border-amber bg-transparent text-cream hover:bg-amber hover:text-primary font-bold text-lg px-8 py-6" onClick={() => document.getElementById('impact')?.scrollIntoView({
-                behavior: 'smooth'
-              })}>
+                <Button variant="outline" size="lg" className="border-amber bg-transparent text-cream hover:bg-amber hover:text-primary font-bold text-lg px-8 py-6" onClick={() => {
+                const el = document.getElementById('how-it-works');
+                if (el) window.scrollTo({
+                  top: el.getBoundingClientRect().top + window.scrollY - 96,
+                  behavior: 'smooth'
+                });
+              }}>
                   See Your Impact
                 </Button>
               </div>
@@ -296,7 +300,7 @@ const Give = () => {
         </section>
 
         {/* How It Works Section */}
-        <section className="py-20 bg-muted/30">
+        <section id="how-it-works" className="py-20 bg-muted/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
               <h2 className="font-display text-3xl md:text-5xl font-bold text-foreground mb-4">

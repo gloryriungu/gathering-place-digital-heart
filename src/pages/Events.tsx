@@ -318,40 +318,6 @@ const Events = () => {
           </div>
         </section>
 
-        {/* Event Categories */}
-        <section className="py-20 bg-lavender">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">Ministry Areas</h2>
-              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                Discover different ways to grow in your faith and serve in God's kingdom.
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-card p-6 rounded-lg text-center shadow-lg">
-                <Users className="h-12 w-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-xl font-bold text-primary mb-2">Worship Services</h3>
-                <p className="text-muted-foreground">Weekly worship gatherings and special services</p>
-              </div>
-              <div className="bg-card p-6 rounded-lg text-center shadow-lg">
-                <Calendar className="h-12 w-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-xl font-bold text-primary mb-2">Conferences</h3>
-                <p className="text-muted-foreground">Annual conferences and revival meetings</p>
-              </div>
-              <div className="bg-card p-6 rounded-lg text-center shadow-lg">
-                <Users className="h-12 w-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-xl font-bold text-primary mb-2">Life Groups</h3>
-                <p className="text-muted-foreground">Small group fellowship and discipleship</p>
-              </div>
-              <div className="bg-card p-6 rounded-lg text-center shadow-lg">
-                <MapPin className="h-12 w-12 mx-auto mb-4 text-primary" />
-                <h3 className="text-xl font-bold text-primary mb-2">Outreach</h3>
-                <p className="text-muted-foreground">Community service and evangelism events</p>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* Contact for Events */}
         <section className="py-20 bg-card">

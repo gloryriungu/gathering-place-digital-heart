@@ -170,7 +170,7 @@ export const Navigation = memo(() => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-6 xl:gap-8">
+          <div className="hidden lg:flex items-center gap-4 xl:gap-6">
             {navItems.map((item) => (
               <Link
                 key={item.name}
@@ -246,9 +246,6 @@ export const Navigation = memo(() => {
               </Link>
             </div>
             )}
-
-            {/* Divider */}
-            <span className="h-6 w-px bg-white/15" aria-hidden="true" />
 
             {/* CTAs */}
             <PortalSwitcher variant="outline" className="bg-transparent text-white hover:bg-white hover:text-black font-semibold border-white/30 h-9 px-3" />

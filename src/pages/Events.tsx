@@ -98,6 +98,12 @@ const Events = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+  useEffect(() => {
+    if (loading || !window.location.hash) return;
+    const id = window.location.hash.slice(1);
+    const t = setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+    return () => clearTimeout(t);
+  }, [loading]);
   const fetchEvents = async () => {
     const {
       data

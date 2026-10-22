@@ -214,7 +214,7 @@ const UpcomingEvents = () => {
                       </Button>
                     ) : (
                       <Button asChild variant="outline" className="w-full">
-                        <Link to="/events">Learn More<ArrowRight className="h-4 w-4 ml-2" /></Link>
+                        <Link to={event.id ? `/events#event-${event.id}` : '/events'}>Learn More<ArrowRight className="h-4 w-4 ml-2" /></Link>
                       </Button>
                     )}
                   </div>

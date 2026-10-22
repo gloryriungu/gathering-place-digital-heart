@@ -98,6 +98,12 @@ const Events = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+  useEffect(() => {
+    if (loading || !window.location.hash) return;
+    const id = window.location.hash.slice(1);
+    const t = setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150);
+    return () => clearTimeout(t);
+  }, [loading]);
   const fetchEvents = async () => {
     const {
       data
@@ -226,60 +232,45 @@ const Events = () => {
               </p>
             </div>
             
-            <div className="grid gap-8">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {loading ? [...Array(3)].map((_, i) => <Card key={i} className="p-6">
-                    <Skeleton className="h-8 w-64 mb-4" />
-                    <Skeleton className="h-4 w-full mb-2" />
-                    <Skeleton className="h-4 w-3/4" />
-                  </Card>) : events.length > 0 ? events.map(event => <div key={event.id} className="bg-card border border-border rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                    <div className="flex flex-col lg:flex-row gap-6">
-                      {event.image_url && <div className="lg:w-80 flex-shrink-0">
-                          <img src={event.image_url} alt={event.title} className="w-full h-full object-contain bg-lavender" />
-                        </div>}
-                      <div className="flex-1 p-6">
-                        <div className="flex items-center gap-3 mb-3">
-                          <h3 className="text-2xl font-bold text-primary">{event.title}</h3>
-                          {event.content_data.category && <Badge>{event.content_data.category}</Badge>}
-                          {event.content_data.enable_rsvp && <Badge variant="secondary">
-                              <Users className="h-3 w-3 mr-1" />
-                              RSVP Open
-                            </Badge>}
-                        </div>
-                        
-                        {(() => {
-                          const isExpanded = expandedEvents.has(event.id);
-                          const shouldTruncate = event.description && event.description.length > 100;
-                          const displayText = !shouldTruncate || isExpanded
-                            ? event.description
-                            : event.description.slice(0, 100) + '...';
-                          return <p className="text-muted-foreground mb-4 max-w-2xl">{displayText}</p>;
-                        })()}
-                        
-                        <div className="grid md:grid-cols-3 gap-4 text-sm text-muted-foreground">
-                          {event.content_data.date && <div className="flex items-center gap-2">
-                              <Calendar className="h-4 w-4" />
-                              <span>{event.content_data.date}</span>
-                            </div>}
-                          {event.content_data.time && <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4" />
-                              <span>{event.content_data.time}</span>
-                            </div>}
-                          {event.content_data.location && <div className="flex items-center gap-2">
-                              <MapPin className="h-4 w-4" />
-                              <span>{event.content_data.location}</span>
-                            </div>}
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col gap-2 p-6 lg:p-0">
-                        {event.content_data.enable_rsvp ? <Button asChild className="bg-gradient-amber text-primary hover:opacity-90">
-                            <Link to={`/events/${event.id}/register`}>Register Now</Link>
-                          </Button> : <Button variant="outline" onClick={() => toggleExpanded(event.id)}>
-                            {expandedEvents.has(event.id) ? 'Show Less' : 'Learn More'}
-                          </Button>}
-                      </div>
+                    <Skeleton className="h-48 w-full mb-4" />
+                    <Skeleton className="h-6 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-full" />
+                  </Card>) : events.length > 0 ? events.map(event => {
+                    const isExpanded = expandedEvents.has(event.id);
+                    const shouldTruncate = event.description && event.description.length > 120;
+                    const displayText = !shouldTruncate || isExpanded ? event.description : event.description.slice(0, 120) + '...';
+                    return <article key={event.id} id={`event-${event.id}`} className="card-lift scroll-mt-28 rounded-2xl bg-card border border-border overflow-hidden flex flex-col">
+                    <div className="relative aspect-[4/3] bg-gradient-plum overflow-hidden">
+                      {event.image_url ? <img src={event.image_url} alt={event.title} loading="lazy" className="w-full h-full object-contain bg-muted" /> : <div className="w-full h-full flex items-center justify-center"><Calendar className="h-16 w-16 text-accent/60" /></div>}
+                      <span className="absolute top-4 left-4 rounded-full bg-gradient-amber px-3 py-1 text-[11px] font-bold tracking-wider text-accent-foreground uppercase">
+                        {event.content_data.category || 'Event'}
+                      </span>
+                      <span className="absolute bottom-4 right-4 rounded-xl bg-background/95 px-3 py-2 font-display font-bold text-primary text-lg shadow">
+                        {event.content_data.date || 'TBD'}
+                      </span>
                     </div>
-                  </div>) : staticEvents.map((event, index) => <div key={index} className="bg-card border border-border rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+                    <div className="p-6 flex-1 flex flex-col gap-4">
+                      <h3 className="text-xl font-bold text-primary leading-snug">{event.title}</h3>
+                      <div>
+                        <p className="text-muted-foreground leading-relaxed">{displayText}</p>
+                        {shouldTruncate && <button onClick={() => toggleExpanded(event.id)} className="text-accent font-bold text-sm mt-2 hover:underline">
+                            {isExpanded ? 'Read Less' : 'Read More'}
+                          </button>}
+                      </div>
+                      <div className="space-y-2 text-sm text-foreground">
+                        <div className="flex items-center"><Clock className="h-4 w-4 mr-2 text-accent" />{event.content_data.time || 'TBD'}</div>
+                        <div className="flex items-center"><MapPin className="h-4 w-4 mr-2 text-accent" />{event.content_data.location || 'TBD'}</div>
+                      </div>
+                      {event.content_data.enable_rsvp && <div className="mt-auto pt-2">
+                          <Button asChild className="w-full">
+                            <Link to={`/events/${event.id}/register`}><Users className="h-4 w-4 mr-2" />Register Now</Link>
+                          </Button>
+                        </div>}
+                    </div>
+                  </article>;
+                  }) : staticEvents.map((event, index) => <div key={index} className="bg-card border border-border rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-3">

@@ -11,9 +11,9 @@ import { AIAssistant } from "@/components/AIAssistant";
 import { ProfileStatusBanner } from "@/components/auth/ProfileStatusBanner";
 import { ScrollReveal } from "@/components/shared/ScrollReveal";
 import { FeatureRouteGuard } from "@/components/shared/FeatureRouteGuard";
+import { BrandLoader } from "@/components/shared/BrandLoader";
 
 import { Suspense, lazy } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
 import { HelmetProvider } from 'react-helmet-async';
 
 // Lazy load pages for better performance
@@ -54,21 +54,8 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const PortalAccessManagement = lazy(() => import("./pages/PortalAccessManagement"));
 
-// Optimized loading fallback
-const PageLoader = () => (
-  <div className="min-h-screen bg-background">
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <Skeleton className="h-8 w-64 mb-4" />
-      <Skeleton className="h-4 w-full mb-2" />
-      <Skeleton className="h-4 w-3/4 mb-8" />
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[...Array(6)].map((_, i) => (
-          <Skeleton key={i} className="h-48 w-full" />
-        ))}
-      </div>
-    </div>
-  </div>
-);
+// Branded loading fallback for page transitions
+const PageLoader = () => <BrandLoader />;
 
 const queryClient = new QueryClient({
   defaultOptions: {

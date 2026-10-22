@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, MapPin, ArrowRight, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SectionLoader } from "@/components/shared/BrandLoader";
 
 interface EventContent {
   id: string;
@@ -133,10 +133,7 @@ const UpcomingEvents = () => {
     return (
       <section className="py-20 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Skeleton className="h-12 w-80 mb-10" />
-          <div className="grid md:grid-cols-3 gap-8">
-            {[1, 2, 3].map((i) => <Skeleton key={i} className="h-96 rounded-2xl" />)}
-          </div>
+          <SectionLoader label="Gathering events" />
         </div>
       </section>
     );

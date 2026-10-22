@@ -12,7 +12,7 @@ import { useEffect, useState, memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Calendar, User, ArrowRight, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SectionLoader } from "@/components/shared/BrandLoader";
 import { LazyImage } from "@/components/ui/lazy-image";
 import { Link } from "react-router-dom";
 import { getYouTubeEmbedUrl, getYouTubeThumbnail } from "@/utils/youtube";
@@ -94,9 +94,8 @@ export const LatestSermon = memo(() => {
   if (loading) {
     return (
       <section className="py-20 bg-lavender">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          <Skeleton className="h-12 w-80" />
-          <Skeleton className="h-96 w-full rounded-2xl" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <SectionLoader label="Loading messages" />
         </div>
       </section>
     );

@@ -64,9 +64,8 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SectionLoader } from "@/components/shared/BrandLoader";
 import { Calendar, Clock, MapPin, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 const Events = () => {
@@ -233,11 +232,7 @@ const Events = () => {
             </div>
             
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {loading ? [...Array(3)].map((_, i) => <Card key={i} className="p-6">
-                    <Skeleton className="h-48 w-full mb-4" />
-                    <Skeleton className="h-6 w-3/4 mb-2" />
-                    <Skeleton className="h-4 w-full" />
-                  </Card>) : events.length > 0 ? events.map(event => {
+              {loading ? <div className="col-span-full"><SectionLoader label="Gathering events" /></div> : events.length > 0 ? events.map(event => {
                     const isExpanded = expandedEvents.has(event.id);
                     const shouldTruncate = event.description && event.description.length > 120;
                     const displayText = !shouldTruncate || isExpanded ? event.description : event.description.slice(0, 120) + '...';

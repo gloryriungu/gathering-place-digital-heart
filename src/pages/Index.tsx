@@ -38,7 +38,7 @@ import { LiveMarquee } from "@/components/LiveMarquee";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Suspense, lazy, memo } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SectionLoader } from "@/components/shared/BrandLoader";
 
 // Lazy load non-critical components
 const UpcomingEvents = lazy(() => import("@/components/UpcomingEvents"));
@@ -47,15 +47,9 @@ const ConnectSection = lazy(() => import("@/components/ConnectSection"));
 const GivingSection = lazy(() => import("@/components/GivingSection"));
 
 const ComponentLoader = memo(() => (
-  <div className="py-20">
+  <div className="py-10">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <Skeleton className="h-8 w-64 mx-auto mb-4" />
-      <Skeleton className="h-4 w-96 mx-auto mb-8" />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {[...Array(3)].map((_, i) => (
-          <Skeleton key={i} className="h-48 w-full" />
-        ))}
-      </div>
+      <SectionLoader label="Loading" />
     </div>
   </div>
 ));

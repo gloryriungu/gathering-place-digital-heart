@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Star, Quote, Play } from "lucide-react";
+import { SectionLoader } from "@/components/shared/BrandLoader";
 
 interface Testimonial {
   id: string;
@@ -77,11 +78,7 @@ const Testimonials = ({
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <SectionLoader label="Loading testimonials" />;
   }
 
   if (testimonials.length === 0) {

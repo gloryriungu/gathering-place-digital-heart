@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SectionLoader } from "@/components/shared/BrandLoader";
 import { ShopCheckout } from "@/components/shop/ShopCheckout";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -494,22 +494,7 @@ const Shop = () => {
       <ShopCheckout open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen} cartItems={cart} onCheckoutComplete={handleCheckoutComplete} />
             
             {loading ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3, 4, 5, 6].map((i) => <Card key={i} className="overflow-hidden">
-                    <CardHeader className="p-0">
-                      <Skeleton className="h-48 w-full" />
-                    </CardHeader>
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <Skeleton className="h-6 w-3/4" />
-                        <Skeleton className="h-5 w-16" />
-                      </div>
-                      <Skeleton className="h-16 w-full mb-4" />
-                      <Skeleton className="h-8 w-20" />
-                    </CardContent>
-                    <CardFooter className="p-4 pt-0">
-                      <Skeleton className="h-10 w-full" />
-                    </CardFooter>
-                  </Card>)}
+                <div className="col-span-full"><SectionLoader label="Loading products" /></div>
               </div> : filteredProducts.length === 0 ? <div className="text-center py-16">
                 <ShoppingCart className="mx-auto h-16 w-16 text-muted-foreground" />
                 <h3 className="mt-4 text-xl font-semibold">No products found</h3>

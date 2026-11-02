@@ -9,6 +9,7 @@ import { Download, BookOpen, Clock, AlertCircle, Loader2, ShoppingBag, Library }
 import { format } from "date-fns";
 import { EmbeddedShop } from "@/components/shop/EmbeddedShop";
 import { EbookReader } from "@/components/reader/EbookReader";
+import { SectionLoader } from "@/components/shared/BrandLoader";
 
 interface DigitalPurchase {
   id: string;
@@ -187,9 +188,7 @@ export const MyDownloads = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
+          <SectionLoader label="Loading library" />
         </CardContent>
       </Card>
     );

@@ -7,6 +7,7 @@ import { CheckCircle2, XCircle, Loader2, ShoppingBag, Download, BookOpen } from 
 import { formatAmount } from "@/lib/paystack";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { SectionLoader } from "@/components/shared/BrandLoader";
 
 interface DigitalPurchase {
   id: string;
@@ -159,13 +160,7 @@ export default function ShopVerify() {
         <CardContent className="space-y-6">
           {status === 'verifying' && (
             <div className="text-center space-y-4">
-              <Loader2 className="w-16 h-16 mx-auto animate-spin text-primary" />
-              <div>
-                <h3 className="text-lg font-semibold">Verifying Payment</h3>
-                <p className="text-sm text-muted-foreground">
-                  Please wait while we confirm your payment...
-                </p>
-              </div>
+              <SectionLoader label="Verifying Payment" />
             </div>
           )}
 

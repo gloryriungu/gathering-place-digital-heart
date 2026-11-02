@@ -5,9 +5,10 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { formatAmount } from "@/lib/paystack";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { SectionLoader } from "@/components/shared/BrandLoader";
 
 const GiveVerify = () => {
   const [searchParams] = useSearchParams();
@@ -74,9 +75,8 @@ const GiveVerify = () => {
             <CardContent className="py-16">
               {status === 'verifying' && (
                 <div className="text-center">
-                  <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto mb-4" />
-                  <h2 className="text-2xl font-bold mb-2">Verifying Payment...</h2>
-                  <p className="text-muted-foreground">
+                  <SectionLoader label="Verifying Payment" />
+                  <p className="text-muted-foreground -mt-4">
                     Please wait while we confirm your payment
                   </p>
                 </div>

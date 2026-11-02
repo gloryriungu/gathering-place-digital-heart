@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, MapPin, ArrowRight, Users, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionLoader } from "@/components/shared/BrandLoader";
+import { markPageDataReady } from "@/lib/pageReadiness";
 
 interface EventContent {
   id: string;
@@ -82,6 +83,7 @@ const UpcomingEvents = () => {
       console.error('Error fetching events:', error);
     } finally {
       setLoading(false);
+      markPageDataReady('events');
     }
   };
 

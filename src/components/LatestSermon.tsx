@@ -14,6 +14,7 @@ import { Play, Calendar, User, ArrowRight, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionLoader } from "@/components/shared/BrandLoader";
 import { LazyImage } from "@/components/ui/lazy-image";
+import { markPageDataReady } from "@/lib/pageReadiness";
 import { Link } from "react-router-dom";
 import { getYouTubeEmbedUrl, getYouTubeThumbnail } from "@/utils/youtube";
 
@@ -68,6 +69,7 @@ export const LatestSermon = memo(() => {
       console.error("Error fetching watch page sermons:", error);
     } finally {
       setLoading(false);
+      markPageDataReady('sermons');
     }
   }, []);
 

@@ -23,6 +23,7 @@ import { Play, MapPin, ChevronDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
+import { markPageDataReady } from "@/lib/pageReadiness";
 
 interface HeroContent {
   id: string;
@@ -92,6 +93,7 @@ export const Hero = memo(() => {
       console.error('Error fetching hero content:', error);
     } finally {
       setLoading(false);
+      markPageDataReady('hero');
     }
   }, []);
 

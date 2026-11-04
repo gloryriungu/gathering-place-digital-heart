@@ -36,6 +36,16 @@ import logo from "@/assets/logo.png";
 import { PortalSwitcher } from "@/components/shared/PortalSwitcher";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
+import { useLiveStatus } from "@/hooks/useLiveStatus";
+
+const LiveBeacon = () => (
+  <span className="absolute -top-1.5 -right-1.5 flex items-center" aria-label="Live now" title="Live now">
+    <span className="relative flex h-3 w-3">
+      <span className="absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75 animate-ping" />
+      <span className="relative inline-flex h-3 w-3 rounded-full bg-destructive ring-2 ring-primary" />
+    </span>
+  </span>
+);
 
 
 export const Navigation = memo(() => {
@@ -48,6 +58,7 @@ export const Navigation = memo(() => {
   const { user, signOut } = useAuth();
   const { isVisible } = useFeatureFlags();
   const { socialLinks } = useSocialMedia();
+  const isLive = useLiveStatus();
 
 
   useEffect(() => {
@@ -175,9 +186,10 @@ export const Navigation = memo(() => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`px-3 py-1.5 rounded-full font-semibold text-[13px] tracking-[0.08em] transition-all duration-300 ${location.pathname.startsWith(item.href) ? "bg-gradient-amber text-accent-foreground" : "text-primary-foreground/85 hover:text-accent"}`}
+                className={`relative px-3 py-1.5 rounded-full font-semibold text-[13px] tracking-[0.08em] transition-all duration-300 ${location.pathname.startsWith(item.href) ? "bg-gradient-amber text-accent-foreground" : "text-primary-foreground/85 hover:text-accent"}`}
               >
                 {item.name}
+                {item.href === "/watch" && isLive && <LiveBeacon />}
               </Link>
             ))}
 
@@ -279,7 +291,10 @@ export const Navigation = memo(() => {
                   className="block px-3 py-3 text-white hover:text-gray-300 font-bold text-lg tracking-wide"
                   onClick={closeMenu}
                 >
-                  {item.name}
+                  <span className="relative inline-block pr-3">
+                    {item.name}
+                    {item.href === "/watch" && isLive && <LiveBeacon />}
+                  </span>
                 </Link>
               ))}
 

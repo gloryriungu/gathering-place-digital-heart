@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Video, Save, RefreshCw, Upload, X } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 
 interface WatchPageData {
   id?: string;
@@ -52,9 +54,15 @@ export const WatchPageManager = () => {
   });
   const [uploadingPoster, setUploadingPoster] = useState(false);
   const posterInputRef = useRef<HTMLInputElement>(null);
+  const [liveRow, setLiveRow] = useState<{ id: string; content_data: any } | null>(null);
+  const [liveForm, setLiveForm] = useState({ youtube_url: "", is_live: false });
+  const [liveLoading, setLiveLoading] = useState(true);
+  const [liveSaving, setLiveSaving] = useState(false);
+  const [liveToggling, setLiveToggling] = useState(false);
 
   useEffect(() => {
     fetchWatchPageData();
+    fetchLiveStreamData();
   }, []);
 
   const fetchWatchPageData = async () => {

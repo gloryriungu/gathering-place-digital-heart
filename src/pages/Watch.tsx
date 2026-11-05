@@ -121,7 +121,7 @@ const Watch = () => {
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
-      const merged = { ...(existing?.content_data || {}), youtube_url: nextUrl, is_live: nextIsLive };
+      const merged = { ...((existing?.content_data as Record<string, unknown>) || {}), youtube_url: nextUrl, is_live: nextIsLive };
       if (existing?.id) {
         const { error } = await supabase
           .from('media_content')

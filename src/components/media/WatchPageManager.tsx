@@ -313,6 +313,42 @@ export const WatchPageManager = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Live Stream Control */}
+          <div className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20 p-4 space-y-3">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-3">
+                <Badge variant={liveForm.is_live ? "default" : "secondary"} className={liveForm.is_live ? "bg-red-600 hover:bg-red-600" : ""}>
+                  {liveForm.is_live ? "LIVE" : "OFFLINE"}
+                </Badge>
+                <h3 className="text-lg font-semibold">Live Stream Control</h3>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground">
+                  {liveForm.is_live ? "On — visible on the Watch page" : "Currently off"}
+                </span>
+                <Switch
+                  checked={liveForm.is_live}
+                  onCheckedChange={handleToggleLive}
+                  disabled={liveToggling || liveLoading}
+                />
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Paste the YouTube live link and switch on when the service starts. The Watch page will show the live player, and the SERMONS menu item pulses red on every page until you switch it off.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Input
+                value={liveForm.youtube_url}
+                onChange={(e) => setLiveForm(prev => ({ ...prev, youtube_url: e.target.value }))}
+                placeholder="https://www.youtube.com/watch?v=... or https://youtube.com/live/..."
+                className="flex-1"
+              />
+              <Button onClick={handleSaveLive} disabled={liveSaving || liveLoading}>
+                {liveSaving ? "Saving..." : "Save Link"}
+              </Button>
+            </div>
+          </div>
+
           {/* Hero Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Hero Section</h3>

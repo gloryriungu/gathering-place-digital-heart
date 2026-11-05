@@ -172,7 +172,6 @@ const Watch = () => {
       }
 
       if (data && data.length > 0) {
-        setHasWatchPageData(true);
         const content = data[0].content_data as any;
         setWatchData({
           hero_title: content?.hero_title || watchData.hero_title,

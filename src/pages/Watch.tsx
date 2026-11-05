@@ -100,9 +100,60 @@ const Watch = () => {
         const content = data.content_data as any;
         setIsLive(content.is_live || false);
         setLiveStreamUrl(content.youtube_url || '');
+        setAdminLiveUrl(content.youtube_url || '');
       }
     } catch (error) {
       console.error('Error fetching live stream status:', error);
+    }
+  };
+
+  const saveAdminLive = async (nextIsLive: boolean, nextUrl: string) => {
+    setSavingAdminLive(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) {
+        toast.error('You must be signed in to manage the live stream');
+        return;
+      }
+      const { data: existing } = await supabase
+        .from('media_content')
+        .select('id, content_data')
+        .eq('content_type', 'live_stream')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const merged = { ...(existing?.content_data || {}), youtube_url: nextUrl, is_live: nextIsLive };
+      if (existing?.id) {
+        const { error } = await supabase
+          .from('media_content')
+          .update({ content_data: merged, updated_at: new Date().toISOString() })
+          .eq('id', existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('media_content')
+          .insert({
+            content_type: 'live_stream',
+            title: 'Live Stream',
+            description: 'Live stream control for the Watch page',
+            content_data: merged,
+            status: 'published',
+            created_by: userData.user.id
+          });
+        if (error) throw error;
+      }
+      setIsLive(nextIsLive);
+      setLiveStreamUrl(nextUrl);
+      if (nextIsLive && !nextUrl.trim()) {
+        toast.warning('Live stream is on — paste the YouTube link so viewers can watch');
+      } else {
+        toast.success(nextIsLive ? 'Live stream is on' : 'Live stream switched off');
+      }
+    } catch (error) {
+      console.error('Error updating live stream:', error);
+      toast.error('Failed to update the live stream');
+    } finally {
+      setSavingAdminLive(false);
     }
   };
 

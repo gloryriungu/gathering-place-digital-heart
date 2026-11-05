@@ -64,7 +64,6 @@ const Watch = () => {
   const [loading, setLoading] = useState(true);
   const [isLive, setIsLive] = useState(false);
   const [liveStreamUrl, setLiveStreamUrl] = useState<string>('');
-  const [hasWatchPageData, setHasWatchPageData] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [searchName, setSearchName] = useState("");
   const [filterDate, setFilterDate] = useState("");

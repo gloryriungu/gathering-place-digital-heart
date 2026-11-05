@@ -7,6 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Play, Calendar, Clock, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getYouTubeEmbedUrl } from "@/utils/youtube";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface WatchPageData {
   hero_title: string;

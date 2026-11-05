@@ -64,10 +64,16 @@ const Watch = () => {
   const [showAll, setShowAll] = useState(false);
   const [searchName, setSearchName] = useState("");
   const [filterDate, setFilterDate] = useState("");
+  const { userRoles, isAuthenticated } = useAuth();
+  const canManageLive = isAuthenticated && userRoles.some((r) => ["media", "it", "admin", "founder"].includes(r));
+  const [adminLiveUrl, setAdminLiveUrl] = useState("");
+  const [savingAdminLive, setSavingAdminLive] = useState(false);
 
   useEffect(() => {
     fetchWatchPageData();
     fetchLiveStreamStatus();
+    const interval = setInterval(fetchLiveStreamStatus, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchLiveStreamStatus = async () => {

@@ -213,6 +213,48 @@ const Watch = () => {
         structuredData={videoSchema} />
 
       <Navigation />
+      {canManageLive && (
+        <div className="sticky top-20 z-40 border-b border-amber/20 bg-plum-deep/95 backdrop-blur text-cream">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <Badge variant="outline" className="border-red-500/60 text-red-400 uppercase tracking-widest text-[10px] shrink-0">
+              Live control
+            </Badge>
+            <Badge variant={isLive ? "default" : "secondary"} className={isLive ? "bg-red-600 hover:bg-red-600 shrink-0" : "shrink-0"}>
+              {isLive ? "LIVE" : "OFFLINE"}
+            </Badge>
+            <Switch
+              checked={isLive}
+              onCheckedChange={(v) => saveAdminLive(v, liveStreamUrl || adminLiveUrl)}
+              disabled={savingAdminLive}
+            />
+            <Input
+              value={adminLiveUrl}
+              onChange={(e) => setAdminLiveUrl(e.target.value)}
+              placeholder="Paste the YouTube live link..."
+              className="flex-1 min-w-[220px] h-8 bg-card/20 border-cream/20 text-cream placeholder:text-cream/40"
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-amber/50 text-amber hover:bg-amber hover:text-primary shrink-0"
+              onClick={() => saveAdminLive(isLive, adminLiveUrl)}
+              disabled={savingAdminLive}
+            >
+              {savingAdminLive ? "Saving..." : "Save link"}
+            </Button>
+            {liveStreamUrl && (
+              <a
+                href={liveStreamUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs underline text-cream/70 hover:text-cream shrink-0"
+              >
+                Open stream
+              </a>
+            )}
+          </div>
+        </div>
+      )}
       <div className="pt-20">
         {/* Hero Section */}
         <section className="relative bg-plum-deep text-cream overflow-hidden min-h-[calc(100vh-5rem)] flex items-center">
@@ -252,7 +294,7 @@ const Watch = () => {
         </section>
 
         {/* Live Service */}
-        {hasWatchPageData && isLive &&
+        {isLive &&
         <section id="live-service-section" className="py-20 bg-card">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">

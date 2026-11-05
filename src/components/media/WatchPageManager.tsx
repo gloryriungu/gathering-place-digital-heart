@@ -100,6 +100,94 @@ export const WatchPageManager = () => {
     }
   };
 
+  const fetchLiveStreamData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('media_content')
+        .select('*')
+        .eq('content_type', 'live_stream')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      if (data) {
+        setLiveRow({ id: data.id, content_data: data.content_data || {} });
+        setLiveForm({
+          youtube_url: (data.content_data as any)?.youtube_url || "",
+          is_live: Boolean((data.content_data as any)?.is_live)
+        });
+      } else {
+        setLiveRow(null);
+      }
+    } catch (error) {
+      console.error('Error fetching live stream settings:', error);
+    } finally {
+      setLiveLoading(false);
+    }
+  };
+
+  const persistLive = async (nextIsLive: boolean, nextUrl: string) => {
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) {
+      toast.error('You must be logged in to save changes');
+      return false;
+    }
+    const merged = { ...(liveRow?.content_data || {}), youtube_url: nextUrl, is_live: nextIsLive };
+    if (liveRow?.id) {
+      const { error } = await supabase
+        .from('media_content')
+        .update({ content_data: merged, updated_at: new Date().toISOString() })
+        .eq('id', liveRow.id);
+      if (error) throw error;
+      setLiveRow({ id: liveRow.id, content_data: merged });
+    } else {
+      const { data: created, error } = await supabase
+        .from('media_content')
+        .insert({
+          content_type: 'live_stream',
+          title: 'Live Stream',
+          description: 'Live stream control for the Watch page',
+          content_data: merged,
+          status: 'published',
+          created_by: userData.user.id
+        })
+        .select('id')
+        .single();
+      if (error) throw error;
+      setLiveRow({ id: created.id, content_data: merged });
+    }
+    return true;
+  };
+
+  const handleToggleLive = async () => {
+    const next = !liveForm.is_live;
+    setLiveForm(prev => ({ ...prev, is_live: next }));
+    setLiveToggling(true);
+    try {
+      await persistLive(next, liveForm.youtube_url);
+      toast.success(next ? 'Live stream activated' : 'Live stream deactivated');
+    } catch (error) {
+      console.error('Error updating live status:', error);
+      toast.error('Failed to update live status');
+      setLiveForm(prev => ({ ...prev, is_live: !next }));
+    } finally {
+      setLiveToggling(false);
+    }
+  };
+
+  const handleSaveLive = async () => {
+    setLiveSaving(true);
+    try {
+      await persistLive(liveForm.is_live, liveForm.youtube_url);
+      toast.success('Live stream settings saved');
+    } catch (error) {
+      console.error('Error saving live stream:', error);
+      toast.error('Failed to save live stream settings');
+    } finally {
+      setLiveSaving(false);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -225,6 +313,42 @@ export const WatchPageManager = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Live Stream Control */}
+          <div className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20 p-4 space-y-3">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-3">
+                <Badge variant={liveForm.is_live ? "default" : "secondary"} className={liveForm.is_live ? "bg-red-600 hover:bg-red-600" : ""}>
+                  {liveForm.is_live ? "LIVE" : "OFFLINE"}
+                </Badge>
+                <h3 className="text-lg font-semibold">Live Stream Control</h3>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground">
+                  {liveForm.is_live ? "On — visible on the Watch page" : "Currently off"}
+                </span>
+                <Switch
+                  checked={liveForm.is_live}
+                  onCheckedChange={handleToggleLive}
+                  disabled={liveToggling || liveLoading}
+                />
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Paste the YouTube live link and switch on when the service starts. The Watch page will show the live player, and the SERMONS menu item pulses red on every page until you switch it off.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Input
+                value={liveForm.youtube_url}
+                onChange={(e) => setLiveForm(prev => ({ ...prev, youtube_url: e.target.value }))}
+                placeholder="https://www.youtube.com/watch?v=... or https://youtube.com/live/..."
+                className="flex-1"
+              />
+              <Button onClick={handleSaveLive} disabled={liveSaving || liveLoading}>
+                {liveSaving ? "Saving..." : "Save Link"}
+              </Button>
+            </div>
+          </div>
+
           {/* Hero Section */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Hero Section</h3>

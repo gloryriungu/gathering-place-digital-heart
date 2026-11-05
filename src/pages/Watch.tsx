@@ -7,6 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Play, Calendar, Clock, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getYouTubeEmbedUrl } from "@/utils/youtube";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface WatchPageData {
   hero_title: string;
@@ -60,14 +64,19 @@ const Watch = () => {
   const [loading, setLoading] = useState(true);
   const [isLive, setIsLive] = useState(false);
   const [liveStreamUrl, setLiveStreamUrl] = useState<string>('');
-  const [hasWatchPageData, setHasWatchPageData] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [searchName, setSearchName] = useState("");
   const [filterDate, setFilterDate] = useState("");
+  const { userRoles, isAuthenticated } = useAuth();
+  const canManageLive = isAuthenticated && userRoles.some((r) => ["media", "it", "admin", "founder"].includes(r));
+  const [adminLiveUrl, setAdminLiveUrl] = useState("");
+  const [savingAdminLive, setSavingAdminLive] = useState(false);
 
   useEffect(() => {
     fetchWatchPageData();
     fetchLiveStreamStatus();
+    const interval = setInterval(fetchLiveStreamStatus, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchLiveStreamStatus = async () => {
@@ -90,9 +99,60 @@ const Watch = () => {
         const content = data.content_data as any;
         setIsLive(content.is_live || false);
         setLiveStreamUrl(content.youtube_url || '');
+        setAdminLiveUrl(content.youtube_url || '');
       }
     } catch (error) {
       console.error('Error fetching live stream status:', error);
+    }
+  };
+
+  const saveAdminLive = async (nextIsLive: boolean, nextUrl: string) => {
+    setSavingAdminLive(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) {
+        toast.error('You must be signed in to manage the live stream');
+        return;
+      }
+      const { data: existing } = await supabase
+        .from('media_content')
+        .select('id, content_data')
+        .eq('content_type', 'live_stream')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const merged = { ...((existing?.content_data as Record<string, unknown>) || {}), youtube_url: nextUrl, is_live: nextIsLive };
+      if (existing?.id) {
+        const { error } = await supabase
+          .from('media_content')
+          .update({ content_data: merged, updated_at: new Date().toISOString() })
+          .eq('id', existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('media_content')
+          .insert({
+            content_type: 'live_stream',
+            title: 'Live Stream',
+            description: 'Live stream control for the Watch page',
+            content_data: merged,
+            status: 'published',
+            created_by: userData.user.id
+          });
+        if (error) throw error;
+      }
+      setIsLive(nextIsLive);
+      setLiveStreamUrl(nextUrl);
+      if (nextIsLive && !nextUrl.trim()) {
+        toast.warning('Live stream is on — paste the YouTube link so viewers can watch');
+      } else {
+        toast.success(nextIsLive ? 'Live stream is on' : 'Live stream switched off');
+      }
+    } catch (error) {
+      console.error('Error updating live stream:', error);
+      toast.error('Failed to update the live stream');
+    } finally {
+      setSavingAdminLive(false);
     }
   };
 
@@ -112,7 +172,6 @@ const Watch = () => {
       }
 
       if (data && data.length > 0) {
-        setHasWatchPageData(true);
         const content = data[0].content_data as any;
         setWatchData({
           hero_title: content?.hero_title || watchData.hero_title,
@@ -152,6 +211,48 @@ const Watch = () => {
         structuredData={videoSchema} />
 
       <Navigation />
+      {canManageLive && (
+        <div className="sticky top-20 z-40 border-b border-amber/20 bg-plum-deep/95 backdrop-blur text-cream">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <Badge variant="outline" className="border-red-500/60 text-red-400 uppercase tracking-widest text-[10px] shrink-0">
+              Live control
+            </Badge>
+            <Badge variant={isLive ? "default" : "secondary"} className={isLive ? "bg-red-600 hover:bg-red-600 shrink-0" : "shrink-0"}>
+              {isLive ? "LIVE" : "OFFLINE"}
+            </Badge>
+            <Switch
+              checked={isLive}
+              onCheckedChange={(v) => saveAdminLive(v, liveStreamUrl || adminLiveUrl)}
+              disabled={savingAdminLive}
+            />
+            <Input
+              value={adminLiveUrl}
+              onChange={(e) => setAdminLiveUrl(e.target.value)}
+              placeholder="Paste the YouTube live link..."
+              className="flex-1 min-w-[220px] h-8 bg-card/20 border-cream/20 text-cream placeholder:text-cream/40"
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-amber/50 text-amber hover:bg-amber hover:text-primary shrink-0"
+              onClick={() => saveAdminLive(isLive, adminLiveUrl)}
+              disabled={savingAdminLive}
+            >
+              {savingAdminLive ? "Saving..." : "Save link"}
+            </Button>
+            {liveStreamUrl && (
+              <a
+                href={liveStreamUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs underline text-cream/70 hover:text-cream shrink-0"
+              >
+                Open stream
+              </a>
+            )}
+          </div>
+        </div>
+      )}
       <div className="pt-20">
         {/* Hero Section */}
         <section className="relative bg-plum-deep text-cream overflow-hidden min-h-[calc(100vh-5rem)] flex items-center">
@@ -191,7 +292,7 @@ const Watch = () => {
         </section>
 
         {/* Live Service */}
-        {hasWatchPageData && isLive &&
+        {isLive &&
         <section id="live-service-section" className="py-20 bg-card">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">

@@ -38,12 +38,17 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import { useLiveStatus } from "@/hooks/useLiveStatus";
 
-const LiveBeacon = () => (
-  <span className="absolute -top-1.5 -right-1.5 flex items-center" aria-label="Live now" title="Live now">
-    <span className="relative flex h-3 w-3">
-      <span className="absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75 animate-ping" />
-      <span className="relative inline-flex h-3 w-3 rounded-full bg-destructive ring-2 ring-primary" />
+const LiveBadge = () => (
+  <span
+    className="absolute -top-2.5 -right-2 z-10 inline-flex items-center gap-1 rounded-full bg-destructive px-1.5 py-1 text-[9px] font-bold leading-none tracking-wider text-destructive-foreground shadow-sm ring-2 ring-primary"
+    aria-label="Live now"
+    title="Live now"
+  >
+    <span className="relative flex h-1.5 w-1.5 shrink-0">
+      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive-foreground opacity-75" />
+      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-destructive-foreground" />
     </span>
+    LIVE
   </span>
 );
 
@@ -189,7 +194,7 @@ export const Navigation = memo(() => {
                 className={`relative px-3 py-1.5 rounded-full font-semibold text-[13px] tracking-[0.08em] transition-all duration-300 ${location.pathname.startsWith(item.href) ? "bg-gradient-amber text-accent-foreground" : "text-primary-foreground/85 hover:text-accent"}`}
               >
                 {item.name}
-                {item.href === "/watch" && isLive && <LiveBeacon />}
+                {item.href === "/watch" && isLive && <LiveBadge />}
               </Link>
             ))}
 
@@ -293,7 +298,7 @@ export const Navigation = memo(() => {
                 >
                   <span className="relative inline-block pr-3">
                     {item.name}
-                    {item.href === "/watch" && isLive && <LiveBeacon />}
+                    {item.href === "/watch" && isLive && <LiveBadge />}
                   </span>
                 </Link>
               ))}

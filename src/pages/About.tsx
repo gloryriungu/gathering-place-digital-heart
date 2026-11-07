@@ -37,7 +37,6 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { supabase } from "@/integrations/supabase/client";
-import { BookOpen, Radio, Sprout, UsersRound } from "lucide-react";
 
 interface AboutContent {
   hero_title: string;
@@ -204,40 +203,6 @@ const About = () => {
               <p className="mt-5 text-sm leading-6 text-muted-foreground">Fellowships are identified in Sierra Leone, Europe, Canada, the United States and the Middle East.</p>
             </div>
 
-            <div className="mt-10">
-              <div className="mb-5 flex items-end justify-between gap-4">
-                <div>
-                  <p className="eyebrow mb-2">A growing network</p>
-                  <h3 className="font-display text-2xl sm:text-3xl font-bold text-primary">Branches across six countries</h3>
-                </div>
-                <UsersRound className="mb-1 hidden h-6 w-6 text-accent sm:block" aria-hidden="true" />
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {branchGroups.map((group) => (
-                  <div key={group.country} className="rounded-md border border-border bg-card p-4">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <h4 className="font-semibold text-foreground">{group.country}</h4>
-                      <span className="text-sm font-semibold text-accent">{group.count} {group.count === 1 ? "branch" : "branches"}</span>
-                    </div>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{group.locations}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-12">
-              <p className="eyebrow mb-2">Beyond the local church</p>
-              <h3 className="font-display text-2xl sm:text-3xl font-bold text-primary">Initiatives in the wider network</h3>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {ministryInitiatives.map(({ title, description, icon: Icon }) => (
-                  <div key={title} className="rounded-md bg-secondary p-5">
-                    <Icon className="mb-4 h-5 w-5 text-accent" aria-hidden="true" />
-                    <h4 className="font-semibold leading-snug text-primary">{title}</h4>
-                    <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         </section>
 
@@ -319,21 +284,5 @@ const About = () => {
     </div>
   );
 };
-
-const branchGroups = [
-  { country: "Kenya", count: 10, locations: "Nairobi, Kisumu, Eldoret, Busia, Kitale, Maili Tatu, Saboti, Muringene, Kiengu and Kathelwa" },
-  { country: "Uganda", count: 4, locations: "Kampala, Mbarara, Atira and Lira" },
-  { country: "Tanzania", count: 1, locations: "Dar es Salaam" },
-  { country: "Nigeria", count: 1, locations: "Lagos" },
-  { country: "United Arab Emirates", count: 1, locations: "Dubai" },
-  { country: "Pakistan", count: 1, locations: "Lahore" },
-];
-
-const ministryInitiatives = [
-  { title: "Testimony TV", description: "Television and digital broadcasting", icon: Radio },
-  { title: "Testimony FM", description: "Radio broadcasting", icon: Radio },
-  { title: "Testimony Prophetic Bible Institute", description: "Christian training and biblical teaching", icon: BookOpen },
-  { title: "Project LIAM Foundation", description: "Youth empowerment and development", icon: Sprout },
-];
 
 export default About;

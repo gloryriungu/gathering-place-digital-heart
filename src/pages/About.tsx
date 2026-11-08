@@ -33,9 +33,12 @@
  * - Flexible beliefs and leadership arrays can be extended
  */
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, ChevronDown, ChevronUp, MapPin } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
 interface AboutContent {
@@ -71,6 +74,7 @@ const About = () => {
     ]
   });
   const [loading, setLoading] = useState(true);
+  const [storyExpanded, setStoryExpanded] = useState(false);
 
   useEffect(() => {
     fetchAboutContent();
@@ -130,6 +134,20 @@ const About = () => {
     }
   };
 
+  const storyWords = content.story_content.trim().split(/\s+/);
+  const hasMoreStory = storyWords.length > 65;
+  const previewWords = storyWords.slice(0, 65).join(" ");
+  const sentenceEnd = Math.max(
+    previewWords.lastIndexOf(". "),
+    previewWords.lastIndexOf("! "),
+    previewWords.lastIndexOf("? "),
+  );
+  const storyPreview = hasMoreStory
+    ? sentenceEnd >= 0
+      ? previewWords.slice(0, sentenceEnd + 1)
+      : `${previewWords}…`
+    : content.story_content;
+
   return (
     <div className="min-h-screen bg-background">
       <SEO 
@@ -161,8 +179,20 @@ const About = () => {
                 <p className="eyebrow mb-4">Established in 2017 · Tushiyah Ministry</p>
                 <h2 className="font-display text-4xl sm:text-5xl font-bold text-primary mb-6">{content.story_title}</h2>
                 <div className="text-base sm:text-lg text-muted-foreground leading-8 whitespace-pre-line">
-                  {content.story_content}
+                  {storyExpanded ? content.story_content : storyPreview}
                 </div>
+                {hasMoreStory && (
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="mt-3 h-auto px-0 text-primary"
+                    aria-expanded={storyExpanded}
+                    onClick={() => setStoryExpanded((expanded) => !expanded)}
+                  >
+                    {storyExpanded ? "Read less" : "Read more"}
+                    {storyExpanded ? <ChevronUp aria-hidden="true" /> : <ChevronDown aria-hidden="true" />}
+                  </Button>
+                )}
               </div>
               <div className="aspect-[4/3] overflow-hidden rounded-md border border-border bg-muted">
                 {content.story_image_url ? (
@@ -201,6 +231,22 @@ const About = () => {
                 </div>
               </div>
               <p className="mt-5 text-sm leading-6 text-muted-foreground">Fellowships are identified in Sierra Leone, Europe, Canada, the United States and the Middle East.</p>
+            </div>
+
+            <div className="mt-10 flex flex-col gap-6 border-l-4 border-accent bg-secondary/40 px-6 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+              <div className="flex gap-4">
+                <MapPin className="mt-1 h-6 w-6 shrink-0 text-primary" aria-hidden="true" />
+                <div>
+                  <h3 className="font-display text-2xl font-bold text-primary">Plan Your Visit</h3>
+                  <p className="mt-1 text-muted-foreground">Find campus locations and service times.</p>
+                </div>
+              </div>
+              <Button asChild size="lg" className="shrink-0">
+                <Link to="/visit-us">
+                  Explore locations & times
+                  <ArrowRight aria-hidden="true" />
+                </Link>
+              </Button>
             </div>
 
           </div>

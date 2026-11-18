@@ -138,7 +138,7 @@ export const ServiceTimes = () => {
             </div>
           </div>
           <Button asChild variant="outline" className="shrink-0">
-            <Link to="/visit-us">Get Directions <ArrowRight className="h-4 w-4 ml-2" /></Link>
+            <Link to="/visit-us#find-us">Get Directions <ArrowRight className="h-4 w-4 ml-2" /></Link>
           </Button>
         </div>
       </div>

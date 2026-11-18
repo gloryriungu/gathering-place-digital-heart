@@ -141,6 +141,12 @@ const VisitUs = () => {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    if (window.location.hash !== '#find-us') return;
+    const t = setTimeout(() => document.getElementById('find-us')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+    return () => clearTimeout(t);
+  }, [loading]);
+
   const handleGetDirections = () => {
     window.open(content.directions_url, '_blank');
   };
@@ -215,7 +221,7 @@ const VisitUs = () => {
         </div>
 
         {/* Find Us Section with Map */}
-        <div className="mb-16">
+        <div id="find-us" className="mb-16 scroll-mt-24">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">Find Us</h2>
             <p className="text-muted-foreground">Our church location</p>

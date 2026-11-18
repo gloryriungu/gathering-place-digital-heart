@@ -4,7 +4,7 @@ import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Play, Calendar, Clock, Search } from "lucide-react";
+import { Play, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getYouTubeEmbedUrl } from "@/utils/youtube";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -291,56 +291,29 @@ const Watch = () => {
           </div>
         </section>
 
-        {/* Live Service */}
+        {/* Live player */}
         {isLive &&
-        <section id="live-service-section" className="py-20 bg-card">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">{watchData.live_service_title}</h2>
-              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-                {watchData.live_service_description}
-              </p>
-            </div>
-            
-            <div className="max-w-4xl mx-auto">
-              <div className="aspect-video bg-plum-deep rounded-lg overflow-hidden mb-8">
-                {isLive && liveStreamUrl && getYouTubeEmbedUrl(liveStreamUrl) ?
-                <iframe
-                  width="100%"
-                  height="100%"
-                  src={getYouTubeEmbedUrl(liveStreamUrl) || ''}
-                  title="Live Service Stream"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full" /> :
-
-
-                <div className="flex items-center justify-center h-full text-center text-cream">
-                    <div>
-                      <Play className="h-20 w-20 mx-auto mb-4 opacity-60" />
-                      <p className="text-xl">TOT International Live Stream</p>
-                      <p className="text-cream/80">Next service: Sunday 9:00 AM EAT</p>
-                    </div>
-                  </div>
-                }
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-8 text-center">
-                <div className="bg-lavender p-6 rounded-lg">
-                  <Calendar className="h-8 w-8 mx-auto mb-4 text-primary" />
-                  <h3 className="text-xl font-bold text-primary mb-2">Service Times</h3>
-                  {watchData.service_times.split('\n').map((time, index) =>
-                  <p key={index} className="text-muted-foreground">{time}</p>
-                  )}
-                </div>
-                <div className="bg-lavender p-6 rounded-lg">
-                  <Clock className="h-8 w-8 mx-auto mb-4 text-primary" />
-                  <h3 className="text-xl font-bold text-primary mb-2">Duration</h3>
-                  <p className="text-muted-foreground">Approximately 2 hours</p>
-                  <p className="text-muted-foreground">Including worship & message</p>
+        <section id="live-service-section" className="py-12 bg-card">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="aspect-video bg-plum-deep rounded-lg overflow-hidden">
+              {liveStreamUrl && getYouTubeEmbedUrl(liveStreamUrl) ?
+              <iframe
+                width="100%"
+                height="100%"
+                src={getYouTubeEmbedUrl(liveStreamUrl) || ''}
+                title="Live Service Stream"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="w-full h-full" /> :
+              <div className="flex items-center justify-center h-full text-center text-cream">
+                <div>
+                  <Play className="h-20 w-20 mx-auto mb-4 opacity-60" />
+                  <p className="text-xl">TOT International Live Stream</p>
+                  <p className="text-cream/80">Next service: Sunday 9:00 AM EAT</p>
                 </div>
               </div>
+              }
             </div>
           </div>
         </section>

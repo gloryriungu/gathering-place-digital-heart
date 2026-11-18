@@ -1,20 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Clock, Phone, Mail, Users, Car, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-
-// Fix for default marker icons in Leaflet with React
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png'
-});
 interface ServiceTime {
   name: string;
   time: string;
@@ -37,6 +27,7 @@ interface VisitUsContent {
   map_longitude: number;
   map_zoom: number;
   directions_url: string;
+  map_embed_url: string;
   what_to_expect: WhatToExpect[];
   cta_title: string;
   cta_description: string;
@@ -73,6 +64,7 @@ const defaultContent: VisitUsContent = {
   map_longitude: 36.8219,
   map_zoom: 15,
   directions_url: "https://maps.app.goo.gl/GtZ4PFYSktNGNbeA7",
+  map_embed_url: "",
   what_to_expect: [{
     title: "Warm Welcome",
     description: "Our friendly ushers will greet you and help you find the perfect seat."
@@ -92,50 +84,24 @@ const iconMap: Record<string, any> = {
   "Service Duration": Clock
 };
 
-// Vanilla Leaflet Map Component
-const LeafletMap = ({
-  lat,
-  lng,
-  zoom,
-  addressLine1
-}: {
-  lat: number;
-  lng: number;
-  zoom: number;
-  addressLine1: string;
-}) => {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
-  useEffect(() => {
-    if (!mapContainerRef.current || mapRef.current) return;
-
-    // Initialize map
-    mapRef.current = L.map(mapContainerRef.current, {
-      scrollWheelZoom: false
-    }).setView([lat, lng], zoom);
-
-    // Add tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(mapRef.current);
-
-    // Add marker with popup
-    const marker = L.marker([lat, lng]).addTo(mapRef.current);
-    marker.bindPopup(`<div style="text-align: center;"><strong>TOT International</strong><br/>${addressLine1}</div>`);
-
-    // Cleanup
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
-  }, [lat, lng, zoom, addressLine1]);
-  return <div ref={mapContainerRef} style={{
-    height: '100%',
-    width: '100%'
-  }} />;
+// Accepts a pasted Google Maps embed URL or full <iframe> snippet; falls back to a coordinate query.
+export const resolveMapEmbedUrl = (raw: string, lat: number, lng: number, zoom: number) => {
+  const trimmed = (raw || "").trim();
+  const src = trimmed.match(/src=["']([^"']+)["']/i)?.[1] ?? trimmed;
+  if (/^https:\/\/(www\.)?google\.[a-z.]+\/maps/i.test(src)) return src;
+  return `https://www.google.com/maps?q=${lat},${lng}&z=${zoom}&output=embed`;
 };
+
+const GoogleMapEmbed = ({ src, title }: { src: string; title: string }) => (
+  <iframe
+    src={src}
+    title={title}
+    className="absolute inset-0 h-full w-full border-0"
+    loading="lazy"
+    allowFullScreen
+    referrerPolicy="no-referrer-when-downgrade"
+  />
+);
 const VisitUs = () => {
   const [content, setContent] = useState<VisitUsContent>(defaultContent);
   const [loading, setLoading] = useState(true);
@@ -256,9 +222,9 @@ const VisitUs = () => {
           </div>
           
           <div className="grid lg:grid-cols-2 gap-8">
-            {/* Map — isolate keeps Leaflet's high z-indexes from covering the fixed nav */}
-            <div className="h-[400px] rounded-xl overflow-hidden shadow-lg border border-border isolate relative z-0">
-              <LeafletMap lat={content.map_latitude} lng={content.map_longitude} zoom={content.map_zoom} addressLine1={content.address_line1} />
+            {/* Map — lazy-loaded Google Maps embed */}
+            <div className="h-[300px] sm:h-[400px] rounded-xl overflow-hidden shadow-lg border border-border isolate relative z-0">
+              <GoogleMapEmbed src={resolveMapEmbedUrl(content.map_embed_url, content.map_latitude, content.map_longitude, content.map_zoom)} title={`Map: ${content.address_line1}`} />
             </div>
 
             {/* Contact Info */}

@@ -28,6 +28,7 @@ interface VisitUsContent {
   map_longitude: string;
   map_zoom: string;
   directions_url: string;
+  map_embed_url: string;
   what_to_expect: Array<{ title: string; description: string }>;
   cta_title: string;
   cta_description: string;
@@ -56,6 +57,7 @@ export const VisitUsPageManager = () => {
     map_longitude: "36.8219",
     map_zoom: "15",
     directions_url: "https://maps.app.goo.gl/GtZ4PFYSktNGNbeA7",
+    map_embed_url: "",
     what_to_expect: [
       { title: "Warm Welcome", description: "Our friendly ushers will greet you and help you find the perfect seat." },
       { title: "Parking", description: "Free parking is available on-site with dedicated spaces for visitors." },
@@ -128,6 +130,7 @@ export const VisitUsPageManager = () => {
         { section_name: 'map_latitude', content: content.map_latitude, content_type: 'text' },
         { section_name: 'map_longitude', content: content.map_longitude, content_type: 'text' },
         { section_name: 'map_zoom', content: content.map_zoom, content_type: 'text' },
+        { section_name: 'map_embed_url', content: content.map_embed_url, content_type: 'text' },
         { section_name: 'directions_url', content: content.directions_url, content_type: 'text' },
         { section_name: 'what_to_expect', content: JSON.stringify(content.what_to_expect), content_type: 'json' },
         { section_name: 'cta_title', content: content.cta_title, content_type: 'text' },
@@ -432,6 +435,18 @@ export const VisitUsPageManager = () => {
                   placeholder="15"
                 />
               </div>
+            </div>
+            <div className="mt-4">
+              <Label htmlFor="map_embed_url">Google Maps Embed URL</Label>
+              <Input
+                id="map_embed_url"
+                value={content.map_embed_url}
+                onChange={(e) => setContent(prev => ({ ...prev, map_embed_url: e.target.value }))}
+                placeholder="https://www.google.com/maps/embed?pb=... or https://www.google.com/maps?q=Church+Name&output=embed"
+              />
+              <p className="text-sm text-muted-foreground mt-1">
+                In Google Maps: Share → Embed a map → copy the HTML (paste the whole iframe or just its link). Leave empty to pin the latitude/longitude above.
+              </p>
             </div>
             <div className="mt-4">
               <Label htmlFor="directions_url">Google Maps Directions URL</Label>
